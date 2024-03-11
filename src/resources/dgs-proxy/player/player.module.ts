@@ -6,4 +6,4 @@ import { PlayerController } from './player.controller';
   controllers: [PlayerController],
   providers: [PlayerService],
 })
-export class PlayerModule {}
+export class ProxyPlayerModule {}
