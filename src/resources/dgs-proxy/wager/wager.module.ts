@@ -7,4 +7,4 @@ import { WagerController } from './wager.controller';
   controllers: [WagerController],
   providers: [WagerService],
 })
-export class WagerModule {}
+export class ProxyWagerModule {}
