@@ -9,45 +9,45 @@ export class WagerService {
   constructor() {}
 
   async GetActiveLeagues(/*createWagerDto: CreateWagerDto*/) {
-    const requestUrl = 'http://192.168.5.178:86/ProxyWager.asmx/GetActiveLeagues';
-    const formData = new URLSearchParams(
-      {    IdBook: "1",  }
-    ); 
-    const requestConfig = {        
-      method: "POST",        
-      body: formData,        
-      headers: new Headers(
-        {          
-          "content-type": "application/x-www-form-urlencoded",        
-        }
-      ),      
-    };
+    // const requestUrl = 'http://192.168.5.178:86/ProxyWager.asmx/GetActiveLeagues';
+    // const formData = new URLSearchParams(
+    //   {    IdBook: "1",  }
+    // ); 
+    // const requestConfig = {        
+    //   method: "POST",        
+    //   body: formData,        
+    //   headers: new Headers(
+    //     {          
+    //       "content-type": "application/x-www-form-urlencoded",        
+    //     }
+    //   ),      
+    // };
 
-    try {    
-      const response = await fetch( 
-        requestUrl,  
-        requestConfig    
-      );    
-      const data = await response.text();    
-      const optionsParser = {    
-        ignoreAttributes: false,    
-        attributeNamePrefix: "",    
-        attributesGroupName: "",  
-      }
-      const parser = new XMLParser(optionsParser);
-      let xmlParsed = parser.parse(data);    
-      xmlParsed = parser.parse(xmlParsed.string["#text"])['xml']??'';    
-      return xmlParsed;  
-    } 
-    catch (error) {    
-      throw new ForbiddenException('API not available:' + error);
-    }
+    // try {    
+    //   const response = await fetch( 
+    //     requestUrl,  
+    //     requestConfig    
+    //   );    
+    //   const data = await response.text();    
+    //   const optionsParser = {    
+    //     ignoreAttributes: false,    
+    //     attributeNamePrefix: "",    
+    //     attributesGroupName: "",  
+    //   }
+    //   const parser = new XMLParser(optionsParser);
+    //   let xmlParsed = parser.parse(data);    
+    //   xmlParsed = parser.parse(xmlParsed.string["#text"])['xml']??'';    
+    //   return xmlParsed;  
+    // } 
+    // catch (error) {    
+    //   throw new ForbiddenException('API not available:' + error);
+    // }
   }
 
-  async GetAnonActiveLeagues() {
+  async GetAnonActiveLeagues(book_id) {
     const requestUrl = 'http://192.168.5.178:86/ProxyWager.asmx/GetAnonActiveLeagues';
     const formData = new URLSearchParams(
-      {    IdBook: "1",  }
+      {    IdBook: book_id,  }
     ); 
     const requestConfig = {        
       method: "POST",        
@@ -60,7 +60,6 @@ export class WagerService {
     };
 
     try {    
-      console.log(formData);    
       const response = await fetch( 
         requestUrl,  
         requestConfig    
