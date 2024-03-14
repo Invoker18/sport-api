@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { XMLParser } from 'fast-xml-parser';
 
 @Injectable()
-export class GlobalService {
+export class FetchService {
 
   constructor() {}
 

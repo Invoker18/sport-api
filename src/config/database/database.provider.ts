@@ -29,8 +29,9 @@ export const databaseProviders = [
         options: {
           encrypt: false, // Disable SSL/TLS
         },
-        entities: [], // Ponemos las entidades a gestionar por TypeORM
-        synchronize: process.env.NODE_ENV === 'development', // Sincronizar la base de datos si estamos en entorno de desarrollo
+        entities: [`${__dirname}/**/*.entity{.ts,.js}`], // se cargan todas las entidades de la base de datos
+        synchronize: false, //process.env.NODE_ENV === 'development', // Sincronizar la base de datos si estamos en entorno de desarrollo
+        logging: process.env.NODE_ENV === 'development' ? 'all' : false, // si esta en modo desarrollo, se muestra los logs
       })
         .initialize()
         .then((connection) => {

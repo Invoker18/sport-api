@@ -1,15 +1,31 @@
 import { Module } from '@nestjs/common'
-import { BasicAuthStrategy } from './basic-auth.strategy'
+import { JwtModule } from '@nestjs/jwt'
+import * as process from 'process'
 import { PassportModule } from '@nestjs/passport'
+import { JwtAuthStrategy } from './strategies/jwt-auth.strategy'
+import { BasicAuthStrategy } from './strategies/basic-auth.strategy'
 
 /**
  * Módulo de autenticación
  */
-@Module({
-  // Para que funcione necesitamos el módulo de Passport
-  imports: [PassportModule],
-  // Los proveedores de autenticación
-  providers: [BasicAuthStrategy],
-})
-export class AuthModule {
-}
+ @Module({
+    imports: [
+      JwtModule.register({
+        // Lo voy a poner en base64
+        secret: Buffer.from(
+          process.env.TOKEN_SECRET ||
+            'KJSDF89SDH38723RJ2039J09R230RM23904U23',
+          'utf-8',
+        ).toString('base64'),
+        signOptions: {
+          expiresIn: Number(process.env.TOKEN_EXPIRES) || 3600, // Tiempo de expiracion
+          algorithm: 'HS512', // Algoritmo de encriptacion
+        },
+      }),
+      PassportModule,
+    ],
+    exports: [JwtModule],
+    // Estrategias de autenticacion y autorizacion
+    providers: [JwtAuthStrategy, BasicAuthStrategy],
+  })
+  export class AuthModule {}
