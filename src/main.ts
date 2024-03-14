@@ -4,16 +4,15 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
 import { ValidationPipe } from '@nestjs/common';
-import { E_TOO_MANY_REQUESTS } from './common/exceptions';
-import { APP_DESCRIPTION, APP_NAME, APP_VERSION } from './common/constants';
+import { E_TOO_MANY_REQUESTS } from './config/const/exceptions';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.API_PORT ? parseInt(process.env.API_PORT) : 3000;
   const config = new DocumentBuilder()
-  .setTitle(APP_NAME)
-  .setDescription(APP_DESCRIPTION)
-  .setVersion(APP_VERSION)
+  .setTitle(process.env.APP_NAME)
+  .setDescription(process.env.APP_DESCRIPTION)
+  .setVersion(process.env.APP_VERSION)
   .addBasicAuth()
   //.addBearerAuth()
   .build();
@@ -30,7 +29,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document, options);
 
   // Configuramos el prefijo de la API
-  //  app.setGlobalPrefix('v1')
+  //  app.setGlobalPrefix(process.env.API_PREFIX || 'v1')
 
   // -- Helmet
   app.use(helmet());
