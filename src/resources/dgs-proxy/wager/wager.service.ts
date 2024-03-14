@@ -1,10 +1,10 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { GlobalService } from '../../../common/global.service';
+import { FetchService } from '../../../common/fetch.service';
 
 @Injectable()
 export class WagerService {
 
-  constructor(private readonly helper: GlobalService) {}
+  constructor(private readonly helper: FetchService) {}
 
   async GetActiveLeagues(params: object) {
     const requestUrl = process.env.DGS_PROXY_URL + 'ProxyWager.asmx/GetAnonActiveLeagues';
