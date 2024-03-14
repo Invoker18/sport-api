@@ -1,84 +1,19 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { CreateWagerDto } from './dto/create-wager.dto';
-import { UpdateWagerDto } from './dto/update-wager.dto';
-import { XMLParser } from 'fast-xml-parser';
+import { GlobalService } from '../../../common/global.service';
 
 @Injectable()
 export class WagerService {
 
-  constructor() {}
+  constructor(private readonly helper: GlobalService) {}
 
-  async GetActiveLeagues(/*createWagerDto: CreateWagerDto*/) {
-    // const requestUrl = 'http://192.168.5.178:86/ProxyWager.asmx/GetActiveLeagues';
-    // const formData = new URLSearchParams(
-    //   {    IdBook: "1",  }
-    // ); 
-    // const requestConfig = {        
-    //   method: "POST",        
-    //   body: formData,        
-    //   headers: new Headers(
-    //     {          
-    //       "content-type": "application/x-www-form-urlencoded",        
-    //     }
-    //   ),      
-    // };
-
-    // try {    
-    //   const response = await fetch( 
-    //     requestUrl,  
-    //     requestConfig    
-    //   );    
-    //   const data = await response.text();    
-    //   const optionsParser = {    
-    //     ignoreAttributes: false,    
-    //     attributeNamePrefix: "",    
-    //     attributesGroupName: "",  
-    //   }
-    //   const parser = new XMLParser(optionsParser);
-    //   let xmlParsed = parser.parse(data);    
-    //   xmlParsed = parser.parse(xmlParsed.string["#text"])['xml']??'';    
-    //   return xmlParsed;  
-    // } 
-    // catch (error) {    
-    //   throw new ForbiddenException('API not available:' + error);
-    // }
+  async GetActiveLeagues(params: object) {
+    const requestUrl = process.env.DGS_PROXY_URL + 'ProxyWager.asmx/GetAnonActiveLeagues';
+    return this.helper.FetchProxy("POST", params , requestUrl)
   }
 
-  async GetAnonActiveLeagues(book_id) {
-    const requestUrl = 'http://192.168.5.178:86/ProxyWager.asmx/GetAnonActiveLeagues';
-    const formData = new URLSearchParams(
-      {    IdBook: book_id,  }
-    ); 
-    const requestConfig = {        
-      method: "POST",        
-      body: formData,        
-      headers: new Headers(
-        {          
-          "content-type": "application/x-www-form-urlencoded",        
-        }
-      ),      
-    };
-
-    try {    
-      const response = await fetch( 
-        requestUrl,  
-        requestConfig    
-      );    
-      const data = await response.text();    
-      const optionsParser = {    
-        ignoreAttributes: false,    
-        attributeNamePrefix: "",    
-        attributesGroupName: "",  
-      }
-      const parser = new XMLParser(optionsParser);
-      let xmlParsed = parser.parse(data);    
-      xmlParsed = parser.parse(xmlParsed.string["#text"])['xml']??'';    
-      return xmlParsed;  
-    } 
-    catch (error) {    
-      throw new ForbiddenException('API not available:' + error);
-    }
-
+  async GetAnonActiveLeagues(params: object) {
+    const requestUrl = process.env.DGS_PROXY_URL + 'ProxyWager.asmx/GetAnonActiveLeagues';
+    return this.helper.FetchProxy("POST",  params, requestUrl)
   }
 
   async GetScheduleUTC() {
