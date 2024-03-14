@@ -9,14 +9,14 @@ import { APP_DESCRIPTION, APP_NAME, APP_VERSION } from './common/constants';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  const port = process.env.API_PORT ? parseInt(process.env.API_PORT) : 3000;
   const config = new DocumentBuilder()
   .setTitle(APP_NAME)
   .setDescription(APP_DESCRIPTION)
   .setVersion(APP_VERSION)
-  .addBearerAuth()
+  .addBasicAuth()
+  //.addBearerAuth()
   .build();
-
   const document = SwaggerModule.createDocument(app, config);
   const options = {
     customfavIcon: '<path>/favicon.png', //adding our favicon to swagger
@@ -26,7 +26,11 @@ async function bootstrap() {
       // swaggerOptions: { defaultModelsExpandDepth: -1 } //uncomment this line to stop seeing the schema on swagger ui
     },
   };
+
   SwaggerModule.setup('api', app, document, options);
+
+  // Configuramos el prefijo de la API
+  //  app.setGlobalPrefix('v1')
 
   // -- Helmet
   app.use(helmet());
@@ -48,7 +52,7 @@ async function bootstrap() {
     message: { "message": E_TOO_MANY_REQUESTS, "statusCode": 403, }
   }));
 
-  // -- Validation
+  // -- Validation  -- Configuramos el uso de validaciones de pipes de manera global
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     transform: true,
@@ -57,6 +61,7 @@ async function bootstrap() {
     },
   }));
 
-  await app.listen(process.env.PORT ? parseInt(process.env.PORT) : 30000);
+  await app.listen(port);
+  console.log(`🚀 Servidor iniciado en puerto: ${port}`)
 }
 bootstrap();
