@@ -6,6 +6,7 @@ import {
   ApiBasicAuth,
   ApiInternalServerErrorResponse,
   ApiNotAcceptableResponse,
+  ApiUnauthorizedResponse,
   ApiNotFoundResponse,
   ApiQuery,
   ApiBody,
@@ -13,12 +14,11 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
-import { AuthGuard } from '@nestjs/passport'
+import { BasicAuth } from '../../../decorator/auth.decorator'
 
 @Controller('proxy/wager')
-@UseGuards(AuthGuard('basic')) // Usamos el guard de Basic Auth en este controlador y todos los métodos
+@BasicAuth()
 @ApiTags('proxyWager')
-@ApiBasicAuth() // Añadimos el Basic Auth en la documentación de Swagger
 export class WagerController {
   constructor(private readonly wagerService: WagerService) {}
 
