@@ -1,7 +1,8 @@
 import { Logger } from '@nestjs/common'
 import { DataSource } from 'typeorm' // Importante
 import * as mongoose from 'mongoose'
-// import { testEntity } from '../api/test/entities/test.entity'
+// import { UserEntity } from '../../resources/auth/entities/user.entity'
+// import { RoleEntity } from '../../resources/auth/entities/role.entity'
 
 /**
  * Proveedor encargado de la conexión con la base de datos
@@ -29,12 +30,14 @@ export const databaseProviders = [
         options: {
           encrypt: false, // Disable SSL/TLS
         },
-        entities: [`${__dirname}/**/*.entity{.ts,.js}`], // se cargan todas las entidades de la base de datos
+        entities: [],
+        // entities: [`${__dirname}/**/*.entity{.ts,.js}`], // se cargan todas las entidades de la base de datos
         synchronize: false, //process.env.NODE_ENV === 'development', // Sincronizar la base de datos si estamos en entorno de desarrollo
         logging: process.env.NODE_ENV === 'development' ? 'all' : false, // si esta en modo desarrollo, se muestra los logs
       })
         .initialize()
         .then((connection) => {
+          console.log(connection)
           logger.debug('¡🟢 connexion con MsSQL realizada con éxito!')
           return connection
         })
@@ -42,6 +45,7 @@ export const databaseProviders = [
           logger.error('🔴 error al conectar con MsSQL', error)
         }),
   },
+  
   // Inyectamos la conexión a la base de datos y conectamos
   {
 
@@ -64,4 +68,30 @@ export const databaseProviders = [
           logger.error('🔴 error al conectar con Mongodb', error)
         }),
   },
+
+  // {
+  //   provide: 'MYSQL_CONNECTION', // Nombre con el que se inyectará la conexión
+  //   // Inyectamos la conexión a la base de datos y conectamos
+  //   useFactory: () =>
+  //     new DataSource({
+  //       type: 'mysql',
+  //       host: process.env.MYSQL_DATABASE_HOST,
+  //       port: Number(process.env.MYSQL_DATABASE_PORT) || 3306,
+  //       username: process.env.MYSQL_DATABASE_USER,
+  //       password: process.env.MYSQL_DATABASE_PASSWORD,
+  //       database: process.env.MYSQL_DATABASE_NAME,
+  //       entities: [`${__dirname}/**/*.entity{.ts,.js}`], // se cargan todas las entidades de la base de datos
+  //       // autoLoadEntities: true, // si no se especifica, se carga todas las entidades de la base de datos
+  //       synchronize: process.env.NODE_ENV === 'development', // si ha cambia el modelo, se sincroniza con la base de datos
+  //       logging: process.env.NODE_ENV === 'development' ? 'all' : false, // si esta en modo desarrollo, se muestra los logs
+  //     })
+  //       .initialize()
+  //       .then((connection) => {
+  //         logger.debug('¡🟢 connexion con MYSQL realizada con éxito!')
+  //         return connection
+  //       })
+  //       .catch((error) => {
+  //         logger.error('🔴 error al conectar con MYSQL', error)
+  //       }),
+  // },
 ]

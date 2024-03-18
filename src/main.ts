@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
-import { rateLimit } from 'express-rate-limit';
 import { ValidationPipe } from '@nestjs/common';
 import { E_TOO_MANY_REQUESTS } from './config/const/exceptions';
 
@@ -40,16 +39,6 @@ async function bootstrap() {
     // Find more configuration options here: https://github.com/expressjs/cors#configuration-options
   });
 
-  // -- Rate limiting: Limits the number of requests from the same IP in a period of time.
-  // -- More at: https://www.npmjs.com/package/express-rate-limit
-  app.use(rateLimit({
-    windowMs: 10 * 60 * 100, // 1 minutes
-    max: 100, // Limit each IP to 100 requests per `window` (here, per 1 minutes)
-    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers,
-    skipSuccessfulRequests: false, // The counting will skip all successful requests and just count the errors. Instead of removing rate-limiting, it's better to set this to true to limit the number of times a request fails. Can help prevent against brute-force attacks
-    message: { "message": E_TOO_MANY_REQUESTS, "statusCode": 403, }
-  }));
 
   // -- Validation  -- Configuramos el uso de validaciones de pipes de manera global
   app.useGlobalPipes(new ValidationPipe({
