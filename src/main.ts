@@ -39,7 +39,6 @@ async function bootstrap() {
     // Find more configuration options here: https://github.com/expressjs/cors#configuration-options
   });
 
-
   // -- Validation  -- Configuramos el uso de validaciones de pipes de manera global
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
