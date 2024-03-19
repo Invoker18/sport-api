@@ -7,12 +7,13 @@ import { JwtModule } from '@nestjs/jwt'
 import * as process from 'process'
 import { UserEntity } from './entities/user.entity'
 import { RoleEntity } from './entities/role.entity'
-
+import { string } from 'joi'
+import { DATABASE_ENUM } from '../../config/database/enum';
 
 @Module({
   imports: [
     // Importamos el modulo de TypeOrm para tener el Repositorio de UserEntity y RoleEntity
-    TypeOrmModule.forFeature([UserEntity, RoleEntity]), 
+    TypeOrmModule.forFeature([UserEntity, RoleEntity], DATABASE_ENUM.MSSQL_DGS), 
     JwtModule.register({
       // Lo voy a poner en base64
       secret: Buffer.from(
