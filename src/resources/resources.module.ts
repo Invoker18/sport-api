@@ -6,6 +6,7 @@ import { GameModule } from './api/game/game.module';
 import { SportModule } from './api/sport/sport.module';
 import { AuthModule } from './auth/auth.module';
 
+console.log(process.env.NODE_ENV)
 @Module({
   imports: [
     ProxyWagerModule, 

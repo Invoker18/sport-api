@@ -14,16 +14,17 @@ import { UserSignInDto } from './dto/user-sign.in.dto'
 import { UserSignUpDto } from './dto/user-sign.up.dto'
 import { BcryptService } from '../../common/bcrypt.service'
 import { JwtService } from '@nestjs/jwt'
+import { DATABASE_ENUM } from '../../config/database/enum';
 
 @Injectable()
 export class AuthService {
   private logger = new Logger(AuthService.name)
 
   constructor(
-    @InjectRepository(UserEntity) private readonly authRepository: Repository<UserEntity>,
+    @InjectRepository(UserEntity, DATABASE_ENUM.MSSQL_DGS) private readonly authRepository: Repository<UserEntity>,
     private readonly bcryptService: BcryptService,
     private readonly jwtService: JwtService,
-    @InjectRepository(RoleEntity) private readonly roleRepository: Repository<RoleEntity>,
+    @InjectRepository(RoleEntity, DATABASE_ENUM.MSSQL_DGS) private readonly roleRepository: Repository<RoleEntity>,
   ) {}
 
   async singIn(userSignInDto: UserSignInDto) {
