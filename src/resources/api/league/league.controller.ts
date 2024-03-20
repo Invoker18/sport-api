@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { LeagueService } from './league.service';
 
 @Controller('league')
@@ -14,5 +22,4 @@ export class LeagueController {
   findOne(@Param('id') id: string) {
     return this.leagueService.findOne(+id);
   }
-
 }

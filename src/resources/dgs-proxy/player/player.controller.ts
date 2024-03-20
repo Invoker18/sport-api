@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { PlayerService } from './player.service';
 
 import {
@@ -8,7 +16,7 @@ import {
   ApiNotFoundResponse,
   ApiResponse,
   ApiTags,
-} from '@nestjs/swagger'
+} from '@nestjs/swagger';
 
 @Controller('proxy/player')
 @ApiTags('proxyPlayer')

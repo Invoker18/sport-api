@@ -3,83 +3,61 @@ import { FetchService } from '../../../common/fetch.service';
 
 @Injectable()
 export class WagerService {
-
   constructor(private readonly helper: FetchService) {}
 
   async GetActiveLeagues(params: object) {
-    const requestUrl = process.env.DGS_PROXY_URL + 'ProxyWager.asmx/GetAnonActiveLeagues';
-    return this.helper.FetchProxy("POST", params , requestUrl)
+    const requestUrl =
+      process.env.DGS_PROXY_URL + 'ProxyWager.asmx/GetAnonActiveLeagues';
+    return this.helper.FetchProxy('POST', params, requestUrl);
   }
 
   async GetAnonActiveLeagues(params: object) {
-    const requestUrl = process.env.DGS_PROXY_URL + 'ProxyWager.asmx/GetAnonActiveLeagues';
-    return this.helper.FetchProxy("POST",  params, requestUrl)
+    const requestUrl =
+      process.env.DGS_PROXY_URL + 'ProxyWager.asmx/GetAnonActiveLeagues';
+    return this.helper.FetchProxy('POST', params, requestUrl);
   }
 
-  async GetScheduleUTC() {
-  }
+  async GetScheduleUTC() {}
 
-  async GetTeasers() {
-  }
+  async GetTeasers() {}
 
-  async GetVersion() {
-  }
+  async GetVersion() {}
 
-  async RBLGradeBet() {
-  }
+  async RBLGradeBet() {}
 
-  async RBLInsertBet() {
-  }
+  async RBLInsertBet() {}
 
-  async RBLUnGradeBet() {
-  }
+  async RBLUnGradeBet() {}
 
-  async FillCompile() {
-  }
+  async FillCompile() {}
 
-  async WagerCompile() {
-  }
+  async WagerCompile() {}
 
-  async WagerCompile2() {
-  }
+  async WagerCompile2() {}
 
-  async WagerConfirm() {
-  }
+  async WagerConfirm() {}
 
-  async WagerPost() {
-  }
+  async WagerPost() {}
 
-  async GetFillOpenWager() {
-  }
+  async GetFillOpenWager() {}
 
-  async GetScheduleForGames() {
-  }
+  async GetScheduleForGames() {}
 
-  async GetSchedule() {
-  }
+  async GetSchedule() {}
 
-  async GetFamilygames() {
-  }
+  async GetFamilygames() {}
 
-  async GetNewScheduleUTC() {
-  }
+  async GetNewScheduleUTC() {}
 
-  async GetNewSchedule() {
-  }
+  async GetNewSchedule() {}
 
-  async GetParlays() {
-  }
+  async GetParlays() {}
 
-  async GetUpcomingGames() {
-  }
+  async GetUpcomingGames() {}
 
-  async WagerRemove() {
-  }
+  async WagerRemove() {}
 
-  async WagerUpdateLines() {
-  }
+  async WagerUpdateLines() {}
 
-  async WagerValidate() {
-  }
-  
+  async WagerValidate() {}
 }

@@ -1,6 +1,5 @@
-import { TypeOrmModuleOptions } from "@nestjs/typeorm";
-import { DATABASE_ENUM } from "./enum";
-
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DATABASE_ENUM } from './enum';
 
 export const DgsConfig: TypeOrmModuleOptions = {
   name: DATABASE_ENUM.MSSQL_DGS,
@@ -18,7 +17,7 @@ export const DgsConfig: TypeOrmModuleOptions = {
   // entities: [`${__dirname}/**/*.entity{.ts,.js}`], // se cargan todas las entidades de la base de datos
   synchronize: false, //process.env.NODE_ENV === 'development', // Sincronizar la base de datos si estamos en entorno de desarrollo
   logging: process.env.NODE_ENV === 'development' ? 'all' : false, // si esta en modo desarrollo, se muestra los logs
-}
+};
 
 export const MoverConfig: TypeOrmModuleOptions = {
   name: DATABASE_ENUM.MSSQL_VZMOVER,
@@ -36,5 +35,4 @@ export const MoverConfig: TypeOrmModuleOptions = {
   // entities: [`${__dirname}/**/*.entity{.ts,.js}`], // se cargan todas las entidades de la base de datos
   synchronize: false, //process.env.NODE_ENV === 'development', // Sincronizar la base de datos si estamos en entorno de desarrollo
   logging: process.env.NODE_ENV === 'development' ? 'all' : false, // si esta en modo desarrollo, se muestra los logs
-}
-
+};
