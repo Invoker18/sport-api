@@ -4,7 +4,6 @@ import { UpdateSportDto } from './dto/update-sport.dto';
 
 @Injectable()
 export class SportService {
-  
   findAll() {
     return `This action returns all sport`;
   }
@@ -12,5 +11,4 @@ export class SportService {
   findOne(id: number) {
     return `This action returns a #${id} sport`;
   }
-
 }

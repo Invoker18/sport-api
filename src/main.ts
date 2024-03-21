@@ -3,18 +3,17 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
-import { E_TOO_MANY_REQUESTS } from './config/const/exceptions';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.API_PORT ? parseInt(process.env.API_PORT) : 3000;
   const config = new DocumentBuilder()
-  .setTitle(process.env.APP_NAME)
-  .setDescription(process.env.APP_DESCRIPTION)
-  .setVersion(process.env.APP_VERSION)
-  .addBasicAuth()
-  //.addBearerAuth()
-  .build();
+    .setTitle(process.env.APP_NAME)
+    .setDescription(process.env.APP_DESCRIPTION)
+    .setVersion(process.env.APP_VERSION)
+    .addBasicAuth()
+    .addBearerAuth()
+    .build();
   const document = SwaggerModule.createDocument(app, config);
   const options = {
     customfavIcon: '<path>/favicon.png', //adding our favicon to swagger
@@ -40,15 +39,17 @@ async function bootstrap() {
   });
 
   // -- Validation  -- Configuramos el uso de validaciones de pipes de manera global
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-    transformOptions: {
-      enableImplicitConversion: true,
-    },
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
 
   await app.listen(port);
-  console.log(`🚀 Servidor iniciado en puerto: ${port}`)
+  console.log(`🚀 Servidor iniciado en puerto: ${port}`);
 }
 bootstrap();

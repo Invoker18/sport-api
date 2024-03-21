@@ -1,19 +1,19 @@
-import { PassportStrategy } from '@nestjs/passport'
-import { Injectable, UnauthorizedException } from '@nestjs/common'
-import { BasicStrategy } from 'passport-http'
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BasicStrategy } from 'passport-http';
 
 /**
- * Clase que implementa la estrategia de autenticación básica de Passport
+ * Class that implements the Passport basic authentication strategy
  */
 @Injectable()
 export class BasicAuthStrategy extends PassportStrategy(BasicStrategy) {
   constructor() {
-    // Le decimos que los datos de la petición que vienen del Header se los pase al callback
-    super({ passReqToCallback: true })
+    // We tell you that the request data that comes from the Header be passed to the callback
+    super({ passReqToCallback: true });
   }
 
   /**
-   * Método que valida las credenciales de la petición cuando es de tipo Basic Auth
+   * Method that validates the credentials of the request when it is of type Basic Auth
    * @param req
    * @param username
    * @param password
@@ -23,13 +23,13 @@ export class BasicAuthStrategy extends PassportStrategy(BasicStrategy) {
     username: string,
     password: string,
   ) => {
-    // Las credenciales vienen en el header de la petición y las comparamos con las que tenemos en el .env
+    // The credentials come in the header of the request and we compare them with the ones we have in the .env
     if (
       process.env.API_USER === username &&
       process.env.API_PASS === password
     ) {
-      return true
+      return true;
     }
-    throw new UnauthorizedException('Credenciales invalidas')
-  }
+    throw new UnauthorizedException('Credenciales invalidas');
+  };
 }

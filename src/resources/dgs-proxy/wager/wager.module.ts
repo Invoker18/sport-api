@@ -3,7 +3,7 @@ import { WagerService } from './wager.service';
 import { WagerController } from './wager.controller';
 
 @Module({
-  imports: [], 
+  imports: [],
   controllers: [WagerController],
   providers: [WagerService],
 })
