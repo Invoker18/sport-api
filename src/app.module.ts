@@ -5,19 +5,21 @@ const envModule = ConfigModule.forRoot({
   isGlobal: true,
 });
 import { ResourcesModule } from './resources/resources.module';
-import { SharedModule } from './common/shared.module';
+import { SharedModule } from './helpers/shared.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
 import { mongoConfig } from './config/database/mongo';
 import { DgsConfig } from './config/database/mssql';
+import { AuthModule } from './resources/auth/auth.module';
 
 @Module({
   imports: [
     envModule,
     TypeOrmModule.forRoot(DgsConfig),
     MongooseModule.forRoot(mongoConfig),
+    AuthModule,
     ResourcesModule,
     SharedModule,
     ThrottlerModule.forRoot([

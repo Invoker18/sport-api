@@ -1,19 +1,20 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { FetchService } from '../../../common/fetch.service';
+import { Injectable } from '@nestjs/common';
+import { FetchService } from '../../../helpers/fetch.service';
 
 @Injectable()
 export class WagerService {
+  private readonly name = 'ProxyWager.asmx';
   constructor(private readonly helper: FetchService) {}
 
   async GetActiveLeagues(params: object) {
     const requestUrl =
-      process.env.DGS_PROXY_URL + 'ProxyWager.asmx/GetAnonActiveLeagues';
+      process.env.DGS_PROXY_URL + this.name + '/GetActiveLeagues';
     return this.helper.FetchProxy('POST', params, requestUrl);
   }
 
   async GetAnonActiveLeagues(params: object) {
     const requestUrl =
-      process.env.DGS_PROXY_URL + 'ProxyWager.asmx/GetAnonActiveLeagues';
+      process.env.DGS_PROXY_URL + this.name + '/GetAnonActiveLeagues';
     return this.helper.FetchProxy('POST', params, requestUrl);
   }
 

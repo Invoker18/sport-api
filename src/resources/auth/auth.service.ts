@@ -12,7 +12,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserSignInDto } from './dto/user-sign.in.dto';
 import { UserSignUpDto } from './dto/user-sign.up.dto';
-import { BcryptService } from '../../common/bcrypt.service';
+import { BcryptService } from '../../helpers/bcrypt.service';
 import { JwtService } from '@nestjs/jwt';
 import { DATABASE_ENUM } from '../../config/database/enum';
 

@@ -26,10 +26,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { BasicAuth } from '../../../decorator/auth.decorator';
+import {JwtAuth } from '../../../decorator/auth.decorator';
 
 @Controller('proxy/wager')
-@BasicAuth()
+@JwtAuth()
 @ApiTags('proxyWager')
 export class WagerController {
   constructor(private readonly wagerService: WagerService) {}
