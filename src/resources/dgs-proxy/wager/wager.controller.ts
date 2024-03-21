@@ -1,4 +1,16 @@
-import { Controller, Get, Header, Post, Body, Patch, Param, Delete, Query, HttpCode, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Header,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  HttpCode,
+  UseGuards,
+} from '@nestjs/common';
 import { WagerService } from './wager.service';
 // import { BookIdValidatorPipe } from './pipes/book-id-validator.pipe'
 import {
@@ -13,16 +25,16 @@ import {
   ApiParam,
   ApiResponse,
   ApiTags,
-} from '@nestjs/swagger'
-import { BasicAuth } from '../../../decorator/auth.decorator'
+} from '@nestjs/swagger';
+import {JwtAuth } from '../../../decorator/auth.decorator';
 
 @Controller('proxy/wager')
-@BasicAuth()
+@JwtAuth()
 @ApiTags('proxyWager')
 export class WagerController {
   constructor(private readonly wagerService: WagerService) {}
 
-  @Get("leagues")
+  @Get('leagues')
   @Header('Content-Type', 'application/json')
   @ApiResponse({
     status: 200,
@@ -68,19 +80,23 @@ export class WagerController {
     @Query('line_type_id') IdLineType?: number,
     @Query('wager_type') WagerType?: number,
     @Query('lang') Language?: number,
-  ) 
-  {
-    let response
+  ) {
+    let response;
     if (active == 1) {
-      response = this.wagerService.GetActiveLeagues({IdBook,IdProfile,IdLineType,WagerType,Language});
-    }else{
-      response = await this.wagerService.GetAnonActiveLeagues({IdBook});
+      response = this.wagerService.GetActiveLeagues({
+        IdBook,
+        IdProfile,
+        IdLineType,
+        WagerType,
+        Language,
+      });
+    } else {
+      response = await this.wagerService.GetAnonActiveLeagues({ IdBook });
     }
     return {
-      "status": "success",
-      "data": response,
-      "message": null /* Or optional success message */
-    }
+      status: 'success',
+      data: response,
+      message: null /* Or optional success message */,
+    };
   }
-  
 }

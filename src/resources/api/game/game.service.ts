@@ -4,7 +4,6 @@ import { UpdateGameDto } from './dto/update-game.dto';
 
 @Injectable()
 export class GameService {
-
   findAll() {
     return `This action returns all game`;
   }
@@ -12,6 +11,4 @@ export class GameService {
   findOne(id: number) {
     return `This action returns a #${id} game`;
   }
-
-
 }

@@ -4,7 +4,7 @@ import { UserSignUpDto } from './dto/user-sign.up.dto'
 import { UserSignInDto } from './dto/user-sign.in.dto'
 import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard'
 
-@UseGuards(BasicAuthGuard)
+// @UseGuards(BasicAuthGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
