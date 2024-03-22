@@ -1,24 +1,28 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-const envModule = ConfigModule.forRoot({
-  envFilePath: ['.prod.env', '.test.env', '.env'], // Cargamos los ficheros de .env
-  isGlobal: true,
-});
+import { Module, MiddlewareConsumer } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { configOptions } from './config/config-options';
 import { ResourcesModule } from './resources/resources.module';
 import { SharedModule } from './helpers/shared.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
-import { mongoConfig } from './config/database/mongo';
-import { DgsConfig } from './config/database/mssql';
-import { AuthModule } from './resources/auth/auth.module';
+// import { AuthModule } from './resources/auth/auth.module';
+import { AuthModule } from './auth/auth.module';
+import { AuthMiddleware } from './auth/auth.middleware';
 
 @Module({
   imports: [
-    envModule,
-    TypeOrmModule.forRoot(DgsConfig),
-    MongooseModule.forRoot(mongoConfig),
+    ConfigModule.forRoot(configOptions),
+    // TypeOrmModule.forRootAsync({
+    //   useFactory: (config: ConfigService) => config.get('dgs.db'),
+    //   inject: [ConfigService],
+    // }),
+    // MongooseModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   useFactory: async (config: ConfigService) => config.get('mongo.uri'),
+    //   inject: [ConfigService],
+    // }),
     AuthModule,
     ResourcesModule,
     SharedModule,
@@ -31,6 +35,7 @@ import { AuthModule } from './resources/auth/auth.module';
   ],
   controllers: [],
   providers: [
+    ConfigModule,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

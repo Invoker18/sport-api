@@ -1,9 +1,12 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { AuthMiddleware } from './auth.middleware';
 import { JwtModule } from '@nestjs/jwt';
 import * as process from 'process';
 import { PassportModule } from '@nestjs/passport';
 import { JwtAuthStrategy } from './strategies/jwt-auth.strategy';
 import { BasicAuthStrategy } from './strategies/basic-auth.strategy';
+import { ApiKeyAuthStrategy } from './strategies/api-key-auth.strategy';
+import { AuthService } from './auth.service';
 
 /**
  * Authentication module
@@ -29,6 +32,15 @@ import { BasicAuthStrategy } from './strategies/basic-auth.strategy';
   ],
   exports: [JwtModule],
   // Authentication and authorization strategies
-  providers: [JwtAuthStrategy, BasicAuthStrategy],
+  providers: [
+    AuthService,
+    JwtAuthStrategy,
+    BasicAuthStrategy,
+    ApiKeyAuthStrategy,
+  ],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('*');
+  }
+}
