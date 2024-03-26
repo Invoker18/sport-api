@@ -1,25 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-const envModule = ConfigModule.forRoot({
-  envFilePath: ['.prod.env', '.test.env', '.env'], // Cargamos los ficheros de .env
-  isGlobal: true,
-});
+import { configOptions } from './config/config-options';
+import { DatabaseModule } from './config/database/database.module';
 import { ResourcesModule } from './resources/resources.module';
 import { SharedModule } from './helpers/shared.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { MongooseModule } from '@nestjs/mongoose';
-import { mongoConfig } from './config/database/mongo';
-import { DgsConfig } from './config/database/mssql';
-import { AuthModule } from './resources/auth/auth.module';
-
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
-    envModule,
-    TypeOrmModule.forRoot(DgsConfig),
-    MongooseModule.forRoot(mongoConfig),
+    ConfigModule.forRoot(configOptions),
     AuthModule,
+    DatabaseModule,
     ResourcesModule,
     SharedModule,
     ThrottlerModule.forRoot([
@@ -31,6 +23,7 @@ import { AuthModule } from './resources/auth/auth.module';
   ],
   controllers: [],
   providers: [
+    ConfigModule,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

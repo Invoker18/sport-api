@@ -29,7 +29,7 @@ import {
 import {JwtAuth } from '../../../decorator/auth.decorator';
 
 @Controller('proxy/wager')
-@JwtAuth()
+// @JwtAuth()
 @ApiTags('proxyWager')
 export class WagerController {
   constructor(private readonly wagerService: WagerService) {}

@@ -3,18 +3,20 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = process.env.API_PORT ? parseInt(process.env.API_PORT) : 3000;
-  const config = new DocumentBuilder()
-    .setTitle(process.env.APP_NAME)
-    .setDescription(process.env.APP_DESCRIPTION)
-    .setVersion(process.env.APP_VERSION)
-    .addBasicAuth()
+  const config = app.get(ConfigService);
+  const port = config.get('port');
+  
+  const configSwagger = new DocumentBuilder()
+    .setTitle(config.get('name'))
+    .setDescription(config.get('description'))
+    .setVersion(config.get('version'))
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, configSwagger);
   const options = {
     customfavIcon: '<path>/favicon.png', //adding our favicon to swagger
     customSiteTitle: 'Sport API Docs', //add site title to swagger for nice SEO
@@ -49,7 +51,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(port);
+  await app.listen(Number(port));
   console.log(`🚀 Servidor iniciado en puerto: ${port}`);
 }
 bootstrap();

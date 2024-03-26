@@ -1,7 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DATABASE_ENUM } from './enum';
 
-export const DgsConfig: TypeOrmModuleOptions = {
+export const dgsConfig: TypeOrmModuleOptions = {
   name: DATABASE_ENUM.MSSQL_DGS,
   type: 'mssql',
   host: process.env.MSSQL_DATABASE_HOST_DGS,
@@ -19,7 +19,7 @@ export const DgsConfig: TypeOrmModuleOptions = {
   logging: process.env.NODE_ENV === 'development' ? 'all' : false, // si esta en modo desarrollo, se muestra los logs
 };
 
-export const MoverConfig: TypeOrmModuleOptions = {
+export const moverConfig: TypeOrmModuleOptions = {
   name: DATABASE_ENUM.MSSQL_VZMOVER,
   type: 'mssql',
   host: process.env.MSSQL_DATABASE_HOST_VZMOVER,
