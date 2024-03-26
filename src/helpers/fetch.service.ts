@@ -25,9 +25,13 @@ export class FetchService {
       const parser = new XMLParser(optionsParser);
       let xmlParsed = parser.parse(data);
       xmlParsed = parser.parse(xmlParsed.string['#text'])['xml'] ?? '';
-      return xmlParsed;
+      if (xmlParsed['ErrorCode'] == 0) {
+        return xmlParsed['index'];
+      }else{
+        throw new ForbiddenException(xmlParsed['ErrorMsg']);
+      }
     } catch (error) {
-      throw new ForbiddenException('API not available:' + error);
+      throw new ForbiddenException('API not available: ' + error);
     }
   }
 }
