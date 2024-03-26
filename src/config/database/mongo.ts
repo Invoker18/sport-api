@@ -1,5 +1,5 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DATABASE_ENUM } from './enum';
+// import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+// import { DATABASE_ENUM } from './enum';
 
 export const mongoConfig: string = `mongodb://${process.env.MONGODB_DATABASE_USER}:${
   process.env.MONGODB_DATABASE_PASSWORD
