@@ -9,12 +9,16 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
   const port = config.get('port');
-  
+  const api_key = config.get('api_key');
+
   const configSwagger = new DocumentBuilder()
     .setTitle(config.get('name'))
     .setDescription(config.get('description'))
     .setVersion(config.get('version'))
-    .addBearerAuth()
+    .addApiKey(
+      { type: api_key.type, name: api_key.header, in: 'header' },
+      api_key.name,
+    )
     .build();
   const document = SwaggerModule.createDocument(app, configSwagger);
   const options = {
@@ -27,9 +31,6 @@ async function bootstrap() {
   };
 
   SwaggerModule.setup('api', app, document, options);
-
-  // Configuramos el prefijo de la API
-  //  app.setGlobalPrefix(process.env.API_PREFIX || 'v1')
 
   // -- Helmet
   app.use(helmet());

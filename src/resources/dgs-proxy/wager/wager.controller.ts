@@ -26,10 +26,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import {JwtAuth } from '../../../decorator/auth.decorator';
+import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 
 @Controller('proxy/wager')
-// @JwtAuth()
+@ApiKeyAuth()
 @ApiTags('proxyWager')
 export class WagerController {
   constructor(private readonly wagerService: WagerService) {}
@@ -81,9 +81,9 @@ export class WagerController {
     @Query('wager_type') WagerType?: number,
     @Query('lang') Language?: number,
   ) {
-    let response;
+    let response: any;
     if (active == 1) {
-      response = this.wagerService.GetActiveLeagues({
+      response = await this.wagerService.GetActiveLeagues({
         IdBook,
         IdProfile,
         IdLineType,
@@ -93,10 +93,12 @@ export class WagerController {
     } else {
       response = await this.wagerService.GetAnonActiveLeagues({ IdBook });
     }
-    return {
-      status: 'success',
-      data: response,
-      message: null /* Or optional success message */,
-    };
+    return response.status === 'error'
+      ? response
+      : {
+          status: 'success',
+          data: response,
+          message: null /* Or optional success message */,
+        };
   }
 }

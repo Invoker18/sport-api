@@ -9,7 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
-    ConfigModule.forRoot(configOptions),
+    configOptions,
     AuthModule,
     DatabaseModule,
     ResourcesModule,
