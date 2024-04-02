@@ -1,18 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { apiKeys } from '../config/api/keys';
 
 @Injectable()
 export class AuthService {
-  private readonly apiKeys: string[] = [
-    'ca03na188ame03u1d78620de67282882a84',
-    'd2e621a6646a4211768cd68e26f21228a81',
-  ];
 
-  // constructor(private readonly configService: ConfigService) {
-  //   this.apiKeys = configService.get('apiKeys');
-  // }
-
-  validateApiKey(apiKey: string) {
-    return this.apiKeys.find((apiK) => apiKey === apiK);
+  validateApiKey(apiKey: string, ip: string) {
+    return apiKeys().find(
+      (apiK) =>
+        apiKey === apiK.key &&
+        apiK.ips.find((ipK) => ip === ipK || ipK === 'All') &&
+        Date.now() > apiK.expires_at,
+    );
   }
 }

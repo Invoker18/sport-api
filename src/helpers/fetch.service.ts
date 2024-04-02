@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { XMLParser } from 'fast-xml-parser';
+import { string } from 'joi';
 
 @Injectable()
 export class FetchService {
@@ -26,9 +27,16 @@ export class FetchService {
       let xmlParsed = parser.parse(data);
       xmlParsed = parser.parse(xmlParsed.string['#text'])['xml'] ?? '';
       if (xmlParsed['ErrorCode'] == 0) {
-        return xmlParsed['index'];
-      }else{
-        throw new ForbiddenException(xmlParsed['ErrorMsg']);
+        return xmlParsed['ErrorCode'] == 0
+          ? xmlParsed['index']
+          : {
+              status: 'error',
+              error: 'Proxy',
+              code: xmlParsed['ErrorCode'],
+              message_key: xmlParsed['ErrorMsgKey'],
+              message_param: xmlParsed['ErrorMsgParams'],
+              message: xmlParsed['ErrorMsg'],
+            };
       }
     } catch (error) {
       throw new ForbiddenException('API not available: ' + error);

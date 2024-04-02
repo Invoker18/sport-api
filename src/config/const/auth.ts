@@ -1,4 +1,9 @@
 export const jwtConstants = {
-  secret:
-    'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
+  secret: '',
+};
+
+export const apiKeyConstants = {
+  type: 'apiKey',
+  name: 'Api-Key',
+  header: 'x-api-key',
 };
