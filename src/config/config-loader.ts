@@ -21,5 +21,9 @@ export const configLoader = () => {
       proxy_url: process.env.DGS_PROXY_URL,
       proxy2_url: process.env.DGS_PROXY2_URL,
     },
+    redis: {
+      url: process.env.REDIS_URL,
+      port: process.env.REDIS_PORT,
+    },
   };
 };
