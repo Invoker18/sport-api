@@ -1,19 +1,29 @@
 import { HeaderAPIKeyStrategy } from 'passport-headerapikey';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
+import { apiKeyConstants } from '../../config/const/auth';
 
 @Injectable()
 export class ApiKeyAuthStrategy extends PassportStrategy(HeaderAPIKeyStrategy) {
   constructor(private authService: AuthService) {
     super(
-      { header: 'x-api-key', prefix: '' },
+      { header: apiKeyConstants.header, prefix: '' },
       true,
-      (apikey, done, a) => {
-        // console.log(a);
-        const checkKey = authService.validateApiKey(apikey);
+      (apikey: any, done: any, req: any) => {
+        if (!apikey) {
+          throw new UnauthorizedException('API key is missing.');
+        }
+        let ip =
+          req.headers['x-forwarded-for'] ||
+          req.connection.remoteAddress ||
+          req.ip;
+        ip = ip.toString().replace('::ffff:', '');
+        const checkKey = authService.validateApiKey(apikey, ip);
+
+        // call your env. var the name you want
         if (!checkKey) {
-          return done(false);
+          throw new UnauthorizedException('Invalid API key.');
         }
         return done(true);
       },
