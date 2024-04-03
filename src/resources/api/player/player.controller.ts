@@ -14,7 +14,7 @@ import { PlayerService } from './player.service';
 
 @Controller('player')
 @ApiKeyAuth()
-@ApiTags('API')
+@ApiTags('API Player')
 export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 
