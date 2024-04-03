@@ -41,11 +41,4 @@ export class LeagueService {
     return data;
   }
 
-  findAll() {
-    return `This action returns all league`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} league`;
-  }
 }
