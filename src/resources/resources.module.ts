@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { DGSDataSource } from '../config/config-orm';
 import { ProxyWagerModule } from './dgs-proxy/wager/wager.module';
 // import { ProxyPlayerModule } from './dgs-proxy/player/player.module';
+import { PlayerModule } from './api/player/player.module';
 import { LeagueModule } from './api/league/league.module';
 import { GameModule } from './api/game/game.module';
 
@@ -10,7 +11,7 @@ import { GameModule } from './api/game/game.module';
     DGSDataSource,
     ProxyWagerModule,
     // ProxyPlayerModule,
-    // PlayerModule,
+    PlayerModule,
     LeagueModule,
     GameModule,
   ],

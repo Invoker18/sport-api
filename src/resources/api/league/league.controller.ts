@@ -6,7 +6,7 @@ import { GetActiveLeaguesQuery } from './dto/get-leagues.dto';
 import { LeagueService } from './league.service';
 @Controller('league')
 @ApiKeyAuth()
-@ApiTags('API')
+@ApiTags('API League')
 export class LeagueController {
   constructor(private readonly leagueService: LeagueService) {}
 

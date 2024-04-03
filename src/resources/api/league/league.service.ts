@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { League } from './entities/league.entity';
 import { Repository } from 'typeorm';
-import { DATABASE_ENUM } from 'src/config/database/enum';
+import { DATABASE_ENUM } from '../../../config/database/enum';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
@@ -21,13 +21,14 @@ export class LeagueService {
     @prmIdLanguage tinyint
   */
   async getActiveLeagues(params: any) {
+    let cacheTimeSec = 10;
     let book_id = params.book_id;
     let line_type_id = params.line_type_id;
     let lang_id = params.lang_id;
     // **CHECK CACHE
     const key = `get_leagues_active_${book_id}_${line_type_id}_${lang_id}`;
-    const leaguesCached = await this.cacheService.get(key);
-    if (leaguesCached) return leaguesCached;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
     // **CHECK CACHE
 
     const data = await this.leagueRepository.query(
@@ -35,7 +36,7 @@ export class LeagueService {
     );
 
     // **SET CACHE
-    await this.cacheService.set(key, data, 10 * 1000);
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
     // **SET CACHE
 
     return data;
