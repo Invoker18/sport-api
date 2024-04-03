@@ -6,7 +6,7 @@ import { GameService } from './game.service';
 
 @Controller('game')
 @ApiKeyAuth()
-@ApiTags('API')
+@ApiTags('API Game')
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 
