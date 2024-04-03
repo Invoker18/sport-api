@@ -9,26 +9,33 @@ import { Cache } from 'cache-manager';
 @Injectable()
 export class LeagueService {
   constructor(
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private cacheService: Cache,
     @InjectRepository(League, DATABASE_ENUM.MSSQL_DGS)
     private leagueRepository: Repository<League>,
   ) {}
 
-  // param WebGetActiveLeagues
-  // @IdBook smallint,	@IdLineType smallint,	@WagerType tinyint
-  async find(params: any) {
+  /**
+    EXEC [VZ_GetActiveLeagues]
+    @prmIdBook smallint, 
+    @prmIdLineType smallint,	
+    @prmIdLanguage tinyint
+  */
+  async getActiveLeagues(params: any) {
+    let book_id = params.book_id;
+    let line_type_id = params.line_type_id;
+    let lang_id = params.lang_id;
     // **CHECK CACHE
-    const key = 'get_leagues_active';
-    const leaguesCached = await this.cacheManager.get(key);
+    const key = `get_leagues_active_${book_id}_${line_type_id}_${lang_id}`;
+    const leaguesCached = await this.cacheService.get(key);
     if (leaguesCached) return leaguesCached;
     // **CHECK CACHE
 
     const data = await this.leagueRepository.query(
-      `EXEC WebGetActiveLeagues	${params.book_id},1,0`,
+      `EXEC VZ_GetActiveLeagues	${book_id},${line_type_id},${lang_id}`,
     );
 
     // **SET CACHE
-    await this.cacheManager.set(key, data, 10 * 1000);
+    await this.cacheService.set(key, data, 10 * 1000);
     // **SET CACHE
 
     return data;

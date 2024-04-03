@@ -7,7 +7,7 @@ import {
 import { ApiInternalServerErrorResponse, ApiNotAcceptableResponse, ApiNotFoundResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { query } from 'express';
 import { ApiKeyAuth } from 'src/decorator/auth.decorator';
-import { FindByBookQuery } from './dto/get-league.dto';
+import { GetActiveLeaguesQuery } from './dto/get-league.dto';
 import { LeagueService } from './league.service';
 
 @Controller('league')
@@ -16,6 +16,14 @@ import { LeagueService } from './league.service';
 export class LeagueController {
   constructor(private readonly leagueService: LeagueService) {}
 
+  @ApiQuery({
+    name: 'book_id',
+    required: true,
+  })
+  @ApiQuery({
+    name: 'book_id',
+    required: true,
+  })
   @ApiQuery({
     name: 'book_id',
     required: true,
@@ -30,8 +38,10 @@ export class LeagueController {
     description: 'Error interno de la api',
   })
   @Get()
-  getLeagues(@Query() params: FindByBookQuery) {
-    return this.leagueService.find(params);
+  async getActiveLeagues(
+    @Query() params: GetActiveLeaguesQuery,
+  ): Promise<string> {
+    return await this.leagueService.getActiveLeagues(params);
   }
 
   // @Get(':id')
