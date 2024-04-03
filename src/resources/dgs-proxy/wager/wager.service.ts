@@ -19,11 +19,14 @@ export class WagerService {
   }
 
   async GetAnonActiveLeagues(params: object) {
-    const requestUrl = this.proxy_url  + '/GetAnonActiveLeagues';
+    const requestUrl = this.proxy_url + '/GetAnonActiveLeagues';
     return this.helper.FetchProxy('POST', params, requestUrl);
   }
 
-  async GetScheduleUTC() {}
+  async GetScheduleUTC(params: object) {
+    const requestUrl = this.proxy_url + '/GetScheduleUTC';
+    return this.helper.FetchProxy('POST', params, requestUrl);
+  }
 
   async GetTeasers() {}
 

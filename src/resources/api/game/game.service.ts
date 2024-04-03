@@ -1,14 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { CreateGameDto } from './dto/create-game.dto';
-import { UpdateGameDto } from './dto/update-game.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Game } from './entities/game.entity';
+import { Repository } from 'typeorm';
+import { DATABASE_ENUM } from '../../../config/database/enum';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class GameService {
-  findAll() {
-    return `This action returns all game`;
-  }
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheService: Cache,
+    @InjectRepository(Game, DATABASE_ENUM.MSSQL_DGS)
+    private gameRepository: Repository<Game>,
+  ) {}
 
-  findOne(id: number) {
-    return `This action returns a #${id} game`;
+  /**
+    EXEC [VZ_GetGamesByLeagues]
+
+  */
+  async getGamesByLeagues() {
+    return 'test'
   }
 }
