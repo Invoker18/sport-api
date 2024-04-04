@@ -48,6 +48,22 @@ export class PlayerService {
 
   */
   async getInfo(params: any) {
-    return '';
+    let cacheTimeSec = 2;
+    let player_id = params.player_id;
+    // **CHECK CACHE
+    const key = `get_playerInfo_${player_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = await this.playerRepository.query(
+      `EXEC VZ_GetPlayerInfo ${player_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
   }
 }

@@ -31,11 +31,11 @@ export class PlayerController {
     return await this.playerService.getBalance(params);
   }
 
-  // @Get()
-  // @UseInterceptors(TransformInterceptor)
-  // async getInfo(@Query() params: IdPlayerParam): Promise<string> {
-  //   return await this.playerService.getInfo(params);
-  // }
+  @Get(':player_id/info')
+  @UseInterceptors(TransformInterceptor)
+  async getInfo(@Param() params: IdPlayerParam): Promise<string> {
+    return await this.playerService.getInfo(params);
+  }
 }
 
 // exec GetPlayerForLogin @UserName='DWP-10'
