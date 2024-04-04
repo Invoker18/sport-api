@@ -45,28 +45,13 @@ export class PlayerService {
     let call = await this.createCallInDGS({ player_id: player.IdPlayer, ip });
     let info = await this.getInfo({ player_id: player.IdPlayer });
     info[0].IdCall = call[0].IdCall;
-    return info;
+    return await this.getInfo({ player_id: player.IdPlayer });
   }
 
-  // exec GetPlayerForLogin @UserName='DWP-10'
-  // go
-  // declare @p6 int
-  // set @p6=377544
-  // exec CreateCall @IdPlayer=21595, @PhoneLine=-1, @IdUser=0, @IP='0.0.0.0', @System='I', @IdCall=@p6 output, @URL=''
-  // select IdCall = @p6
-  // go
-  // exec WebGetPlayerOnline @IdPlayer=21595
-  // go
-
   /**
-    EXEC [CreateCall]
-    @IdPlayer int,
-    @PhoneLine smallint,
-    @IdUser smallint,
-    @IP varchar(100),
-    @System char(1),
-    @IdCall int OUTPUT,
-    @URL varchar(50) = null
+    EXEC [VZ_CreateCall]
+    @prmIdPlayer int,
+    @prmIP varchar(100)
   */
   async createCallInDGS(params: any) {
     let cacheTimeSec = 1;
@@ -80,10 +65,7 @@ export class PlayerService {
     // **CHECK CACHE
 
     const data = await this.playerRepository.query(
-      ` declare @p6 int;
-        EXEC CreateCall ${player_id}, 1, 0, '${ip}', 'I', @p6 output, '';
-        select IdCall = @p6
-        `,
+      `EXEC VZ_CreateCall ${player_id}, '${ip}'`,
     );
 
     // **SET CACHE
