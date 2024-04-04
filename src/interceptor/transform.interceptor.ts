@@ -34,6 +34,7 @@ export class TransformInterceptor<T>
           data.message ||
           '',
         data: data,
+        timestamp: new Date().toISOString(),
       })),
     );
   }

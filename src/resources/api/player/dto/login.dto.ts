@@ -1,20 +1,25 @@
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsNumber } from 'class-validator';
-import { toNumber } from '../../../../helpers/cast.helper';
+import { IsIP, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { toNumber, trim } from '../../../../helpers/cast.helper';
 
 export class LoginParams {
-  @Transform(({ value }) => toNumber(value, { min: 1 }))
+  @Transform(({ value }) => trim(value))
+  @IsNotEmpty()
+  @IsString()
+  user: string;
+
+  @Transform(({ value }) => trim(value))
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+
+  @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsNotEmpty()
   @IsNumber()
   book_id: number;
 
-  @Transform(({ value }) => toNumber(value, { min: 0 }))
+  @Transform(({ value }) => trim(value))
   @IsNotEmpty()
-  @IsNumber()
-  line_type_id: number;
-
-  @Transform(({ value }) => toNumber(value, { min: 0 }))
-  @IsNotEmpty()
-  @IsNumber()
-  lang_id: number;
+  @IsIP()
+  ip: string;
 }
