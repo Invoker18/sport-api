@@ -6,7 +6,7 @@ import { string } from 'joi';
 export class FetchService {
   constructor() {}
 
-  async FetchProxy(method, params, requestUrl) {
+  async FetchProxy(method, params, requestUrl, $key = 'index') {
     try {
       const formData = new URLSearchParams(params);
       const requestConfig = {
@@ -26,18 +26,16 @@ export class FetchService {
       const parser = new XMLParser(optionsParser);
       let xmlParsed = parser.parse(data);
       xmlParsed = parser.parse(xmlParsed.string['#text'])['xml'] ?? '';
-      if (xmlParsed['ErrorCode'] == 0) {
-        return xmlParsed['ErrorCode'] == 0
-          ? xmlParsed['index']
-          : {
-              status: 'error',
-              error: 'Proxy',
-              code: xmlParsed['ErrorCode'],
-              message_key: xmlParsed['ErrorMsgKey'],
-              message_param: xmlParsed['ErrorMsgParams'],
-              message: xmlParsed['ErrorMsg'],
-            };
-      }
+      return xmlParsed['ErrorCode'] == 0
+        ? xmlParsed[$key]
+        : {
+            status: 'error',
+            error: 'Proxy',
+            code: xmlParsed['ErrorCode'],
+            message_key: xmlParsed['ErrorMsgKey'],
+            message_param: xmlParsed['ErrorMsgParams'],
+            message: xmlParsed['ErrorMsg'],
+          };
     } catch (error) {
       throw new ForbiddenException('API not available: ' + error);
     }
