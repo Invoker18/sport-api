@@ -30,6 +30,7 @@ import {
 import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GetActiveLeaguesQuery } from './dto/get-leagues.dto';
 import { TransformInterceptor } from '../../../interceptor/transform.interceptor';
+import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
 
 @Controller('proxy/wager')
 @ApiKeyAuth()
@@ -47,10 +48,10 @@ export class WagerController {
     if (params.active == 1) {
       response = await this.wagerService.GetActiveLeagues({
         IdBook: params.book_id,
-        IdProfile: params.book_id,
-        IdLineType: params.book_id,
-        WagerType: params.book_id,
-        Language: params.book_id,
+        IdProfile: params.profile_id,
+        IdLineType: params.line_type_id,
+        WagerType: params.wager_type_id,
+        Language: params.lang_id,
       });
     } else {
       response = await this.wagerService.GetAnonActiveLeagues({
@@ -58,5 +59,28 @@ export class WagerController {
       });
     }
     return response;
+  }
+
+  @Get('games_by_leagues')
+  @Header('Content-Type', 'application/json')
+  @UseInterceptors(TransformInterceptor)
+  async getGamesByLeagueId(
+    @Query() params: GetGamesByLeaguesQuery,
+  ): Promise<string> {
+    return await this.wagerService.GetScheduleUTC({
+        IdBook: params.book_id,
+        IdProfile: params.profile_id,
+        IdProfileLimits: params.profile_limits_id,
+        IdLineType: params.line_type_id,
+        NHLLine: params.nhl_line,
+        MLBLine: params.mlb_line,
+        LineStyle: params.line_style,
+        WagerType: params.wager_type,
+        StrIdLeagues: params.str_id_leagues,
+        IdWagerType: params.wager_type_id,
+        Language: params.lang_id,
+        UTC: params.utc,
+        IdAgent: params.agent_id,
+      });
   }
 }

@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { toNumber } from '../../../../helpers/cast.helper';
 
 export class GetActiveLeaguesQuery {
@@ -14,18 +14,22 @@ export class GetActiveLeaguesQuery {
   book_id: number;
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))
+  @IsOptional()
   @IsNumber()
   profile_id?: number;
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))
+  @IsOptional()
   @IsNumber()
   line_type_id?: number;
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))
+  @IsOptional()
   @IsNumber()
   wager_type_id?: number;
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))
+  @IsOptional()
   @IsNumber()
   lang_id?: number;
 }

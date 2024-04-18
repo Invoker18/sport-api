@@ -25,7 +25,7 @@ export class WagerService {
 
   async GetScheduleUTC(params: object) {
     const requestUrl = this.proxy_url + '/GetScheduleUTC';
-    return this.helper.FetchProxy('POST', params, requestUrl);
+    return this.helper.FetchProxy('POST', params, requestUrl, 'league');
   }
 
   async GetTeasers() {}
