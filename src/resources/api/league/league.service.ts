@@ -42,4 +42,25 @@ export class LeagueService {
     return data;
   }
 
+  async getActiveWebRow(params: any) {
+    let cacheTimeSec = 30;
+    let book_id = params.book_id;
+    let line_type_id = params.line_type_id;
+    let lang_id = params.lang_id;
+    // **CHECK CACHE
+    const key = `get_webrow_active_${book_id}_${line_type_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = await this.leagueRepository.query(
+      `EXEC VZ_GetActiveWebRow	${book_id},${line_type_id},${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
 }

@@ -8,7 +8,7 @@ GO
 
 -- =============================================
 -- Author:		Alexander De Sousa
--- Create date: Apr 12 2024
+-- Create date: Apr 18 2024
 -- Description:	[VZ_GetActiveWebRow]
 -- =============================================
 CREATE PROCEDURE [dbo].[VZ_GetActiveWebRow]
@@ -59,27 +59,18 @@ BEGIN
 		GROUP BY L.IdLeague, L.LeagueOrder,  WCD.ColumnOrder, WRD.RowOrder, LR.RegionOrder, WR.[Description],  LR.[Description], L.IdSport, L.[Description], WR.IdWebRow, LR.IDLeagueRegion
 		ORDER BY WCD.ColumnOrder, WRD.RowOrder, LR.RegionOrder, L.LeagueOrder
 
-	SELECT  LG.IdLeague, 
-			LG.ColumnOrder, 
-			CASE WHEN LG.RowDescriptionLang IS NULL THEN LG.RowDescription ELSE LG.RowDescriptionLang END as RowDescription,
-			LG.RowOrder, 
-			LG.LeagueOrder, 
-			CASE WHEN LG.LeagueDescriptionLang IS NULL THEN LG.LeagueDescription ELSE LG.LeagueDescriptionLang END as LeagueDescription,
-			LG.IdSport, 
-			LG.IdWebRow, 
-			CASE WHEN LG.RegionDescriptionLang IS NULL THEN LG.RegionDescription ELSE LG.RegionDescriptionLang END as RegionDescription,
-			LG.IDLeagueRegion, 
-			SUM(LG.Games) as GameCount 
+	SELECT  LG.IdWebRow, 
+			CASE WHEN LG.RowDescriptionLang IS NULL THEN LG.RowDescription ELSE LG.RowDescriptionLang END AS RowDescription,
+			MIN(LG.RowOrder) AS RowOrder,
+			SUM(LG.Games) AS GameCount,
+			SUM(LG.Leagues) AS LeagueCount 
 	FROM (
 		SELECT  L.IdWebRow,
 		        L.RowDescription,
 				WL.Description AS RowDescriptionLang,
 				L.RowOrder, 
-				 
-				L.RegionDescription,
-				LRL.Description AS RegionDescriptionLang,
-				L.IDLeagueRegion, 
-				COUNT(G.IdGame) Games
+				COUNT(distinct G.IdGame) Games,
+				COUNT(distinct G.IdLeague) Leagues
 		FROM Game G With(NoLock)
 		JOIN GameValues GV With(NoLock) ON G.IdGame = GV.IdGame AND GV.IdLineType = @prmIdLineType
 		JOIN #TempLeague L With(NoLock) ON G.IdLeague = L.IdLeague
@@ -90,36 +81,19 @@ BEGIN
 		AND G.GameStat = 'O'
 		AND G.GameDateTime > GETDATE()
 		AND G.IdEvent IS NULL
-		GROUP BY G.IdLeague, 
-			 	L.ColumnOrder, 
-				L.RowDescription,
-				WL.Description ,
+		GROUP BY L.RowDescription,
+				WL.Description,
 				L.RowOrder, 
-				L.LeagueOrder, 
-				L.LeagueDescription,
-				LL.Description,
-				L.IdSport, 
-				L.IdWebRow, 
-				L.RegionDescription,
-				LRL.Description,
-			 	L.IDLeagueRegion 
+				L.IdWebRow
 			
 		UNION	
 			
-		SELECT  G.IdLeague, 
-				L.ColumnOrder, 
+		SELECT  L.IdWebRow, 
 				L.RowDescription,
 				WL.Description AS RowDescriptionLang,
 				L.RowOrder, 
-				L.LeagueOrder, 
-				L.LeagueDescription,
-				LL.Description AS LeagueDescriptionLang,
-				L.IdSport, 
-				L.IdWebRow, 
-				L.RegionDescription,
-				LRL.Description AS RegionDescriptionLang,
-				L.IDLeagueRegion, 
-				COUNT(G.IdGame) Games
+				COUNT(distinct G.IdGame) Games,
+				COUNT(distinct G.IdLeague) Leagues
 		FROM Game G With(NoLock)
 		JOIN GameTNTPropAction P With(NoLock) ON G.IdGame = P.IdGame AND P.IdLineType = @prmIdLineType 
 		JOIN #TempLeague L With(NoLock) ON G.IdLeague = L.IdLeague
@@ -130,34 +104,17 @@ BEGIN
 		AND G.GameStat = 'O'
 		AND G.GameDateTime > GETDATE()
 		AND G.IdEvent IS NULL
-		GROUP BY G.IdLeague, 
-			 	L.ColumnOrder, 
-				L.RowDescription,
+		GROUP BY L.RowDescription,
 				WL.Description ,
 				L.RowOrder, 
-				L.LeagueOrder, 
-				L.LeagueDescription,
-				LL.Description,
-				L.IdSport, 
-				L.IdWebRow, 
-				L.RegionDescription,
-				LRL.Description,
-			 	L.IDLeagueRegion 
+				L.IdWebRow
+
 	) LG
-	GROUP BY LG.IdLeague, 
-			 LG.ColumnOrder, 
-			 LG.RowDescription,
-			 LG.RowDescriptionLang,
-			 LG.RowOrder, 
-			 LG.LeagueOrder, 
-			 LG.LeagueDescription, 
-			 LG.LeagueDescriptionLang, 
-			 LG.IdSport, 
-			 LG.IdWebRow, 
-			 LG.RegionDescription,
-			 LG.RegionDescriptionLang,
-			 LG.IDLeagueRegion 
-	ORDER BY 2,4,5
+	GROUP BY 
+			LG.IdWebRow, 
+			LG.RowDescription,
+			LG.RowDescriptionLang
+	ORDER BY 3
 
 END
 GO

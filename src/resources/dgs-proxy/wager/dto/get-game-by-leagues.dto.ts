@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsAlphanumeric, IsNotEmpty, IsNumber, IsNumberString, IsOptional } from 'class-validator';
+import { IsAlphanumeric, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, isString } from 'class-validator';
 import { toNumber } from '../../../../helpers/cast.helper';
 
 export class GetGamesByLeaguesQuery {
@@ -42,10 +42,9 @@ export class GetGamesByLeaguesQuery {
   @IsNumber()
   wager_type_id: number;
 
-  @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsNotEmpty()
-  @IsNumber()
-  str_id_leagues: number;
+  @IsString()
+  str_id_leagues: string;
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsNotEmpty()

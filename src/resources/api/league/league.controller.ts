@@ -16,5 +16,13 @@ export class LeagueController {
     @Query() params: GetActiveLeaguesQuery,
   ): Promise<string> {
     return await this.leagueService.getActiveLeagues(params);
+  }  
+  
+  @Get('webrow')
+  @UseInterceptors(TransformInterceptor)
+  async getActiveWebRow(
+    @Query() params: GetActiveLeaguesQuery,
+  ): Promise<string> {
+    return await this.leagueService.getActiveWebRow(params);
   }
 }
