@@ -7,12 +7,19 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { Redis } from './config/config-redis';
+import { WebSocketModule } from './websockets/websocket.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { KafkaModule } from './microservices/kafka/kafka.module';
+import { OddsConsumer } from './odds.consumer';
 @Module({
   imports: [
     configOptions,
     AuthModule,
+    KafkaModule,
     ResourcesModule,
     SharedModule,
+    WebSocketModule,
     Redis,
     ThrottlerModule.forRoot([
       {
@@ -21,9 +28,11 @@ import { Redis } from './config/config-redis';
       },
     ]),
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [
     ConfigModule,
+    AppService,
+    OddsConsumer,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

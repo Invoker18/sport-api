@@ -4,6 +4,8 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ConsumerService } from './microservices/kafka/consumer.service';
+import { KafkaModule } from './microservices/kafka/kafka.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -54,5 +56,10 @@ async function bootstrap() {
 
   await app.listen(Number(port));
   console.log(`🚀 Servidor iniciado en puerto: ${port}`);
+
+  // const kafka = await NestFactory.createMicroservice(KafkaModule, {
+  //   strategy: new ConsumerService(),
+  // });
+  // await kafka.listen();
 }
 bootstrap();
