@@ -21,10 +21,10 @@ export class LeagueService {
     @prmIdLanguage tinyint
   */
   async getActiveLeagues(params: any) {
-    let cacheTimeSec = 10;
-    let book_id = params.book_id;
-    let line_type_id = params.line_type_id;
-    let lang_id = params.lang_id;
+    const cacheTimeSec = 10;
+    const book_id = params.book_id;
+    const line_type_id = params.line_type_id;
+    const lang_id = params.lang_id;
     // **CHECK CACHE
     const key = `get_leagues_active_${book_id}_${line_type_id}_${lang_id}`;
     const cached = await this.cacheService.get(key);
@@ -43,10 +43,10 @@ export class LeagueService {
   }
 
   async getActiveWebRow(params: any) {
-    let cacheTimeSec = 30;
-    let book_id = params.book_id;
-    let line_type_id = params.line_type_id;
-    let lang_id = params.lang_id;
+    const cacheTimeSec = 30;
+    const book_id = params.book_id;
+    const line_type_id = params.line_type_id;
+    const lang_id = params.lang_id;
     // **CHECK CACHE
     const key = `get_webrow_active_${book_id}_${line_type_id}_${lang_id}`;
     const cached = await this.cacheService.get(key);
