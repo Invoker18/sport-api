@@ -1,35 +1,9 @@
-import {
-  Controller,
-  Get,
-  Header,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  HttpCode,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, Header, Query } from '@nestjs/common';
 import { WagerService } from './wager.service';
 // import { BookIdValidatorPipe } from './pipes/book-id-validator.pipe'
-import {
-  ApiBadRequestResponse,
-  ApiBasicAuth,
-  ApiInternalServerErrorResponse,
-  ApiNotAcceptableResponse,
-  ApiUnauthorizedResponse,
-  ApiNotFoundResponse,
-  ApiQuery,
-  ApiBody,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GetActiveLeaguesQuery } from './dto/get-leagues.dto';
-import { TransformInterceptor } from '../../../interceptor/transform.interceptor';
 import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
 
 @Controller('proxy/wager')
@@ -40,7 +14,6 @@ export class WagerController {
 
   @Get('leagues')
   @Header('Content-Type', 'application/json')
-  @UseInterceptors(TransformInterceptor)
   async getActiveLeagues(
     @Query() params: GetActiveLeaguesQuery,
   ): Promise<string> {
@@ -63,24 +36,23 @@ export class WagerController {
 
   @Get('games_by_leagues')
   @Header('Content-Type', 'application/json')
-  @UseInterceptors(TransformInterceptor)
   async getGamesByLeagueId(
     @Query() params: GetGamesByLeaguesQuery,
   ): Promise<string> {
     return await this.wagerService.GetScheduleUTC({
-        IdBook: params.book_id,
-        IdProfile: params.profile_id,
-        IdProfileLimits: params.profile_limits_id,
-        IdLineType: params.line_type_id,
-        NHLLine: params.nhl_line,
-        MLBLine: params.mlb_line,
-        LineStyle: params.line_style,
-        WagerType: params.wager_type,
-        StrIdLeagues: params.str_id_leagues,
-        IdWagerType: params.wager_type_id,
-        Language: params.lang_id,
-        UTC: params.utc,
-        IdAgent: params.agent_id,
-      });
+      IdBook: params.book_id,
+      IdProfile: params.profile_id,
+      IdProfileLimits: params.profile_limits_id,
+      IdLineType: params.line_type_id,
+      NHLLine: params.nhl_line,
+      MLBLine: params.mlb_line,
+      LineStyle: params.line_style,
+      WagerType: params.wager_type,
+      StrIdLeagues: params.str_id_leagues,
+      IdWagerType: params.wager_type_id,
+      Language: params.lang_id,
+      UTC: params.utc,
+      IdAgent: params.agent_id,
+    });
   }
 }

@@ -1,5 +1,9 @@
 import { Transform } from 'class-transformer';
-import { IsAlphanumeric, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, isString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 import { toNumber } from '../../../../helpers/cast.helper';
 
 export class GetGamesByLeaguesQuery {
@@ -59,4 +63,3 @@ export class GetGamesByLeaguesQuery {
   @IsNumber()
   agent_id: number;
 }
-
