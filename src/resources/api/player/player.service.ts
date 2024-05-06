@@ -23,10 +23,10 @@ export class PlayerService {
 
   */
   async login(params: any) {
-    let user = params.user;
-    let password = params.password;
-    let book_id = params.book_id;
-    let ip = params.ip;
+    const user = params.user;
+    const password = params.password;
+    const book_id = params.book_id;
+    const ip = params.ip;
 
     const player: any = Object.values(
       await this.getPlayerByUserName({ user }),
@@ -36,10 +36,13 @@ export class PlayerService {
       throw new NotFoundException(`Invalid user ${user}. Not found`);
     } else if (player.OnlineAccess != 1 || player.IdBook != book_id) {
       throw new UnauthorizedException(
-        `Player ${user} doesnt have Online Access. Contact Customer Services.`,
+        `Player ${user} doesnt have Online Access. Contact Customer Services.`
       );
     } else if (player.UserName != user || player.OnlinePassword != password) {
-      throw new UnauthorizedException(`Invalid user name or password.`);
+      throw new UnauthorizedException(`Invalid user name or password.`, {
+        cause: new Error(),
+        description: 'Credentials',
+      });
     }
 
     let call = await this.createCallInDGS({ player_id: player.IdPlayer, ip });
@@ -54,9 +57,9 @@ export class PlayerService {
     @prmIP varchar(100)
   */
   async createCallInDGS(params: any) {
-    let cacheTimeSec = 1;
-    let player_id = params.player_id;
-    let ip = params.ip;
+    const cacheTimeSec = 1;
+    const player_id = params.player_id;
+    const ip = params.ip;
 
     // **CHECK CACHE
     const key = `get_createCallInDGS_${player_id}`;
@@ -80,8 +83,8 @@ export class PlayerService {
     @prmIdPlayer int
   */
   async getPlayerByUserName(params: any) {
-    let cacheTimeSec = 1;
-    let user = params.user;
+    const cacheTimeSec = 1;
+    const user = params.user;
 
     // **CHECK CACHE
     const key = `get_playerByUserName_${user}`;
@@ -105,8 +108,8 @@ export class PlayerService {
     @prmIdPlayer int
   */
   async getBalance(params: any) {
-    let cacheTimeSec = 2;
-    let player_id = params.player_id;
+    const cacheTimeSec = 2;
+    const player_id = params.player_id;
     // **CHECK CACHE
     const key = `get_playerBalance_${player_id}`;
     const cached = await this.cacheService.get(key);
@@ -129,8 +132,8 @@ export class PlayerService {
     @prmIdPlayer int
   */
   async getInfo(params: any) {
-    let cacheTimeSec = 2;
-    let player_id = params.player_id;
+    const cacheTimeSec = 2;
+    const player_id = params.player_id;
     // **CHECK CACHE
     const key = `get_playerInfo_${player_id}`;
     const cached = await this.cacheService.get(key);
@@ -144,6 +147,10 @@ export class PlayerService {
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
     // **SET CACHE
+
+    if (!data[0]) {
+      throw new NotFoundException(`IdPlayer ${player_id}. Not found`);
+    }
 
     return data;
   }
