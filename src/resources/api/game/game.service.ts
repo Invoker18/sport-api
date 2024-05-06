@@ -22,7 +22,7 @@ export class GameService {
   */
   async getGamesByLeagues(params: any) {
     const cacheTimeSec = 1;
-    const str_league_id = params.str_id_leagues;
+    const league_ids = params.league_id;
     const player_id = params.player_id;
     const lang_id = params.lang_id;
     const player: any = Object.values(
@@ -32,14 +32,14 @@ export class GameService {
     const line_type_id = player.IdLineType;
 
     // **CHECK CACHE
-    const key = `get_game_by_league_${str_league_id}_${player_id}_${lang_id}`;
+    const key = `get_game_by_league_${league_ids}_${player_id}_${lang_id}`;
     const cached = await this.cacheService.get(key);
 
     if (cached) return cached;
     // **CHECK CACHE
 
     let data: any = [];
-    for (const league_id of str_league_id.split(',')) {
+    for (const league_id of league_ids) {
       let games = await this.getOpenGamesLeague({
         league_id,
         agent_id,

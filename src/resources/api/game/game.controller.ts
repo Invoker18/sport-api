@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, ParseArrayPipe, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GameService } from './game.service';
@@ -12,7 +12,8 @@ export class GameController {
 
   @Get('/league')
   async getGamesByLeague(
-    @Query() params: GetGamesByLeaguesQuery,
+    @Query()
+    params: GetGamesByLeaguesQuery,
   ): Promise<string> {
     return await this.gameService.getGamesByLeagues(params);
   }
