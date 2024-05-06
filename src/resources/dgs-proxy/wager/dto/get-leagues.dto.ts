@@ -33,4 +33,3 @@ export class GetActiveLeaguesQuery {
   @IsNumber()
   lang_id?: number;
 }
-

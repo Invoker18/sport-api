@@ -17,4 +17,3 @@ export class GetGamesByLeaguesQuery {
   @IsNumber()
   player_id: number;
 }
-
