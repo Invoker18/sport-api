@@ -9,5 +9,6 @@ import { DATABASE_ENUM } from 'src/config/database/enum';
   imports: [TypeOrmModule.forFeature([Player], DATABASE_ENUM.MSSQL_DGS)],
   controllers: [PlayerController],
   providers: [PlayerService],
+  exports: [PlayerService],
 })
 export class PlayerModule {}

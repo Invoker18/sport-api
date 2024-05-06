@@ -16,10 +16,10 @@ import { OddsConsumer } from './odds.consumer';
   imports: [
     configOptions,
     AuthModule,
-    KafkaModule,
+    // KafkaModule,
     ResourcesModule,
     SharedModule,
-    WebSocketModule,
+    // WebSocketModule,
     Redis,
     ThrottlerModule.forRoot([
       {
@@ -28,11 +28,11 @@ import { OddsConsumer } from './odds.consumer';
       },
     ]),
   ],
-  controllers: [AppController],
+  // controllers: [AppController],
   providers: [
     ConfigModule,
-    AppService,
-    OddsConsumer,
+    // AppService,
+    // OddsConsumer,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
