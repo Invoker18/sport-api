@@ -4,7 +4,6 @@ import {
   Get,
   Param,
   Post,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TransformInterceptor } from '../../../interceptor/transform.interceptor';
@@ -20,20 +19,17 @@ export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
 
   @Post('login')
-  @UseInterceptors(TransformInterceptor)
   async login(@Body() params: LoginParams): Promise<string> {
     return await this.playerService.login(params);
   }
 
   @Get(':player_id/balance')
-  @UseInterceptors(TransformInterceptor)
   async getBalance(@Param() params: IdPlayerParam): Promise<string> {
     console.log(params);
     return await this.playerService.getBalance(params);
   }
 
   @Get(':player_id/info')
-  @UseInterceptors(TransformInterceptor)
   async getInfo(@Param() params: IdPlayerParam): Promise<string> {
     return await this.playerService.getInfo(params);
   }

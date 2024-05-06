@@ -25,7 +25,8 @@ export class TransformInterceptor<T>
   ): Observable<Response<T>> {
     return next.handle().pipe(
       map((data) => ({
-        statusCode: context.switchToHttp().getResponse().statusCode,
+        statusCode:
+          data.status || context.switchToHttp().getResponse().statusCode,
         message:
           this.reflector.get<string>(
             'response_message',
@@ -33,7 +34,7 @@ export class TransformInterceptor<T>
           ) ||
           data.message ||
           '',
-        data: ((!!data) && (data.constructor === Object))? [data] : data,
+        data: !!data && data.constructor === Object ? [data] : data,
         timestamp: new Date().toISOString(),
       })),
     );

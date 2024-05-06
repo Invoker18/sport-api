@@ -1,22 +1,6 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { PlayerService } from './player.service';
-
-import {
-  ApiBasicAuth,
-  ApiInternalServerErrorResponse,
-  ApiNotAcceptableResponse,
-  ApiNotFoundResponse,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('proxy/player')
 @ApiTags('proxyPlayer')
