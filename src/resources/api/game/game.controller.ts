@@ -3,6 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GameService } from './game.service';
 import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
+import { GetFamilyGamesQuery } from './dto/get-game-family.dto';
 
 @Controller('game')
 @ApiKeyAuth()
@@ -16,5 +17,13 @@ export class GameController {
     params: GetGamesByLeaguesQuery,
   ): Promise<string> {
     return await this.gameService.getGamesByLeagues(params);
+  }
+
+  @Get('/family')
+  async getFamilyGames(
+    @Query()
+    params: GetFamilyGamesQuery,
+  ): Promise<string> {
+    return await this.gameService.getFamilyGames(params);
   }
 }

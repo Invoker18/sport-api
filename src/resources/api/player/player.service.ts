@@ -29,9 +29,7 @@ export class PlayerService {
     const book_id = params.book_id;
     const ip = params.ip;
 
-    const player: any = Object.values(
-      await this.getPlayerByUserName({ user }),
-    )[0];
+    const player = await this.getPlayerByUserName({ user });
 
     if (!player) {
       throw new NotFoundException(`Invalid user ${user}. Not found`);
@@ -94,9 +92,13 @@ export class PlayerService {
     if (cached) return cached;
     // **CHECK CACHE
 
-    const data = await this.playerRepository.query(
-      `EXEC GetPlayerForLogin	'${user}'`,
-    );
+    const data = (
+      await this.playerRepository.query(`EXEC GetPlayerForLogin	'${user}'`)
+    )[0];
+
+    if (!data) {
+      throw new NotFoundException(`Player ${user}. Not found`);
+    }
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
@@ -118,18 +120,19 @@ export class PlayerService {
     if (cached) return cached;
     // **CHECK CACHE
 
-    const data = await this.playerRepository.query(
-      `EXEC VZ_GetPlayerBalance	${player_id}`,
-    );
+    const data = (
+      await this.playerRepository.query(`EXEC VZ_GetPlayerBalance	${player_id}`)
+    )[0];
+
+    if (!data) {
+      throw new NotFoundException(`IdPlayer ${player_id}. Not found`);
+    }
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
     // **SET CACHE
 
-    if (!data[0]) {
-      throw new NotFoundException(`IdPlayer ${player_id}. Not found`);
-    }
-    return data[0];
+    return data;
   }
 
   /**
@@ -145,17 +148,17 @@ export class PlayerService {
     if (cached) return cached;
     // **CHECK CACHE
 
-    const data = await this.playerRepository.query(
-      `EXEC VZ_GetPlayerInfo ${player_id}`,
-    );
+    const data = (
+      await this.playerRepository.query(`EXEC VZ_GetPlayerInfo ${player_id}`)
+    )[0];
 
+    if (!data) {
+      throw new NotFoundException(`IdPlayer ${player_id}. Not found`);
+    }
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
     // **SET CACHE
 
-    if (!data[0]) {
-      throw new NotFoundException(`IdPlayer ${player_id}. Not found`);
-    }
-    return data[0];
+    return data;
   }
 }
