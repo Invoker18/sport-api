@@ -1,4 +1,4 @@
-import { Controller, Get, ParseArrayPipe, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GameService } from './game.service';

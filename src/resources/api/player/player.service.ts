@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { DATABASE_ENUM } from '../../../config/database/enum';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { any } from 'joi';
 
 @Injectable()
 export class PlayerService {
@@ -36,7 +37,7 @@ export class PlayerService {
       throw new NotFoundException(`Invalid user ${user}. Not found`);
     } else if (player.OnlineAccess != 1 || player.IdBook != book_id) {
       throw new UnauthorizedException(
-        `Player ${user} doesnt have Online Access. Contact Customer Services.`
+        `Player ${user} doesnt have Online Access. Contact Customer Services.`,
       );
     } else if (player.UserName != user || player.OnlinePassword != password) {
       throw new UnauthorizedException(`Invalid user name or password.`, {
@@ -44,11 +45,12 @@ export class PlayerService {
         description: 'Credentials',
       });
     }
-
-    let call = await this.createCallInDGS({ player_id: player.IdPlayer, ip });
-    let info = await this.getInfo({ player_id: player.IdPlayer });
-    info[0].IdCall = call[0].IdCall;
-    return await this.getInfo({ player_id: player.IdPlayer });
+    await this.createCallInDGS({ player_id: player.IdPlayer, ip });
+    const data: any = {
+      balance: await this.getBalance({ player_id: player.IdPlayer }),
+      info: await this.getInfo({ player_id: player.IdPlayer }),
+    };
+    return data;
   }
 
   /**
@@ -124,7 +126,10 @@ export class PlayerService {
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
     // **SET CACHE
 
-    return data;
+    if (!data[0]) {
+      throw new NotFoundException(`IdPlayer ${player_id}. Not found`);
+    }
+    return data[0];
   }
 
   /**
@@ -151,7 +156,6 @@ export class PlayerService {
     if (!data[0]) {
       throw new NotFoundException(`IdPlayer ${player_id}. Not found`);
     }
-
-    return data;
+    return data[0];
   }
 }

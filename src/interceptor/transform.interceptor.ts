@@ -34,7 +34,7 @@ export class TransformInterceptor<T>
           ) ||
           data.message ||
           '',
-        data: !!data && data.constructor === Object ? [data] : data,
+        data: data,
         timestamp: new Date().toISOString(),
       })),
     );
