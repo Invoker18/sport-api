@@ -25,9 +25,7 @@ export class GameService {
     const league_ids = params.league_id;
     const player_id = params.player_id;
     const lang_id = params.lang_id;
-    const player: any = Object.values(
-      await this.player.getInfo({ player_id: player_id }),
-    )[0];
+    const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
 
@@ -127,6 +125,60 @@ export class GameService {
 
     const data = await this.gameRepository.query(
       `EXEC VZ_GetOpenGamesLeague	${league_id},${agent_id},${line_type_id},${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getFamilyGames(params: any) {
+    const cacheTimeSec = 1;
+    const family_game_id = params.family_game_id;
+    const player_id = params.player_id;
+    const lang_id = params.lang_id;
+    const player = await this.player.getInfo({ player_id: player_id });
+    const agent_id = player.IdAgent;
+    const line_type_id = player.IdLineType;
+
+    // **CHECK CACHE
+    const key = `get_family_game_${family_game_id}_${player_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = await this.getOpenGamesFamily({
+      family_game_id,
+      agent_id,
+      line_type_id,
+      lang_id,
+    });
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getOpenGamesFamily(params: any) {
+    const cacheTimeSec = 1;
+    const family_game_id = params.family_game_id;
+    const agent_id = params.agent_id;
+    const line_type_id = params.line_type_id;
+    const lang_id = params.lang_id;
+
+    // **CHECK CACHE
+    const key = `get_open_games_family_${family_game_id}_${agent_id}_${line_type_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+    console.log(params);
+    const data = await this.gameRepository.query(
+      `EXEC VZ_GetOpenFamilyGames	${family_game_id},${agent_id},${line_type_id},${lang_id}`,
     );
 
     // **SET CACHE
