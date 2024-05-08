@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesLeague]    Script Date: 5/3/2024 14:45:24 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 5/3/2024 14:45:24 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -8,15 +8,17 @@ GO
 
 -- =============================================
 -- Author:		Alexander De Sousa
--- Create date: MAY 01 2024
--- Description:	[VZ_GetOpenGamesLeague]
+-- Create date: MAY 08 2024
+-- Description:	[VZ_GetOpenGamesWebRowDate]
 -- =============================================
 
-CREATE PROCEDURE [dbo].[VZ_GetOpenGamesLeague]
-	@prmIdLeague smallint,
+CREATE PROCEDURE [dbo].[VZ_GetOpenGamesWebRowDate]
+	@prmIdWebRow smallint,
 	@prmIdAgent int,
 	@prmIdLineType int,
-	@prmIdLanguage tinyint
+	@prmIdLanguage tinyint,
+	@prmStartDate date,
+	@prmEndDate date
 AS
 DECLARE @bitZero bit,
 	    @Main_IdGame int, 
@@ -106,14 +108,16 @@ INSERT INTO #tblMainGames
 	row_number() OVER (ORDER BY G.VisitorNumber),0
 	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType
+	JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague AND WRD.IdWebRow = @prmIdWebRow
 	LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLH WITH (NOLOCK) ON G.IdTeamHome = TLH.IdTeam AND TLH.IdLanguage = @prmIdLanguage
 	WHERE G.GameStat = 'O'
 	  AND G.Graded = 0
 	  AND G.Online = 1
-	  AND G.IdLeague = @prmIdLeague
 	  AND G.GameDateTime > GETDATE()
+	  AND CAST(G.GameDateTime AS DATE) >= @prmStartDate
+	  AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
 	  AND L.HideGame = 0
 
 	UNION
@@ -134,19 +138,24 @@ INSERT INTO #tblMainGames
 		G.Description as GameDescription, GL.Description as GameLangDescription,
 		row_number() OVER (ORDER BY G.VisitorNumber),0
 	FROM Game G WITH (NOLOCK) 
+	JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague AND WRD.IdWebRow = @prmIdWebRow
 	INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
 	JOIN GameValuesByAgent L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdAgent = @prmIdAgent
 	WHERE G.GameStat = 'O'
 	  AND G.Graded = 0
 	  AND G.Online = 1
-	  AND G.IdLeague = @prmIdLeague
 	  AND G.GameDateTime > GETDATE()  
+	  AND CAST(G.GameDateTime AS DATE) >= @prmStartDate
+	  AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
 	  --AND L.HideGame = 0
 
 	--ORDER BY CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)), G.VisitorNumber
 	ORDER BY 8, 10, 2, 1
 	
+	
+
+
 	DECLARE GetEventsForGame_Cursor CURSOR FOR
 		SELECT Game.IdGame,Game.IdSport, ParentOrder FROM Game WITH(NOLOCK) LEFT JOIN #tblMainGames on Game.ParentGame = #tblMainGames.IdGame
 		WHERE 
@@ -170,6 +179,7 @@ INSERT INTO #tblMainGames
 					   null AS TeamLangHomeTeam,null AS GameLangVisitorTeam,GL.VisitorTeam  AS GameLangHomeTeam,@bitZero HideGame,0,0,0,T.TeamName,G.Description as GameDescription, GL.Description as GameLangDescription, 
 					   @Main_ParentOrder,@Order
 				FROM Game G WITH (NOLOCK)
+				JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague AND WRD.IdWebRow = @prmIdWebRow
 				JOIN GameTNT T WITH (NOLOCK) ON G.IdGame = T.IdGame
 				JOIN GameTNTPROPAction L WITH (NOLOCK) ON T.IdGame = L.IdGame AND T.TeamNumber = L.TeamNumber AND L.IdLineType = @prmIdLineType
 				LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
@@ -180,6 +190,8 @@ INSERT INTO #tblMainGames
 				  AND G.Online = 1
 				  AND G.IdSport = 'TNT'
 				  AND G.GameDateTime > GETDATE()
+				  AND CAST(G.GameDateTime AS DATE) >= @prmStartDate
+	              AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
 				  AND L.HideGame = 0
 				  AND T.Result = 255	
 				  AND G.IdGame = @Main_IdGame
@@ -192,6 +204,7 @@ INSERT INTO #tblMainGames
 					   null AS TeamLangHomeTeam,null AS GameLangVisitorTeam,GL.VisitorTeam  AS GameLangHomeTeam,@bitZero HideGame,0,0,0,T.TeamName,G.Description as GameDescription, GL.Description as GameLangDescription,
 					   @Main_ParentOrder,@Order
 				FROM Game G WITH (NOLOCK)
+				JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague AND WRD.IdWebRow = @prmIdWebRow
 				JOIN GameTNT T WITH (NOLOCK) ON G.IdGame = T.IdGame
 				JOIN GameTNTPROPByAgent L WITH (NOLOCK) ON T.IdGame = L.IdGame AND T.TeamNumber = L.TeamNumber AND  L.IdAgent = @prmIdAgent	
 				LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
@@ -201,6 +214,8 @@ INSERT INTO #tblMainGames
 				  AND G.Online = 1
 				  AND G.IdSport = 'TNT'
 				  AND G.GameDateTime > GETDATE()  
+				  AND CAST(G.GameDateTime AS DATE) >= @prmStartDate
+	  			  AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
 				  --AND L.HideGame = 0
 				  AND T.Result = 255
 				  AND G.IdGame = @Main_IdGame
@@ -217,6 +232,7 @@ INSERT INTO #tblMainGames
 					   0,0,0, 'Game' as PeriodDescription,G.Description as GameDescription, GL.Description as GameLangDescription, 
 					   @Main_ParentOrder,@Order
 				FROM Game G WITH (NOLOCK)
+				JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague AND WRD.IdWebRow = @prmIdWebRow
 				JOIN GameTNTPROPAction L WITH (NOLOCK) ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType
 				LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 				WHERE G.GameStat = 'O'
@@ -224,6 +240,8 @@ INSERT INTO #tblMainGames
 				  AND G.Online = 1
 				  AND G.IdSport = 'PROP'
 				  AND G.GameDateTime > GETDATE()
+				  AND CAST(G.GameDateTime AS DATE) >= @prmStartDate
+	              AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
 				  AND L.HideGame = 0
 				  AND G.IdGame = @Main_IdGame
 
@@ -236,6 +254,7 @@ INSERT INTO #tblMainGames
 					   0,0,0, 'Game' as PeriodDescription,G.Description as GameDescription, GL.Description as GameLangDescription,
 					   @Main_ParentOrder,@Order
 				FROM Game G WITH (NOLOCK)
+				JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague AND WRD.IdWebRow = @prmIdWebRow
 				JOIN GameTNTPROPByAgent L WITH (NOLOCK) ON G.IdGame = L.IdGame AND L.IdAgent = @prmIdAgent
 				LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 				WHERE G.GameStat = 'O'
@@ -243,6 +262,8 @@ INSERT INTO #tblMainGames
 				  AND G.Online = 1
 				  AND G.IdSport = 'PROP'
 				  AND G.GameDateTime > GETDATE()
+				  AND CAST(G.GameDateTime AS DATE) >= @prmStartDate
+	              AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
 				  --AND L.HideGame = 0
 				  AND G.IdGame = @Main_IdGame
 		END
@@ -264,7 +285,9 @@ INSERT INTO #tblMainGames
 				@bitZero HideGame, @bitZero HideSpread, @bitZero HideTotal, @bitZero HideMoneyLine, P.PeriodDescription,
 				G.Description as GameDescription, GL.Description as GameLangDescription, 
 				@Main_ParentOrder,@Order
-				FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
+				FROM Game G WITH (NOLOCK) 
+				JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague AND WRD.IdWebRow = @prmIdWebRow
+				INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 				JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType
 				LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 				LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage
@@ -273,6 +296,8 @@ INSERT INTO #tblMainGames
 				  AND G.Graded = 0
 				  AND G.Online = 1
 				  AND G.GameDateTime > GETDATE()
+				  AND CAST(G.GameDateTime AS DATE) >= @prmStartDate
+	              AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
 				  AND L.HideGame = 0
 				  AND G.IdGame = @Main_IdGame
 
@@ -293,13 +318,17 @@ INSERT INTO #tblMainGames
 					L.HideGame, L.HideSpread, L.HideTotal, L.HideMoneyLine, P.PeriodDescription, 
 					G.Description as GameDescription, GL.Description as GameLangDescription, 
 					@Main_ParentOrder,@Order
-				FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
-										  LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
+				FROM Game G WITH (NOLOCK) 
+				JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague AND WRD.IdWebRow = @prmIdWebRow
+				INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
+				LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
 				JOIN GameValuesByAgent L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdAgent = @prmIdAgent
 				WHERE G.GameStat = 'O'
 				  AND G.Graded = 0
 				  AND G.Online = 1
 				  AND G.GameDateTime > GETDATE()  
+				  AND CAST(G.GameDateTime AS DATE) >= @prmStartDate
+	              AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
 				  --AND L.HideGame = 0
 				  AND G.IdGame = @Main_IdGame
 		END
