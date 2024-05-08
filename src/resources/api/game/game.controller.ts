@@ -4,6 +4,7 @@ import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GameService } from './game.service';
 import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
 import { GetFamilyGamesQuery } from './dto/get-game-family.dto';
+import { GetGamesByWebRowQuery } from './dto/get-game-by-webrow.dto';
 
 @Controller('game')
 @ApiKeyAuth()
@@ -17,6 +18,14 @@ export class GameController {
     params: GetGamesByLeaguesQuery,
   ): Promise<string> {
     return await this.gameService.getGamesByLeagues(params);
+  }
+
+  @Get('/webrow')
+  async getGamesByWebRow(
+    @Query()
+    params: GetGamesByWebRowQuery,
+  ): Promise<string> {
+    return await this.gameService.getGamesByWebRow(params);
   }
 
   @Get('/family')
