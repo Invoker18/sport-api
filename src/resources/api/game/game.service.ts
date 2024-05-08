@@ -16,10 +16,6 @@ export class GameService {
     private player: PlayerService,
   ) {}
 
-  /**
-    EXEC [VZ_GetGamesByLeagues]
-
-  */
   async getGamesByLeagues(params: any) {
     const cacheTimeSec = 1;
     const league_ids = params.league_id;
@@ -150,12 +146,38 @@ export class GameService {
     if (cached) return cached;
     // **CHECK CACHE
 
-    const data = await this.getOpenGamesFamily({
+    const games = await this.getOpenGamesFamily({
       family_game_id,
       agent_id,
       line_type_id,
       lang_id,
     });
+
+    const map = new Map();
+    for (const game of games) {
+      const sport_id = (game.IdSport = game.IdSport.trim());
+      const game_id = game.IdGame;
+
+      switch (sport_id) {
+        case 'TNT':
+          game.Odds = await this.getGameTNTOdds({
+            game_id,
+            line_type_id,
+            lang_id,
+          });
+          break;
+        case 'PROP':
+          break;
+      }
+
+      const collection = map.get(sport_id);
+      if (!collection) {
+        map.set(sport_id, [game]);
+      } else {
+        collection.push(game);
+      }
+    }
+    let data: any = Object.fromEntries(map.entries());
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
@@ -176,9 +198,120 @@ export class GameService {
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
-    console.log(params);
     const data = await this.gameRepository.query(
       `EXEC VZ_GetOpenFamilyGames	${family_game_id},${agent_id},${line_type_id},${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getGameTNTOdds(params: any) {
+    const cacheTimeSec = 1;
+    const game_id = params.game_id;
+    const line_type_id = params.line_type_id;
+    const lang_id = params.lang_id;
+
+    // **CHECK CACHE
+    const key = `get_game_tnt_odss_${game_id}_${line_type_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+    const data = await this.gameRepository.query(
+      `EXEC VZ_GetGameTNTOdds	${game_id},${line_type_id},${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getGamesByWebRow(params: any) {
+    const cacheTimeSec = 1;
+    const webrow_ids = params.webrow_id;
+    const player_id = params.player_id;
+    const lang_id = params.lang_id;
+    const start_date = params.start_date;
+    const end_date = params.end_date;
+    const player = await this.player.getInfo({ player_id: player_id });
+    const agent_id = player.IdAgent;
+    const line_type_id = player.IdLineType;
+
+    // **CHECK CACHE
+    const key = `get_game_by_webrow_${webrow_ids}_${player_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    let data: any = [];
+    for (const webrow_id of webrow_ids) {
+      console.log('ENTRO', webrow_ids, webrow_id);
+      let games = await this.getOpenGamesWebRowDate({
+        webrow_id,
+        agent_id,
+        line_type_id,
+        lang_id,
+        start_date,
+        end_date,
+      });
+
+      const map = new Map();
+      for (const game of games) {
+        const league_id = game.IdLeague;
+
+        const collection = map.get(league_id);
+        if (!collection) {
+          let league = await this.getLeague({
+            league_id,
+            lang_id,
+          });
+          let banner = await this.getLeagueBanners({
+            league_id,
+            lang_id,
+          });
+          map.set(league_id, {
+            league: Object.values(league)[0] ?? league,
+            banner: banner,
+            games: [game],
+          });
+        } else {
+          collection.games.push(game);
+        }
+      }
+      data.push({
+        webrow_id: webrow_id,
+        leagues: Object.fromEntries(map.entries()),
+      });
+    }
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getOpenGamesWebRowDate(params: any) {
+    const cacheTimeSec = 1;
+    const webrow_id = params.webrow_id;
+    const agent_id = params.agent_id;
+    const line_type_id = params.line_type_id;
+    const lang_id = params.lang_id;
+    const start_date = new Date(params.start_date).toISOString();
+    const end_date = new Date(params.end_date).toISOString();
+    // **CHECK CACHE
+    const key = `get_open_games_webrow_rangedate_${webrow_id}_${agent_id}_${line_type_id}_${lang_id}_${start_date}_${end_date}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+    const data = await this.gameRepository.query(
+      `EXEC VZ_GetOpenGamesWebRowDate	${webrow_id},${agent_id},${line_type_id},${lang_id},'${start_date}','${end_date}'`,
     );
 
     // **SET CACHE
