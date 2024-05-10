@@ -1,3 +1,6 @@
+ALTER DATABASE [DGSDATA] SET ALLOW_SNAPSHOT_ISOLATION ON
+ALTER DATABASE [DGSDATA] SET READ_COMMITTED_SNAPSHOT ON
+
 USE [DGSDATA]
 GO
 --SQL  Queries to implement CDC
@@ -9,7 +12,6 @@ EXEC sp_changedbowner 'sa'
 --ENABLE CHANGE DATA TRACKING
 
 EXEC sys.sp_cdc_enable_db
-
 
 /** si hubo cambio de server name
 
@@ -79,6 +81,10 @@ SELECT    name AS object_name
         ,is_ms_shipped  
 FROM sys.objects 
 WHERE is_ms_shipped= 1 AND SCHEMA_NAME(schema_id) = 'cdc'
+
+
+
+
 
 /**
 NOTA DEBE ESTA CORRIENDO EL SQL Server Agent
