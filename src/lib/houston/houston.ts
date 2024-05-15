@@ -1,0 +1,118 @@
+import {
+  Color,
+  Config,
+  Format,
+  ITransport,
+  LogLevel,
+  LogLevelDisplay,
+  Options,
+} from './types';
+import { TimePrefix } from './prefix/prefixes/time-prefix';
+
+/*
+ *
+ * Create a new Houston logger
+ *
+ * */
+export class Houston {
+  private readonly transports: Array<ITransport>;
+  private readonly options: Options;
+
+  /*
+   *
+   * Initialize the logger
+   *
+   * @param format The format of the log. Default: Houston.text
+   * @param transports The list of transports to use
+   * @param config  The options to use globally by default with all transports
+   *
+   * */
+  constructor(transports: Array<ITransport>, config?: Config | undefined) {
+    this.transports = transports;
+    this.options = {
+      format: Format.text,
+      prefix: new TimePrefix(),
+      logLevelDisplay: LogLevelDisplay.Text,
+      logColors: {
+        [LogLevel.Info]: Color.White,
+        [LogLevel.Success]: Color.Green,
+        [LogLevel.Warning]: Color.Yellow,
+        [LogLevel.Error]: Color.Red,
+      },
+    };
+
+    if (typeof config !== 'undefined')
+      for (const option in config)
+        if (this.options.hasOwnProperty(option))
+          this.options[option] = config[option];
+
+    for (const transport in this.transports)
+      if (this.transports.hasOwnProperty(transport))
+        this.transports[transport].applyDefaultOptions(this.options);
+  }
+
+  /*
+   *
+   * Logging something
+   *
+   * This will go through the given transports and call them to log your message if the logging level is configured
+   *
+   * @param level  The level of the log, 0 by default
+   * @param message  The log message
+   *
+   * */
+  log(level: LogLevel, message: string): void {
+    for (const transport in this.transports)
+      this.transports[transport].log(level, message);
+  }
+
+  /*
+   *
+   * Short log forms
+   *
+   * */
+
+  /*
+   *
+   * Log an info
+   *
+   * @param message  The log message
+   *
+   * */
+  info(message: string): void {
+    this.log(LogLevel.Info, message);
+  }
+
+  /*
+   *
+   * Log a success notice
+   *
+   * @param message  The log message
+   *
+   * */
+  success(message: string): void {
+    this.log(LogLevel.Success, message);
+  }
+
+  /*
+   *
+   * Log a warning
+   *
+   * @param message  The log message
+   *
+   * */
+  warning(message: string): void {
+    this.log(LogLevel.Warning, message);
+  }
+
+  /*
+   *
+   * Log an error
+   *
+   * @param message  The log message
+   *
+   * */
+  error(message: string): void {
+    this.log(LogLevel.Error, message);
+  }
+}
