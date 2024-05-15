@@ -6,6 +6,8 @@ import { DATABASE_ENUM } from '../../../config/database/enum';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PlayerService } from '../player/player.service';
+import { Odds } from 'src/lib/odds';
+// import { OddsAmerican } from 'src/helpers/odds.converter';
 
 @Injectable()
 export class GameService {
@@ -24,6 +26,26 @@ export class GameService {
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
+
+    // // American to Decimal
+    // console.log('American to Decimal',OddsAmerican.toDecimal(225)); // 3.25
+
+    // console.log('American to Decimal',OddsAmerican.toDecimal(-110)); // 1.91
+
+    // // American to Fraction
+    // console.log('American to Fraction',OddsAmerican.toFractional(225).simplify()); // (9/4)
+
+    // console.log('American to Fraction',OddsAmerican.toFractional(-125).simplify()); // (4/5)
+
+    // let odds = new Odds(1.5);
+
+    // odds = Odds.fromUS(-285);
+    // console.log(odds.decimalOdds); // 4
+    // console.log(odds.usOdds); // 300
+    // console.log(odds.usOddsString); // "+300"
+    // console.log(odds.fractionOdds); // "3/1"
+    // console.log(odds.impliedProbability); // 0.25
+    // console.log(odds.impliedProbabilityString); // "25%"
 
     // **CHECK CACHE
     const key = `get_game_by_league_${league_ids}_${player_id}_${lang_id}`;
@@ -48,11 +70,13 @@ export class GameService {
         league_id,
         lang_id,
       });
-      data.push({
-        league: Object.values(league)[0] ?? league,
-        banner: banner,
-        games: games,
-      });
+      if (games[0]) {
+        data.push({
+          league: Object.values(league)[0] ?? league,
+          banner: banner,
+          games: games,
+        });
+      }
     }
 
     // **SET CACHE
@@ -251,7 +275,6 @@ export class GameService {
 
     let data: any = [];
     for (const webrow_id of webrow_ids) {
-      console.log('ENTRO', webrow_ids, webrow_id);
       let games = await this.getOpenGamesWebRowDate({
         webrow_id,
         agent_id,
@@ -313,6 +336,22 @@ export class GameService {
     const data = await this.gameRepository.query(
       `EXEC VZ_GetOpenGamesWebRowDate	${webrow_id},${agent_id},${line_type_id},${lang_id},'${start_date}','${end_date}'`,
     );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getOddsConversionDGS() {
+    const cacheTimeSec = 30;
+    // **CHECK CACHE
+    const key = `get_odds_conversion_dgs`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+    const data = await this.gameRepository.query(`EXEC VZ_GetOddsConversion`);
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);

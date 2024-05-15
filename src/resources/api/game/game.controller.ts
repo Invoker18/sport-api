@@ -35,4 +35,9 @@ export class GameController {
   ): Promise<string> {
     return await this.gameService.getFamilyGames(params);
   }
+
+  @Get('/odds/dgs-conversion')
+  async getOddsConversionDGS(): Promise<string> {
+    return await this.gameService.getOddsConversionDGS();
+  }
 }
