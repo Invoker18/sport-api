@@ -37,15 +37,15 @@ export class GameService {
 
     // console.log('American to Fraction',OddsAmerican.toFractional(-125).simplify()); // (4/5)
 
-    let odds = new Odds(1.5);
+    // let odds = new Odds(1.5);
 
-    odds = Odds.fromUS(-285);
-    console.log(odds.decimalOdds); // 4
-    console.log(odds.usOdds); // 300
-    console.log(odds.usOddsString); // "+300"
-    console.log(odds.fractionOdds); // "3/1"
-    console.log(odds.impliedProbability); // 0.25
-    console.log(odds.impliedProbabilityString); // "25%"
+    // odds = Odds.fromUS(-285);
+    // console.log(odds.decimalOdds); // 4
+    // console.log(odds.usOdds); // 300
+    // console.log(odds.usOddsString); // "+300"
+    // console.log(odds.fractionOdds); // "3/1"
+    // console.log(odds.impliedProbability); // 0.25
+    // console.log(odds.impliedProbabilityString); // "25%"
 
     // **CHECK CACHE
     const key = `get_game_by_league_${league_ids}_${player_id}_${lang_id}`;
@@ -70,11 +70,13 @@ export class GameService {
         league_id,
         lang_id,
       });
-      data.push({
-        league: Object.values(league)[0] ?? league,
-        banner: banner,
-        games: games,
-      });
+      if (games[0]) {
+        data.push({
+          league: Object.values(league)[0] ?? league,
+          banner: banner,
+          games: games,
+        });
+      }
     }
 
     // **SET CACHE
@@ -273,7 +275,6 @@ export class GameService {
 
     let data: any = [];
     for (const webrow_id of webrow_ids) {
-      console.log('ENTRO', webrow_ids, webrow_id);
       let games = await this.getOpenGamesWebRowDate({
         webrow_id,
         agent_id,
