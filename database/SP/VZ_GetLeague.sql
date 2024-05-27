@@ -23,7 +23,7 @@ BEGIN
 	SELECT 	L.IDLeagueRegion, 
 			L.IdLeague, 
 			L.LeagueOrder, 
-			L.IdSport, 
+			LTRIM(RTRIM(L.IdSport)) as IdSport,
 			L.[Description], 
 			L.ShortDescription,
 			L.TeamFKRequired,

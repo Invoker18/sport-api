@@ -6,6 +6,7 @@ import { DATABASE_ENUM } from '../../../config/database/enum';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PlayerService } from '../player/player.service';
+import { LeagueService } from '../league/league.service';
 import { Odds } from 'src/lib/odds';
 // import { OddsAmerican } from 'src/helpers/odds.converter';
 
@@ -16,6 +17,7 @@ export class GameService {
     @InjectRepository(Game, DATABASE_ENUM.MSSQL_DGS)
     private gameRepository: Repository<Game>,
     private player: PlayerService,
+    private league: LeagueService,
   ) {}
 
   async getGamesByLeagues(params: any) {
@@ -257,7 +259,6 @@ export class GameService {
 
   async getGamesByWebRow(params: any) {
     const cacheTimeSec = 1;
-    const webrow_ids = params.webrow_id;
     const player_id = params.player_id;
     const lang_id = params.lang_id;
     const start_date = params.start_date;
@@ -265,6 +266,17 @@ export class GameService {
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
+    const book_id = player.IdBook;
+    const webrow_ids =
+      params.webrow_id != -1
+        ? params.webrow_id
+        : (
+            await this.league.getActiveWebRow({
+              book_id,
+              line_type_id,
+              lang_id,
+            })
+          ).map((a) => a.IdWebRow);
 
     // **CHECK CACHE
     const key = `get_game_by_webrow_${webrow_ids}_${player_id}_${lang_id}`;

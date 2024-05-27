@@ -91,7 +91,7 @@ CREATE TABLE #tblMainGames
 );
 
 INSERT INTO #tblMainGames
-	SELECT 0, G.IdGame, G.VisitorTeam, G.HomeTeam, G.IdSport, G.IdLeague, G.IdGameType,
+	SELECT 0, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
 	CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
 	G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,
 	G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,
@@ -122,7 +122,7 @@ INSERT INTO #tblMainGames
 
 	UNION
 
-	SELECT 1, G.IdGame, G.VisitorTeam, G.HomeTeam, G.IdSport, G.IdLeague, G.IdGameType,
+	SELECT 1, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
 		CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
 		G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,
 		G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,
@@ -157,7 +157,7 @@ INSERT INTO #tblMainGames
 
 
 	DECLARE GetEventsForGame_Cursor CURSOR FOR
-		SELECT Game.IdGame,Game.IdSport, ParentOrder FROM Game WITH(NOLOCK) LEFT JOIN #tblMainGames on Game.ParentGame = #tblMainGames.IdGame
+		SELECT Game.IdGame,LTRIM(RTRIM(Game.IdSport)) as IdSport, ParentOrder FROM Game WITH(NOLOCK) LEFT JOIN #tblMainGames on Game.ParentGame = #tblMainGames.IdGame
 		WHERE 
 			Game.ParentGame in (SELECT Distinct(IdGame) FROM #tblMainGames) AND 
 			Game.IdGame not in (SELECT Distinct(IdGame) FROM #tblMainGames)
@@ -173,7 +173,7 @@ INSERT INTO #tblMainGames
 		IF(LTRIM(RTRIM(@Main_IdSport)) = 'TNT')
 		BEGIN
 			INSERT INTO #tblMainGames
-				SELECT 0 as AgentLine, G.IdGame, G.VisitorTeam, G.HomeTeam, G.IdSport, G.IdLeague, G.IdGameType,CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106))as FixedDate,
+				SELECT 0 as AgentLine, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106))as FixedDate,
 					   G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,G.NormalGame, G.ParentGame, G.FamilyGame,
 					   L.IdLineType, L.Odds,L.Odds,null,T.TeamNumber,null,null,null,null,null,null,null,null,null,null,0,0,L.BoldML, G.HasChildren,G.IdEvent ,GTL.TeamName AS TeamLangVisitorTeam, 
 					   null AS TeamLangHomeTeam,null AS GameLangVisitorTeam,GL.VisitorTeam  AS GameLangHomeTeam,@bitZero HideGame,0,0,0,T.TeamName,G.Description as GameDescription, GL.Description as GameLangDescription, 
@@ -198,7 +198,7 @@ INSERT INTO #tblMainGames
 
 				UNION
 
-				SELECT 1 as AgentLine, G.IdGame, G.VisitorTeam, G.HomeTeam, G.IdSport, G.IdLeague, G.IdGameType,CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106))as FixedDate,
+				SELECT 1 as AgentLine, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106))as FixedDate,
 					   G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,G.NormalGame, G.ParentGame, G.FamilyGame,
 					   @prmIdLineType IdLineType, L.Odds,L.Odds,null,T.TeamNumber,null,null,null,null,null,null,null,null,null,null,0,0,@bitZero BoldML, G.HasChildren,G.IdEvent ,GTL.TeamName AS TeamLangVisitorTeam, 
 					   null AS TeamLangHomeTeam,null AS GameLangVisitorTeam,GL.VisitorTeam  AS GameLangHomeTeam,@bitZero HideGame,0,0,0,T.TeamName,G.Description as GameDescription, GL.Description as GameLangDescription,
@@ -225,7 +225,7 @@ INSERT INTO #tblMainGames
 		ELSE IF(LTRIM(RTRIM(@Main_IdSport)) = 'PROP')
 		BEGIN
 			INSERT INTO #tblMainGames
-				SELECT 0, G.IdGame, G.VisitorTeam, G.HomeTeam, G.IdSport, G.IdLeague, G.IdGameType, CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
+				SELECT 0, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType, CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
 					   G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,
 					   G.NormalGame, G.ParentGame, G.FamilyGame,L.IdLineType, L.Odds, L.Odds,null,null,null,null,null,null,null,null,null,null,null,null,0,0,L.BoldML, G.HasChildren, G.IdEvent, 
 					   null AS TeamLangVisitorTeam, null AS TeamLangHomeTeam,GL.VisitorTeam AS GameLangVisitorTeam, GL.HomeTeam AS GameLangHomeTeam, @bitZero HideGame,
@@ -247,7 +247,7 @@ INSERT INTO #tblMainGames
 
 				UNION
 
-				SELECT 1, G.IdGame, G.VisitorTeam, G.HomeTeam, G.IdSport, G.IdLeague, G.IdGameType, CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
+				SELECT 1, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType, CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
 					   G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,
 					   G.NormalGame, G.ParentGame, G.FamilyGame,@prmIdLineType IdLineType, L.Odds, L.Odds,null,null,null,null,null,null,null,null,null,null,null,null,0,0,@bitZero BoldML, G.HasChildren, G.IdEvent, 
 					   null AS TeamLangVisitorTeam, null AS TeamLangHomeTeam,GL.VisitorTeam AS GameLangVisitorTeam, GL.HomeTeam AS GameLangHomeTeam, @bitZero HideGame,
@@ -270,7 +270,7 @@ INSERT INTO #tblMainGames
 		ELSE
 		BEGIN
 			INSERT INTO #tblMainGames
-				SELECT 0, G.IdGame, G.VisitorTeam, G.HomeTeam, G.IdSport, G.IdLeague, G.IdGameType,
+				SELECT 0, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
 				CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
 				G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,
 				G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,
@@ -303,7 +303,7 @@ INSERT INTO #tblMainGames
 
 				UNION
 
-				SELECT 1, G.IdGame, G.VisitorTeam, G.HomeTeam, G.IdSport, G.IdLeague, G.IdGameType,
+				SELECT 1, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
 					CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
 					G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,
 					G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,
