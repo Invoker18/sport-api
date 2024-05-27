@@ -20,7 +20,7 @@ BEGIN
 	-- interfering with SELECT statements.
 	SET NOCOUNT ON
 
-	SELECT G.IdGame, G.VisitorTeam, G.HomeTeam, G.ParentGame, G.IdSport, G.IdLeague,
+	SELECT G.IdGame, G.VisitorTeam, G.HomeTeam, G.ParentGame, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague,
 		G.NormalGame, 
 		G2.GameDateTime, IsNull(G2.VisitorNumber,G.VisitorNumber) AS VisitorNumber,
 		BTL.Line1 AS TeamLangVisitorTeam, BTL.Line2 AS TeamLangHomeTeam,

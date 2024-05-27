@@ -46,7 +46,7 @@ BEGIN
 				L.LeagueOrder, 
 				LR.RegionOrder, 
 				WR.Description, 
-				L.IdSport, 
+				LTRIM(RTRIM(L.IdSport)) as IdSport,
 				L.[Description], 
 				LR.[Description] as RegionDescription
 		FROM Book B With(NoLock)
@@ -79,7 +79,7 @@ BEGIN
 				L.LeagueOrder, 
 				L.LeagueDescription,
 				LL.Description AS LeagueDescriptionLang,
-				L.IdSport, 
+				LTRIM(RTRIM(L.IdSport)) as IdSport,
 				L.IdWebRow, 
 				L.RegionDescription,
 				LRL.Description AS RegionDescriptionLang,
@@ -119,7 +119,7 @@ BEGIN
 				L.LeagueOrder, 
 				L.LeagueDescription,
 				LL.Description AS LeagueDescriptionLang,
-				L.IdSport, 
+				LTRIM(RTRIM(L.IdSport)) as IdSport,
 				L.IdWebRow, 
 				L.RegionDescription,
 				LRL.Description AS RegionDescriptionLang,

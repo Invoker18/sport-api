@@ -46,7 +46,7 @@ BEGIN
 				L.LeagueOrder, 
 				LR.RegionOrder, 
 				WR.Description, 
-				L.IdSport, 
+				LTRIM(RTRIM(L.IdSport)) as IdSport,
 				L.[Description], 
 				LR.[Description] as RegionDescription
 		FROM Book B With(NoLock)
