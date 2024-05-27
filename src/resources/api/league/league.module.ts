@@ -9,5 +9,6 @@ import { DATABASE_ENUM } from 'src/config/database/enum';
   imports: [TypeOrmModule.forFeature([League], DATABASE_ENUM.MSSQL_DGS)],
   controllers: [LeagueController],
   providers: [LeagueService],
+  exports: [LeagueService],
 })
 export class LeagueModule {}
