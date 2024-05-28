@@ -296,11 +296,11 @@ export class GameService {
         end_date,
       });
 
-      const map = new Map();
+      const league_map = new Map();
       for (const game of games) {
         const league_id = game.IdLeague;
 
-        const collection = map.get(league_id);
+        const collection = league_map.get(league_id);
         if (!collection) {
           let league = await this.getLeague({
             league_id,
@@ -310,7 +310,7 @@ export class GameService {
             league_id,
             lang_id,
           });
-          map.set(league_id, {
+          league_map.set(league_id, {
             league: Object.values(league)[0] ?? league,
             banner: banner,
             games: [game],
@@ -319,10 +319,10 @@ export class GameService {
           collection.games.push(game);
         }
       }
-      if (map.size) {
+      if (league_map.size) {
         data.push({
           webrow_id: webrow_id,
-          leagues: Object.fromEntries(map.entries()),
+          leagues: Object.fromEntries(league_map.entries()),
         });
       }
     }
