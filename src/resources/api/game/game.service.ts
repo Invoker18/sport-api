@@ -319,10 +319,12 @@ export class GameService {
           collection.games.push(game);
         }
       }
-      data.push({
-        webrow_id: webrow_id,
-        leagues: Object.fromEntries(map.entries()),
-      });
+      if (map.size) {
+        data.push({
+          webrow_id: webrow_id,
+          leagues: Object.fromEntries(map.entries()),
+        });
+      }
     }
 
     // **SET CACHE
