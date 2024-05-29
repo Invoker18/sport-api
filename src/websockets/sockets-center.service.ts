@@ -7,11 +7,11 @@ export class SocketsCenter {
     console.log('register', client);
     if (!this.clients.has(client.id)) {
       this.clients.set(client.id, client);
-      console.log(`有一位用户加入!> ${this.clients.size}`, client.id);
+      console.log(`A user has joined!> ${this.clients.size}`, client.id);
       client.broadcast.emit('response', { message: `${client.id} joined` });
       client.on('disconnect', () => {
         this.clients.delete(client.id);
-        console.log(`有一位用户离开了!> ${this.clients.size}`, client.id);
+        console.log(`A user left!> ${this.clients.size}`, client.id);
       });
     }
   }

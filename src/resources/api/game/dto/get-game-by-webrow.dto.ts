@@ -1,5 +1,12 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { toNumber } from '../../../../helpers/cast.helper';
 
 export class GetGamesByWebRowQuery {
@@ -24,4 +31,9 @@ export class GetGamesByWebRowQuery {
 
   @IsDate()
   end_date: Date;
+
+  @Transform(({ value }) => toNumber(value, { min: -1 }))
+  @IsOptional()
+  @IsNumber()
+  period?: number = -1;
 }

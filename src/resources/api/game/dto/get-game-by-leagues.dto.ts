@@ -1,5 +1,11 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { toNumber } from '../../../../helpers/cast.helper';
 
 export class GetGamesByLeaguesQuery {
@@ -18,4 +24,9 @@ export class GetGamesByLeaguesQuery {
   @IsNotEmpty()
   @IsNumber()
   player_id: number;
+
+  @Transform(({ value }) => toNumber(value, { min: -1 }))
+  @IsOptional()
+  @IsNumber()
+  period?: number = -1;
 }
