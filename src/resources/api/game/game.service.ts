@@ -7,8 +7,8 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PlayerService } from '../player/player.service';
 import { LeagueService } from '../league/league.service';
-import { Odds } from 'src/lib/odds';
-// import { OddsAmerican } from 'src/helpers/odds.converter';
+// import { Odds } from 'src/lib/odds';
+// import { OddsConverterService } from 'src/helpers/odds-converter.service';
 
 @Injectable()
 export class GameService {
@@ -25,19 +25,28 @@ export class GameService {
     const league_ids = params.league_id;
     const player_id = params.player_id;
     const lang_id = params.lang_id;
+    const period = params.period;
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
 
-    // // American to Decimal
-    // console.log('American to Decimal',OddsAmerican.toDecimal(225)); // 3.25
+    // const convert = new OddsConverterService();
 
-    // console.log('American to Decimal',OddsAmerican.toDecimal(-110)); // 1.91
+    // American to Decimal
+    // console.log('American to Decimal', convert.OddsAmerican.toDecimal(225)); // 3.25
+
+    // console.log('American to Decimal', convert.OddsAmerican.toDecimal(-110)); // 1.91
 
     // // American to Fraction
-    // console.log('American to Fraction',OddsAmerican.toFractional(225).simplify()); // (9/4)
+    // console.log(
+    //   'American to Fraction',
+    //   convert.OddsAmerican.toFractional(225),
+    // ); // (9/4)
 
-    // console.log('American to Fraction',OddsAmerican.toFractional(-125).simplify()); // (4/5)
+    // console.log(
+    //   'American to Fraction',
+    //   convert.OddsAmerican.toFractional(-125),
+    // ); // (4/5)
 
     // let odds = new Odds(1.5);
 
@@ -63,6 +72,7 @@ export class GameService {
         agent_id,
         line_type_id,
         lang_id,
+        period,
       });
       let league = await this.getLeague({
         league_id,
@@ -138,15 +148,16 @@ export class GameService {
     const agent_id = params.agent_id;
     const line_type_id = params.line_type_id;
     const lang_id = params.lang_id;
+    const period = params.period ?? -1;
 
     // **CHECK CACHE
-    const key = `get_open_games_leagues_${league_id}_${agent_id}_${line_type_id}_${lang_id}`;
+    const key = `get_open_games_leagues_${league_id}_${agent_id}_${line_type_id}_${lang_id}_${period}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
 
     const data = await this.gameRepository.query(
-      `EXEC VZ_GetOpenGamesLeague	${league_id},${agent_id},${line_type_id},${lang_id}`,
+      `EXEC VZ_GetOpenGamesLeague	${league_id},${agent_id},${line_type_id},${lang_id},${period}`,
     );
 
     // **SET CACHE
@@ -161,6 +172,7 @@ export class GameService {
     const family_game_id = params.family_game_id;
     const player_id = params.player_id;
     const lang_id = params.lang_id;
+    const period = params.period;
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
@@ -177,6 +189,7 @@ export class GameService {
       agent_id,
       line_type_id,
       lang_id,
+      period,
     });
 
     const map = new Map();
@@ -218,14 +231,15 @@ export class GameService {
     const agent_id = params.agent_id;
     const line_type_id = params.line_type_id;
     const lang_id = params.lang_id;
+    const period = params.period ?? -1;
 
     // **CHECK CACHE
-    const key = `get_open_games_family_${family_game_id}_${agent_id}_${line_type_id}_${lang_id}`;
+    const key = `get_open_games_family_${family_game_id}_${agent_id}_${line_type_id}_${lang_id}_${period}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
     const data = await this.gameRepository.query(
-      `EXEC VZ_GetOpenFamilyGames	${family_game_id},${agent_id},${line_type_id},${lang_id}`,
+      `EXEC VZ_GetOpenFamilyGames	${family_game_id},${agent_id},${line_type_id},${lang_id},${period}`,
     );
 
     // **SET CACHE
@@ -263,6 +277,7 @@ export class GameService {
     const lang_id = params.lang_id;
     const start_date = params.start_date;
     const end_date = params.end_date;
+    const period = params.period;
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
@@ -294,6 +309,7 @@ export class GameService {
         lang_id,
         start_date,
         end_date,
+        period,
       });
 
       const league_map = new Map();
@@ -342,13 +358,14 @@ export class GameService {
     const lang_id = params.lang_id;
     const start_date = new Date(params.start_date).toISOString();
     const end_date = new Date(params.end_date).toISOString();
+    const period = params.period ?? -1;
     // **CHECK CACHE
-    const key = `get_open_games_webrow_rangedate_${webrow_id}_${agent_id}_${line_type_id}_${lang_id}_${start_date}_${end_date}`;
+    const key = `get_open_games_webrow_rangedate_${webrow_id}_${agent_id}_${line_type_id}_${lang_id}_${start_date}_${end_date}_${period}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
     const data = await this.gameRepository.query(
-      `EXEC VZ_GetOpenGamesWebRowDate	${webrow_id},${agent_id},${line_type_id},${lang_id},'${start_date}','${end_date}'`,
+      `EXEC VZ_GetOpenGamesWebRowDate	${webrow_id},${agent_id},${line_type_id},${lang_id},'${start_date}','${end_date}',${period}`,
     );
 
     // **SET CACHE
