@@ -338,7 +338,7 @@ export class GameService {
       if (league_map.size) {
         data.push({
           webrow_id: webrow_id,
-          leagues: Object.fromEntries(league_map.entries()),
+          leagues: Object.values(Object.fromEntries(league_map.entries())),
         });
       }
     }
