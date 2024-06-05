@@ -278,6 +278,7 @@ export class GameService {
     const start_date = params.start_date;
     const end_date = params.end_date;
     const period = params.period;
+    const league_ids = params.league_ids;
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
@@ -310,6 +311,7 @@ export class GameService {
         start_date,
         end_date,
         period,
+        league_ids,
       });
 
       const league_map = new Map();
@@ -359,13 +361,14 @@ export class GameService {
     const start_date = new Date(params.start_date).toISOString();
     const end_date = new Date(params.end_date).toISOString();
     const period = params.period ?? -1;
+    const league_ids = params.league_ids ?? -1;
     // **CHECK CACHE
     const key = `get_open_games_webrow_rangedate_${webrow_id}_${agent_id}_${line_type_id}_${lang_id}_${start_date}_${end_date}_${period}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
     const data = await this.gameRepository.query(
-      `EXEC VZ_GetOpenGamesWebRowDate	${webrow_id},${agent_id},${line_type_id},${lang_id},'${start_date}','${end_date}',${period}`,
+      `EXEC VZ_GetOpenGamesWebRowDate	${webrow_id},${agent_id},${line_type_id},${lang_id},'${start_date}','${end_date}',${period},'${league_ids}'`,
     );
 
     // **SET CACHE
