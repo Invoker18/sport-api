@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 5/3/2024 14:45:24 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 6/4/2024 12:48:05 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -18,7 +18,8 @@ CREATE PROCEDURE [dbo].[VZ_GetOpenGamesWebRowDate]
 	@prmIdLineType int,
 	@prmIdLanguage tinyint,
 	@prmStartDate date,
-	@prmEndDate date
+	@prmEndDate date,
+	@prmPeriod int
 AS
 DECLARE @bitZero bit,
 	    @Main_IdGame int, 
@@ -345,5 +346,26 @@ INSERT INTO #tblMainGames
 delete from #tblMainGames
 where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)
 	
-SELECT * FROM #tblMainGames WITH(NOLOCK)
+SELECT tbl.*
+,(
+SELECT IIF(a.invert_home_away = 0, b.home_image_id,b.away_image_id ) as home_image_id
+FROM [MOVER].[dbo].[Games] a
+INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
+WHERE a.DGS_game_id = tbl.IdGame) home_image_id
+,(
+SELECT IIF(a.invert_home_away = 0, b.away_image_id,b.home_image_id ) as away_image_id
+FROM [MOVER].[dbo].[Games] a
+INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
+WHERE a.DGS_game_id = tbl.IdGame) away_image_id,
+((SELECT count( DISTINCT G.IdGame) c_games 
+FROM Game G WITH (NOLOCK) 
+WHERE G.FamilyGame = tbl.FamilyGame 
+AND G.FamilyGame IS NOT NULL
+AND G.GameStat = 'O'
+AND G.Graded = 0
+AND G.Online = 1
+AND G.GameDateTime > GETDATE() 
+)-1) count_games 
+ FROM #tblMainGames AS tbl WITH(NOLOCK)
+ WHERE tbl.Period = @prmPeriod or @prmPeriod = -1
 ORDER BY ParentGame, ChildOrder, IdGame, FromAgent --8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
