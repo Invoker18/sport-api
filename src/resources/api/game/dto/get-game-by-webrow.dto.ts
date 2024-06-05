@@ -36,4 +36,10 @@ export class GetGamesByWebRowQuery {
   @IsOptional()
   @IsNumber()
   period?: number = -1;
+
+  @IsArray()
+  @Transform(({ value }) => value.split(','))
+  @IsOptional()
+  @IsString({ each: true })
+  league_ids?: string[];
 }
