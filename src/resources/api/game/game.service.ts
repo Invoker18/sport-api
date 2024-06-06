@@ -283,16 +283,15 @@ export class GameService {
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
     const book_id = player.IdBook;
+    const webrows = await this.league.getActiveWebRow({
+      book_id,
+      line_type_id,
+      lang_id,
+    });
     const webrow_ids =
       params.webrow_id != -1
         ? params.webrow_id
-        : (
-            await this.league.getActiveWebRow({
-              book_id,
-              line_type_id,
-              lang_id,
-            })
-          ).map((a) => a.IdWebRow);
+        : webrows.map((a: any) => a.IdWebRow);
 
     // **CHECK CACHE
     const key = `get_game_by_webrow_${webrow_ids}_${player_id}_${lang_id}`;
@@ -303,7 +302,7 @@ export class GameService {
 
     let data: any = [];
     for (const webrow_id of webrow_ids) {
-      let games = await this.getOpenGamesWebRowDate({
+      const games = await this.getOpenGamesWebRowDate({
         webrow_id,
         agent_id,
         line_type_id,
@@ -338,8 +337,10 @@ export class GameService {
         }
       }
       if (league_map.size) {
+        const f_wr = webrows.find((wr) => wr.IdWebRow == webrow_id);
         data.push({
           webrow_id: webrow_id,
+          webrow: f_wr.RowDescription,
           leagues: Object.values(Object.fromEntries(league_map.entries())),
         });
       }
@@ -363,7 +364,7 @@ export class GameService {
     const period = params.period ?? -1;
     const league_ids = params.league_ids ?? -1;
     // **CHECK CACHE
-    const key = `get_open_games_webrow_rangedate_${webrow_id}_${agent_id}_${line_type_id}_${lang_id}_${start_date}_${end_date}_${period}`;
+    const key = `get_open_games_webrow_rangedate_${webrow_id}_${agent_id}_${line_type_id}_${lang_id}_${start_date}_${end_date}_${period}_${league_ids}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
