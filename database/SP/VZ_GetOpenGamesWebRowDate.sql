@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 6/4/2024 12:48:05 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 6/5/2024 12:57:11 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -19,7 +19,8 @@ CREATE PROCEDURE [dbo].[VZ_GetOpenGamesWebRowDate]
 	@prmIdLanguage tinyint,
 	@prmStartDate date,
 	@prmEndDate date,
-	@prmPeriod int
+	@prmPeriod int,
+	@prmIdLeague NVARCHAR(MAX)
 AS
 DECLARE @bitZero bit,
 	    @Main_IdGame int, 
@@ -359,7 +360,7 @@ INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
 WHERE a.DGS_game_id = tbl.IdGame) away_image_id,
 ((SELECT count( DISTINCT G.IdGame) c_games 
 FROM Game G WITH (NOLOCK) 
-WHERE G.FamilyGame = tbl.FamilyGame 
+WHERE G.FamilyGame = tbl.FamilyGame
 AND G.FamilyGame IS NOT NULL
 AND G.GameStat = 'O'
 AND G.Graded = 0
@@ -367,5 +368,6 @@ AND G.Online = 1
 AND G.GameDateTime > GETDATE() 
 )-1) count_games 
  FROM #tblMainGames AS tbl WITH(NOLOCK)
- WHERE tbl.Period = @prmPeriod or @prmPeriod = -1
+ WHERE (tbl.Period = @prmPeriod or @prmPeriod = -1) 
+AND (tbl.IdLeague IN (SELECT * FROM dbo.fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')
 ORDER BY ParentGame, ChildOrder, IdGame, FromAgent --8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
