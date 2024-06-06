@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetLeague]    Script Date: 4/12/2024 10:13:56 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetLeague]    Script Date: 6/6/2024 14:25:34 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -28,7 +28,7 @@ BEGIN
 			L.ShortDescription,
 			L.TeamFKRequired,
 			LRL.[Description] as RegionDescription,
-			LL.[Description] as LeagueDescription
+			CASE WHEN LL.[Description] IS NULL THEN L.[Description] ELSE LL.[Description] END AS LeagueDescription
 	FROM League L With(NoLock)
 	LEFT JOIN LeagueLang LL with(nolock) ON L.IdLeague=LL.IdLeague AND LL.IdLanguage=@prmIdLanguage
 	LEFT JOIN LeagueRegionLang LRL with(nolock) ON L.IDLeagueRegion=LRL.IDLeagueRegion AND LRL.IdLanguage=@prmIdLanguage
@@ -36,5 +36,3 @@ BEGIN
 
 
 END
-GO
-            
