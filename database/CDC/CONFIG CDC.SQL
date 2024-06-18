@@ -40,6 +40,8 @@ EXEC sys.sp_cdc_enable_table
 
 @role_name = NULL,
 
+-- @captured_column_list = N'column list',
+
 @supports_net_changes = 1
 
 
