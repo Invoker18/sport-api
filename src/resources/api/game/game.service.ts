@@ -8,7 +8,6 @@ import { Cache } from 'cache-manager';
 import { PlayerService } from '../player/player.service';
 import { LeagueService } from '../league/league.service';
 // import { Odds } from 'src/lib/odds';
-// import { OddsConverterService } from 'src/helpers/odds-converter.service';
 
 @Injectable()
 export class GameService {
@@ -29,24 +28,6 @@ export class GameService {
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
-
-    // const convert = new OddsConverterService();
-
-    // American to Decimal
-    // console.log('American to Decimal', convert.OddsAmerican.toDecimal(225)); // 3.25
-
-    // console.log('American to Decimal', convert.OddsAmerican.toDecimal(-110)); // 1.91
-
-    // // American to Fraction
-    // console.log(
-    //   'American to Fraction',
-    //   convert.OddsAmerican.toFractional(225),
-    // ); // (9/4)
-
-    // console.log(
-    //   'American to Fraction',
-    //   convert.OddsAmerican.toFractional(-125),
-    // ); // (4/5)
 
     // let odds = new Odds(1.5);
 
@@ -192,7 +173,7 @@ export class GameService {
       period,
     });
 
-    const map = new Map();
+    let data: any = [];
     for (const game of games) {
       const sport_id = (game.IdSport = game.IdSport.trim());
       const game_id = game.IdGame;
@@ -208,15 +189,8 @@ export class GameService {
         case 'PROP':
           break;
       }
-
-      const collection = map.get(sport_id);
-      if (!collection) {
-        map.set(sport_id, [game]);
-      } else {
-        collection.push(game);
-      }
+      data.push(game);
     }
-    let data: any = Object.fromEntries(map.entries());
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);

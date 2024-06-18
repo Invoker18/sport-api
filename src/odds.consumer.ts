@@ -13,16 +13,14 @@ export class OddsConsumer implements OnModuleInit {
       { topics: ['odds.DGSDATA.dbo.GAMEVALUES'] },
       {
         eachMessage: async ({ topic, partition, message }) => {
-          SocketsCenter.broadcast(message.value.toString());
+          // SocketsCenter.broadcast(message.value.toString());
           console.log({
-            value: message.value.toString(),
-            topic: topic.toString(),
-            partition: partition.toString(),
+            value: message.value ? message.value.toString() : '',
+            topic: topic ?? '',
+            partition: partition ?? '',
           });
         },
       },
     );
   }
-
-
 }

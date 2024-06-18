@@ -332,12 +332,12 @@ where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)
 	
 SELECT tbl.*
 ,(
-SELECT IIF(a.invert_home_away = 0, b.home_image_id,b.away_image_id ) as home_image_id
+SELECT b.home_image_id
 FROM [MOVER].[dbo].[Games] a
 INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
 WHERE a.DGS_game_id = tbl.IdGame) home_image_id
 ,(
-SELECT IIF(a.invert_home_away = 0, b.away_image_id,b.home_image_id ) as away_image_id
+SELECT b.away_image_id
 FROM [MOVER].[dbo].[Games] a
 INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
 WHERE a.DGS_game_id = tbl.IdGame) away_image_id
