@@ -90,6 +90,28 @@ export class GameService {
     return data;
   }
 
+  async getGame(params: any) {
+    const cacheTimeSec = 10;
+    const game_id = params.game_id;
+    const lang_id = params.lang_id;
+
+    // **CHECK CACHE
+    const key = `get_league_${game_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = await this.gameRepository.query(
+      `EXEC VZ_GetGame	${game_id}, ${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
   async getLeagueBanners(params: any) {
     const cacheTimeSec = 10;
     const league_id = params.league_id;
@@ -162,7 +184,10 @@ export class GameService {
       period,
     });
 
-    let data: any = [];
+    let data: any = {
+      info: await this.getGame({ game_id: family_game_id, lang_id }),
+      events: [],
+    };
     for (const game of games) {
       const sport_id = (game.IdSport = game.IdSport.trim());
       const game_id = game.IdGame;
@@ -178,7 +203,7 @@ export class GameService {
         case 'PROP':
           break;
       }
-      data.push(game);
+      data.events.push(game);
     }
 
     // **SET CACHE
@@ -300,7 +325,7 @@ export class GameService {
         }
       }
       if (league_map.size) {
-        const f_wr = webrows.find((wr) => wr.IdWebRow == webrow_id);
+        const f_wr = webrows.find((wr: any) => wr.IdWebRow == webrow_id);
         data.push({
           webrow_id: webrow_id,
           webrow: f_wr.RowDescription,
