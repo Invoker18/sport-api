@@ -106,7 +106,7 @@ export class GameService {
     );
 
     // **SET CACHE
-    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    await this.cacheService.set(key, data[0], cacheTimeSec * 1000);
     // **SET CACHE
 
     return data[0];
