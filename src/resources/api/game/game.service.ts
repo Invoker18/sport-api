@@ -109,7 +109,7 @@ export class GameService {
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
     // **SET CACHE
 
-    return data;
+    return data[0];
   }
 
   async getLeagueBanners(params: any) {
