@@ -7,7 +7,6 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PlayerService } from '../player/player.service';
 import { LeagueService } from '../league/league.service';
-// import { Odds } from 'src/lib/odds';
 
 @Injectable()
 export class GameService {
@@ -28,16 +27,6 @@ export class GameService {
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
-
-    // let odds = new Odds(1.5);
-
-    // odds = Odds.fromUS(-285);
-    // console.log(odds.decimalOdds); // 4
-    // console.log(odds.usOdds); // 300
-    // console.log(odds.usOddsString); // "+300"
-    // console.log(odds.fractionOdds); // "3/1"
-    // console.log(odds.impliedProbability); // 0.25
-    // console.log(odds.impliedProbabilityString); // "25%"
 
     // **CHECK CACHE
     const key = `get_game_by_league_${league_ids}_${player_id}_${lang_id}`;
@@ -180,7 +169,7 @@ export class GameService {
 
       switch (sport_id) {
         case 'TNT':
-          game.Odds = await this.getGameTNTOdds({
+          game.Options = await this.getGameTNTOdds({
             game_id,
             line_type_id,
             lang_id,
