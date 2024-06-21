@@ -29,6 +29,16 @@ BEGIN
 	P.PeriodDescription, 
 	G.Description as GameDescription, GL.Description as GameLangDescription, 
 	CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription
+	,(
+		SELECT b.home_image_id
+		FROM [MOVER].[dbo].[Games] a
+		INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
+		WHERE a.DGS_game_id = G.IdGame) home_image_id
+	,(
+		SELECT b.away_image_id
+		FROM [MOVER].[dbo].[Games] a
+		INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
+		WHERE a.DGS_game_id = G.IdGame) away_image_id
 	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage

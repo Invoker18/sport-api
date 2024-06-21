@@ -36,7 +36,10 @@ export class GameService {
     // **CHECK CACHE
 
     let data: any = [];
-    for (const league_id of league_ids) {
+    const leaguelength = league_ids.length;
+    for (let i = 0; i < leaguelength; i++) {
+      const league_id = league_ids[i];
+
       let games = await this.getOpenGamesLeague({
         league_id,
         agent_id,
@@ -188,7 +191,9 @@ export class GameService {
       info: await this.getGame({ game_id: family_game_id, lang_id }),
       events: [],
     };
-    for (const game of games) {
+    const glength = games.length;
+    for (let i = 0; i < glength; i++) {
+      const game = games[i];
       const sport_id = (game.IdSport = game.IdSport.trim());
       const game_id = game.IdGame;
 
@@ -289,7 +294,9 @@ export class GameService {
     // **CHECK CACHE
 
     let data: any = [];
-    for (const webrow_id of webrow_ids) {
+    const webrowlength = webrow_ids.length;
+    for (let i = 0; i < webrowlength; i++) {
+      const webrow_id = webrow_ids[i];
       const games = await this.getOpenGamesWebRowDate({
         webrow_id,
         agent_id,
@@ -302,7 +309,9 @@ export class GameService {
       });
 
       const league_map = new Map();
-      for (const game of games) {
+      const glength = games.length;
+      for (let i = 0; i < glength; i++) {
+        const game = games[i];
         const league_id = game.IdLeague;
 
         const collection = league_map.get(league_id);
