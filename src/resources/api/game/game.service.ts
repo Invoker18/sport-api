@@ -310,8 +310,8 @@ export class GameService {
 
       const league_map = new Map();
       const glength = games.length;
-      for (let i = 0; i < glength; i++) {
-        const game = games[i];
+      for (let g = 0; g < glength; g++) {
+        const game = games[g];
         const league_id = game.IdLeague;
 
         const collection = league_map.get(league_id);
