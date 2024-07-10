@@ -331,6 +331,18 @@ WHERE a.DGS_game_id = tbl.IdGame) away_image_id,
 ((SELECT count( DISTINCT G.IdGame) c_games 
 FROM Game G WITH (NOLOCK) 
 WHERE G.FamilyGame = tbl.FamilyGame 
+AND G.IdSport <> 'PROP' 
+AND G.FamilyGame IS NOT NULL
+AND G.GameStat = 'O'
+AND G.Graded = 0
+AND G.Online = 1
+AND G.GameDateTime > GETDATE() 
+)+
+(SELECT count( DISTINCT G.IdGame) c_games 
+FROM Game G WITH (NOLOCK) 
+WHERE G.FamilyGame = tbl.FamilyGame 
+AND G.ParentGame = G.IdGame
+AND G.IdSport = 'PROP' 
 AND G.FamilyGame IS NOT NULL
 AND G.GameStat = 'O'
 AND G.Graded = 0
