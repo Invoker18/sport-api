@@ -206,6 +206,12 @@ export class GameService {
           });
           break;
         case 'PROP':
+          game.Options = await this.getGamePROPOdds({
+            game_id,
+            line_type_id,
+            lang_id,
+          });
+          if (game.Options.length == 0) continue;
           break;
       }
       data.events.push(game);
@@ -249,7 +255,7 @@ export class GameService {
     const lang_id = params.lang_id;
 
     // **CHECK CACHE
-    const key = `get_game_tnt_odss_${game_id}_${line_type_id}_${lang_id}`;
+    const key = `get_game_tnt_odds_${game_id}_${line_type_id}_${lang_id}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
@@ -263,7 +269,27 @@ export class GameService {
 
     return data;
   }
+  async getGamePROPOdds(params: any) {
+    const cacheTimeSec = 1;
+    const game_id = params.game_id;
+    const line_type_id = params.line_type_id;
+    const lang_id = params.lang_id;
 
+    // **CHECK CACHE
+    const key = `get_game_prop_odds_${game_id}_${line_type_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+    const data = await this.gameRepository.query(
+      `EXEC VZ_GetGamePROPOdds	${game_id},${line_type_id},${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
   async getGamesByWebRow(params: any) {
     const cacheTimeSec = 1;
     const player_id = params.player_id;
