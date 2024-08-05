@@ -43,11 +43,16 @@ export class PlayerService {
         description: 'Credentials',
       });
     }
-    await this.createCallInDGS({ player_id: player.IdPlayer, ip });
-    const data: any = {
-      balance: await this.getBalance({ player_id: player.IdPlayer }),
-      info: await this.getInfo({ player_id: player.IdPlayer }),
-    };
+    const balance = await this.getBalance({ player_id: player.IdPlayer });
+    const info = await this.getInfo({ player_id: player.IdPlayer });
+    info.IdCall =
+      (
+        await this.createCallInDGS({
+          player_id: player.IdPlayer,
+          ip,
+        })
+      ).IdCall ?? 0;
+    const data: any = { balance, info };
     return data;
   }
 
@@ -67,9 +72,11 @@ export class PlayerService {
     if (cached) return cached;
     // **CHECK CACHE
 
-    const data = await this.playerRepository.query(
-      `EXEC VZ_CreateCall ${player_id}, '${ip}'`,
-    );
+    const data = (
+      await this.playerRepository.query(
+        `EXEC VZ_CreateCall ${player_id}, '${ip}'`,
+      )
+    )[0];
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
