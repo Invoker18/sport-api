@@ -17,7 +17,7 @@ import { TransformInterceptor } from './interceptor/transform.interceptor';
   imports: [
     configOptions,
     AuthModule,
-    KafkaModule,
+    // KafkaModule,
     ResourcesModule,
     SharedModule,
     // WebSocketModule,
@@ -33,7 +33,7 @@ import { TransformInterceptor } from './interceptor/transform.interceptor';
   providers: [
     ConfigModule,
     // AppService,
-    OddsConsumer,
+    // OddsConsumer,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
