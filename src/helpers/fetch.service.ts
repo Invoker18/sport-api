@@ -6,7 +6,13 @@ import { string } from 'joi';
 export class FetchService {
   constructor() {}
 
-  async FetchProxy(method, params, requestUrl, $key = 'index') {
+  async FetchProxy(
+    method,
+    params,
+    requestUrl,
+    $key = 'index',
+    returnXML = false,
+  ) {
     try {
       const formData = new URLSearchParams(params);
       const requestConfig = {
@@ -23,11 +29,16 @@ export class FetchService {
         attributeNamePrefix: '',
         attributesGroupName: '',
       };
+
       const parser = new XMLParser(optionsParser);
       let xmlParsed = parser.parse(data);
-      xmlParsed = parser.parse(xmlParsed.string['#text'])['xml'] ?? '';
+      const xmlParsedText = xmlParsed.string['#text'];
+      xmlParsed = parser.parse(xmlParsedText)['xml'] ?? '';
+      const returnData = returnXML
+        ? xmlParsedText
+        : xmlParsed[$key] ?? xmlParsed;
       return xmlParsed['ErrorCode'] == 0
-        ? xmlParsed[$key]
+        ? returnData
         : {
             status: 'error',
             error: 'Proxy',

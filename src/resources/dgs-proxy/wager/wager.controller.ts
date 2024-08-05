@@ -5,6 +5,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GetActiveLeaguesQuery } from './dto/get-leagues.dto';
 import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
+import { GetWagerCompileQuery } from './dto/get_wager_compile_query.dto';
 
 @Controller('proxy/wager')
 @ApiKeyAuth()
@@ -54,5 +55,13 @@ export class WagerController {
       UTC: params.utc,
       IdAgent: params.agent_id,
     });
+  }
+
+  @Get('betslip/process')
+  @Header('Content-Type', 'application/json')
+  async wagerProcess(@Query() params: GetWagerCompileQuery): Promise<string> {
+    let response: any;
+    response = await this.wagerService.WagerProcess(params);
+    return response;
   }
 }
