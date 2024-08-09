@@ -7,9 +7,9 @@ export class FetchService {
   constructor() {}
 
   async FetchProxy(
-    method,
-    params,
-    requestUrl,
+    method: any,
+    params: any,
+    requestUrl: any,
     $key = 'index',
     returnXML = false,
   ) {
