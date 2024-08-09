@@ -90,7 +90,7 @@ export class WagerService {
   */
   async WagerCompile(params: object, returnXML: boolean) {
     const requestUrl = this.proxy_url + '/WagerCompile2';
-    return this.helper.FetchProxy(
+    return await this.helper.FetchProxy(
       'POST',
       params,
       requestUrl,
@@ -99,9 +99,22 @@ export class WagerService {
     );
   }
 
+  /**
+    slip String XML result for the Wager Compile.
+    prmdetails String Details of the wager on a format(“IdGame,Play,OptionType,OptionParameter”) and each detail separate by “@-@”. This field can be empty
+    
+    *Notes:
+    OptionType = 0 then The OptionParameter indicates the buy points for the game line.
+    OptionType = 1 then The OptionParameter indicates the selected pitcher for the game line.
+    For the Pitcher Selection are:
+    0: The User Pitcher is Action.
+    1: The User Pitcher is Visitor.
+    2: The User Pitcher is Home.
+    3: The User Pitcher is Listed.
+  */
   async WagerConfirm(params: object, returnXML: boolean) {
     const requestUrl = this.proxy_url + '/WagerConfirm';
-    return this.helper.FetchProxy(
+    return await this.helper.FetchProxy(
       'POST',
       params,
       requestUrl,
@@ -109,29 +122,35 @@ export class WagerService {
       returnXML,
     );
   }
-
+  /**
+    slip String XML result for the Wager Confirm.
+    Password String Player password from table DGSDATA.PLAYER field password.
+  */
   async WagerPost(params: object) {
     const requestUrl = this.proxy_url + '/WagerPost';
-    return this.helper.FetchProxy('POST', params, requestUrl);
+    return await this.helper.FetchProxy('POST', params, requestUrl);
   }
   /** end Process bets */
 
   async GetActiveLeagues(params: object) {
     const requestUrl = this.proxy_url + '/GetActiveLeagues';
-    return this.helper.FetchProxy('POST', params, requestUrl);
+    return await this.helper.FetchProxy('POST', params, requestUrl);
   }
 
   async GetAnonActiveLeagues(params: object) {
     const requestUrl = this.proxy_url + '/GetAnonActiveLeagues';
-    return this.helper.FetchProxy('POST', params, requestUrl);
+    return await this.helper.FetchProxy('POST', params, requestUrl);
   }
 
   async GetScheduleUTC(params: object) {
     const requestUrl = this.proxy_url + '/GetScheduleUTC';
-    return this.helper.FetchProxy('POST', params, requestUrl, 'league');
+    return await this.helper.FetchProxy('POST', params, requestUrl, 'league');
   }
 
-  async GetTeasers() {}
+  async GetTeasers(params: object) {
+    const requestUrl = this.proxy_url + '/GetTeasers';
+    return await this.helper.FetchProxy('POST', params, requestUrl);
+  }
 
   async GetVersion() {}
 
