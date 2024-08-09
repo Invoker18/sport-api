@@ -68,7 +68,7 @@ export class WagerController {
 
   @Get('teasers')
   @Header('Content-Type', 'application/json')
-  async GetTeasers(@Query() params: GetTeasersQuery): Promise<string> {
+  async getTeasers(@Query() params: GetTeasersQuery): Promise<string> {
     let response: any;
     response = await this.wagerService.GetTeasers({
       IdProfile: params.profile_id,

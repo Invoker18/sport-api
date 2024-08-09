@@ -7,9 +7,9 @@ export class FetchService {
   constructor() {}
 
   async FetchProxy(
-    method,
-    params,
-    requestUrl,
+    method: any,
+    params: any,
+    requestUrl: any,
     $key = 'index',
     returnXML = false,
   ) {
@@ -32,6 +32,7 @@ export class FetchService {
 
       const parser = new XMLParser(optionsParser);
       let xmlParsed = parser.parse(data);
+      console.log(data);
       const xmlParsedText = xmlParsed.string['#text'];
       xmlParsed = parser.parse(xmlParsedText)['xml'] ?? '';
       const returnData = returnXML

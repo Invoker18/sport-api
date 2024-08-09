@@ -90,7 +90,7 @@ export class WagerService {
   */
   async WagerCompile(params: object, returnXML: boolean) {
     const requestUrl = this.proxy_url + '/WagerCompile2';
-    return this.helper.FetchProxy(
+    return await this.helper.FetchProxy(
       'POST',
       params,
       requestUrl,
@@ -114,7 +114,7 @@ export class WagerService {
   */
   async WagerConfirm(params: object, returnXML: boolean) {
     const requestUrl = this.proxy_url + '/WagerConfirm';
-    return this.helper.FetchProxy(
+    return await this.helper.FetchProxy(
       'POST',
       params,
       requestUrl,
@@ -128,28 +128,28 @@ export class WagerService {
   */
   async WagerPost(params: object) {
     const requestUrl = this.proxy_url + '/WagerPost';
-    return this.helper.FetchProxy('POST', params, requestUrl);
+    return await this.helper.FetchProxy('POST', params, requestUrl);
   }
   /** end Process bets */
 
   async GetActiveLeagues(params: object) {
     const requestUrl = this.proxy_url + '/GetActiveLeagues';
-    return this.helper.FetchProxy('POST', params, requestUrl);
+    return await this.helper.FetchProxy('POST', params, requestUrl);
   }
 
   async GetAnonActiveLeagues(params: object) {
     const requestUrl = this.proxy_url + '/GetAnonActiveLeagues';
-    return this.helper.FetchProxy('POST', params, requestUrl);
+    return await this.helper.FetchProxy('POST', params, requestUrl);
   }
 
   async GetScheduleUTC(params: object) {
     const requestUrl = this.proxy_url + '/GetScheduleUTC';
-    return this.helper.FetchProxy('POST', params, requestUrl, 'league');
+    return await this.helper.FetchProxy('POST', params, requestUrl, 'league');
   }
 
   async GetTeasers(params: object) {
     const requestUrl = this.proxy_url + '/GetTeasers';
-    return this.helper.FetchProxy('POST', params, requestUrl);
+    return await this.helper.FetchProxy('POST', params, requestUrl);
   }
 
   async GetVersion() {}
