@@ -32,7 +32,6 @@ export class FetchService {
 
       const parser = new XMLParser(optionsParser);
       let xmlParsed = parser.parse(data);
-      console.log(data);
       const xmlParsedText = xmlParsed.string['#text'];
       xmlParsed = parser.parse(xmlParsedText)['xml'] ?? '';
       const returnData = returnXML
