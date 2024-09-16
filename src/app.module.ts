@@ -25,7 +25,7 @@ import { TransformInterceptor } from './interceptor/transform.interceptor';
     ThrottlerModule.forRoot([
       {
         ttl: 60,
-        limit: 2,
+        limit: 200,
       },
     ]),
   ],
