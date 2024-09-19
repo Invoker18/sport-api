@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { toNumber } from '../../../../helpers/cast.helper';
 
-export class GetWagerCompileQuery {
+export class WagerQuery {
   @IsNotEmpty()
   details: string;
 
@@ -42,20 +42,24 @@ export class GetWagerCompileQuery {
   fix_teaser_line: boolean;
 
   @IsNotEmpty()
+  @IsOptional()
   extra_details: string;
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   riskwin: number;
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   amount: number;
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   round_robin: number;
 
