@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetPlayerInfo]    Script Date: 4/3/2024 10:13:56 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetPlayerInfo]    Script Date: 9/19/2024 14:27:09 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -52,6 +52,7 @@ BEGIN
 			P.Reset_Password, 
 			(select EnforcePassRules from SYSTEMPREFERENCESMANAGER with(nolock)) as EnforcePassRules,
 			P.OnlineAccess,
+			P.Password,
 			P.Status
 	FROM dbo.Player P WITH (NOLOCK)
 	JOIN dbo.Language L WITH (NOLOCK) ON P.IdLanguage = L.IdLanguage
@@ -61,5 +62,3 @@ BEGIN
 	WHERE IdPlayer = @prmIdPlayer
 
 END
-GO
-            

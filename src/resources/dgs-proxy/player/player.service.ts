@@ -67,4 +67,14 @@ export class PlayerService {
     const requestUrl = this.proxy_url + '/GetPlayerSignUpWithAccountName';
     return await this.helper.FetchProxy('POST', params, requestUrl);
   }
+
+  async GetPlayerOpenBets(params: object) {
+    const requestUrl = this.proxy_url + '/GetPlayerOpenBets';
+    return await this.helper.FetchProxy('POST', params, requestUrl);
+  }
+
+  async GetPlayerHistory(params: object) {
+    const requestUrl = this.proxy_url + '/GetPlayerHistory';
+    return await this.helper.FetchProxy('POST', params, requestUrl);
+  }
 }
