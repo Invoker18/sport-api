@@ -53,7 +53,6 @@ export class WagerQuery {
   // riskwin: number;
   @Transform(({ value }) => JSON.parse(value))
   @IsOptional()
-  @IsJSON()
   amount: string[];
 
   @IsOptional()
