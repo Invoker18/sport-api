@@ -90,6 +90,9 @@ export class WagerService {
       } else if (params.wager_type == 15) {
         // COMPACTROUNDROBIN
         compile.wager.CompactCombinations = params.round_robin;
+      } else if (params.wager_type == 2) {
+        // TEASERS - TeaserPoints
+        compile.wager.TeaserPointsPurchased = params.teaser_points;
       }
     }
     return compile;
