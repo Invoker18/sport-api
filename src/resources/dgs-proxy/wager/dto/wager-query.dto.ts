@@ -2,6 +2,7 @@ import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsBooleanString,
+  IsJSON,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -45,23 +46,20 @@ export class WagerQuery {
   @IsOptional()
   extra_details: string;
 
-  @Transform(({ value }) => toNumber(value, { min: 0 }))
+  // @Transform(({ value }) => toNumber(value, { min: 0 }))
+  // @IsNotEmpty()
+  // @IsOptional()
+  // @IsNumber()
+  // riskwin: number;
+  @Transform(({ value }) => JSON.parse(value))
   @IsNotEmpty()
   @IsOptional()
-  @IsNumber()
-  riskwin: number;
+  @IsJSON()
+  amount: string[];
 
-  @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsNotEmpty()
   @IsOptional()
-  @IsNumber()
-  amount: number;
-
-  @Transform(({ value }) => toNumber(value, { min: 0 }))
-  @IsNotEmpty()
-  @IsOptional()
-  @IsNumber()
-  round_robin: number;
+  round_robin: string;
 
   @IsNotEmpty()
   process_type: string;
