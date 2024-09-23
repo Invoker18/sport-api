@@ -1,3 +1,6 @@
+import { XMLBuilder, XMLParser } from 'fast-xml-parser';
+import { json } from 'sequelize';
+
 interface ToNumberOptions {
   default?: number;
   min?: number;
@@ -34,4 +37,23 @@ export function toNumber(value: string, opts: ToNumberOptions = {}): number {
   }
 
   return newValue;
+}
+
+export function jsonToXML(value: json): string {
+  const builder = new XMLBuilder({
+    ignoreAttributes: false,
+    attributeNamePrefix: '',
+    attributesGroupName: '',
+  });
+  return builder.build({ xml: value });
+}
+
+export function XMLToJson(value: string): string {
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: '',
+    attributesGroupName: '',
+  });
+  const xmlParsed = parser.parse(value);
+  return parser.parse(xmlParsed.string['#text'])['xml'] ?? '';
 }

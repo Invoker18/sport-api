@@ -1,18 +1,13 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { XMLParser } from 'fast-xml-parser';
 import { string } from 'joi';
+import { XMLToJson } from './cast.helper';
 
 @Injectable()
 export class FetchService {
   constructor() {}
 
-  async FetchProxy(
-    method: any,
-    params: any,
-    requestUrl: any,
-    $key = 'index',
-    returnXML = false,
-  ) {
+  async FetchProxy(method: any, params: any, requestUrl: any, $key = 'index') {
     try {
       const formData = new URLSearchParams(params);
       const requestConfig = {
@@ -24,21 +19,10 @@ export class FetchService {
       };
       const response = await fetch(requestUrl, requestConfig);
       const data = await response.text();
-      const optionsParser = {
-        ignoreAttributes: false,
-        attributeNamePrefix: '',
-        attributesGroupName: '',
-      };
-
-      const parser = new XMLParser(optionsParser);
-      let xmlParsed = parser.parse(data);
-      const xmlParsedText = xmlParsed.string['#text'];
-      xmlParsed = parser.parse(xmlParsedText)['xml'] ?? '';
-      const returnData = returnXML
-        ? xmlParsedText
-        : xmlParsed[$key] ?? xmlParsed;
+      const xmlParsed = XMLToJson(data);
+      console.log(xmlParsed);
       return xmlParsed['ErrorCode'] == 0
-        ? returnData
+        ? xmlParsed[$key] ?? xmlParsed
         : {
             status: 'error',
             error: 'Proxy',
@@ -46,6 +30,7 @@ export class FetchService {
             message_key: xmlParsed['ErrorMsgKey'],
             message_param: xmlParsed['ErrorMsgParams'],
             message: xmlParsed['ErrorMsg'],
+            data_fetch: xmlParsed,
           };
     } catch (error) {
       throw new ForbiddenException('API not available: ' + error);
