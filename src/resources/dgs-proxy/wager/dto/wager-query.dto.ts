@@ -52,12 +52,10 @@ export class WagerQuery {
   // @IsNumber()
   // riskwin: number;
   @Transform(({ value }) => JSON.parse(value))
-  @IsNotEmpty()
   @IsOptional()
   @IsJSON()
   amount: string[];
 
-  @IsNotEmpty()
   @IsOptional()
   round_robin: string;
 
