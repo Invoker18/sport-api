@@ -1,6 +1,4 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { XMLParser } from 'fast-xml-parser';
-import { string } from 'joi';
 import { XMLToJson } from './cast.helper';
 
 @Injectable()
@@ -20,7 +18,6 @@ export class FetchService {
       const response = await fetch(requestUrl, requestConfig);
       const data = await response.text();
       const xmlParsed = XMLToJson(data);
-      console.log(xmlParsed);
       return xmlParsed['ErrorCode'] == 0
         ? xmlParsed[$key] ?? xmlParsed
         : {
