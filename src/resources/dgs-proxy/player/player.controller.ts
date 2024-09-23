@@ -24,6 +24,7 @@ export class PlayerController {
   }
 
   @Get(':prmIdPlayer/history/:Mode')
+  // Starting at Mode = 0 equals the current week, Mode = 1 equal the last week, Mode = 2 equal two weeks ago, and so on.
   async getPlayerHistory(@Param() params: GetHistoryQuery): Promise<string> {
     return await this.playerService.GetPlayerHistory(params);
   }
