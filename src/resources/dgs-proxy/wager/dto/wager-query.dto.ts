@@ -46,17 +46,16 @@ export class WagerQuery {
   @IsOptional()
   extra_details: string;
 
-  // @Transform(({ value }) => toNumber(value, { min: 0 }))
-  // @IsNotEmpty()
-  // @IsOptional()
-  // @IsNumber()
-  // riskwin: number;
   @Transform(({ value }) => JSON.parse(value))
   @IsOptional()
   amount: string[];
 
   @IsOptional()
   round_robin: string;
+
+  @Transform(({ value }) => toNumber(value, { min: 0 }))
+  @IsOptional()
+  teaser_points: number;
 
   @IsNotEmpty()
   process_type: string;
