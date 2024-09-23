@@ -69,7 +69,7 @@ export class WagerService {
 
   async setDataToConfirm(compile: any, params: any) {
     const wagerlength = compile?.wager.length;
-    const amount = JSON.parse(params.amount);
+    const amount = params.amount;
     const amountlength = amount.length;
     if (wagerlength > 0) {
       for (let i = 0; i < amountlength; i++) {
