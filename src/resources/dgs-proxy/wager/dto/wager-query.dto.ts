@@ -53,9 +53,8 @@ export class WagerQuery {
   @IsOptional()
   round_robin: string;
 
-  @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsOptional()
-  teaser_points: number;
+  teaser_points: string;
 
   @IsNotEmpty()
   process_type: string;
