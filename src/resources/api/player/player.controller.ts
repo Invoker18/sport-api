@@ -1,16 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { TransformInterceptor } from '../../../interceptor/transform.interceptor';
 import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { IdPlayerParam } from './dto/get_player.dto';
 import { PlayerService } from './player.service';
 import { LoginParams } from './dto/login.dto';
+import { DateRangeParam } from './dto/daterange.dto';
 
 @Controller('player')
 @ApiKeyAuth()
@@ -32,5 +26,16 @@ export class PlayerController {
   @Get(':player_id/info')
   async getInfo(@Param() params: IdPlayerParam): Promise<string> {
     return await this.playerService.getInfo(params);
+  }
+
+  @Get(':player_id/history')
+  async getHistory(
+    @Param() params: IdPlayerParam,
+    @Query() daterange: DateRangeParam,
+  ): Promise<string> {
+    return await this.playerService.getHistory({
+      player_id: params.player_id,
+      daterange,
+    });
   }
 }
