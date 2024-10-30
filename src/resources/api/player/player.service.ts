@@ -175,7 +175,7 @@ export class PlayerService {
     @prmStartDate datetime
     @prmEndDate datetime
   */
-  async getHistory(params: any) {
+  async getHistoryWagers(params: any) {
     const cacheTimeSec = 2;
     const player_id = params.player_id;
     const from_date = params.daterange.from_date;
@@ -188,6 +188,34 @@ export class PlayerService {
 
     const data = await this.playerRepository.query(
       `EXEC WebGetPlayerHistoryWagers ${player_id}, "${from_date}", "${to_date}"`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  /**
+    EXEC [GetPlayerHistoryTransac]
+    @prmIdPlayer int
+    @prmStartDate datetime
+    @prmEndDate datetime
+  */
+  async getHistoryTransactions(params: any) {
+    const cacheTimeSec = 2;
+    const player_id = params.player_id;
+    const from_date = params.daterange.from_date;
+    const to_date = params.daterange.to_date;
+    // **CHECK CACHE
+    const key = `get_playerHistoryTransactions_${player_id}_${from_date}_${to_date}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = await this.playerRepository.query(
+      `EXEC GetPlayerHistoryTransac ${player_id}, "${from_date}", "${to_date}"`,
     );
 
     // **SET CACHE

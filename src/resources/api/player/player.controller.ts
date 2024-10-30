@@ -28,12 +28,23 @@ export class PlayerController {
     return await this.playerService.getInfo(params);
   }
 
-  @Get(':player_id/history')
-  async getHistory(
+  @Get(':player_id/history/wagers')
+  async getHistoryWagers(
     @Param() params: IdPlayerParam,
     @Query() daterange: DateRangeParam,
   ): Promise<string> {
-    return await this.playerService.getHistory({
+    return await this.playerService.getHistoryWagers({
+      player_id: params.player_id,
+      daterange,
+    });
+  }
+
+  @Get(':player_id/history/transactions')
+  async getHistoryTransactions(
+    @Param() params: IdPlayerParam,
+    @Query() daterange: DateRangeParam,
+  ): Promise<string> {
+    return await this.playerService.getHistoryTransactions({
       player_id: params.player_id,
       daterange,
     });
