@@ -7,11 +7,13 @@ import { FetchService } from '../../../helpers/fetch.service';
 export class WagerService {
   private readonly name = 'ProxyWager.asmx';
   private readonly proxy_url: string;
+  private readonly proxy2_url: string;
   constructor(
     private readonly config: ConfigService,
     private readonly helper: FetchService,
   ) {
     this.proxy_url = config.get('dgs').proxy_url + this.name;
+    this.proxy2_url = config.get('dgs').proxy2_url + '/api/wager';
   }
 
   /** Process bets  */
@@ -26,7 +28,8 @@ export class WagerService {
       WagerType: params.wager_type,
       OpenSpots: params.open_spots,
       IdWagerType: params.wager_type_id,
-      FixTeaserLine: params.fix_teaser_line,
+      // FixTeaserLine: params.fix_teaser_line,
+      FixTeaserLine: 'true',
     });
 
     if (
@@ -98,6 +101,50 @@ export class WagerService {
     return compile;
   }
 
+  async FillOpenWagerProcess(params: any) {
+    /**
+     * COMPILE
+     */
+    let compile = await this.FillCompile(params);
+
+    if (
+      params.process_type == 'compile' ||
+      (compile.hasOwnProperty('status') && compile.status === 'error')
+    )
+      return compile;
+
+    /**
+     * CONFIRM
+     */
+    //SET DATA
+    compile = await this.setDataToConfirm(compile, params);
+    let confirm = await this.WagerConfirm({
+      slip: jsonToXML(compile),
+      prmdetails: params.extra_details,
+    });
+    if (
+      params.process_type == 'confirm' ||
+      (confirm.hasOwnProperty('status') && confirm.status === 'error')
+    )
+      return confirm;
+
+    /**
+     * POST
+     */
+    let post = await this.WagerPost({
+      slip: jsonToXML(confirm),
+      Password: params.password,
+    });
+
+    if (
+      params.process_type == 'post' ||
+      (post.hasOwnProperty('status') && post.status === 'error')
+    )
+      return post;
+
+    return '';
+  }
+
   /**
     prmdetails String Details of the wager on a format(“IdGame,Play,Points,Odds”) and each detail separate by “@-@”.
     IdPlayer Integer Player identification number from table DGSDATA.PLAYER field IdPlayer.
@@ -129,6 +176,12 @@ export class WagerService {
     const requestUrl = this.proxy_url + '/WagerConfirm';
     return await this.helper.FetchProxy('POST', params, requestUrl, 'index');
   }
+  async WagerConfirm2(params: object) {
+    // const requestUrl = this.proxy_url + '/WagerConfirm';
+    // return await this.helper.FetchProxy('POST', params, requestUrl, 'index');
+    //     const requestUrl = `${this.proxy2_url}/FillCompile/${params.details}/${params.player_id}/${params.call_id}/${params.fill_wager_id}`;
+    //     return await this.helper.FetchProxy('GET', params, requestUrl);
+  }
   /**
     slip String XML result for the Wager Confirm.
     Password String Player password from table DGSDATA.PLAYER field password.
@@ -159,6 +212,16 @@ export class WagerService {
     return await this.helper.FetchProxy('POST', params, requestUrl);
   }
 
+  async FillCompile(params: any) {
+    const requestUrl = `${this.proxy2_url}/FillCompile/${params.details}/${params.player_id}/${params.call_id}/${params.fill_wager_id}`;
+    return await this.helper.FetchProxy('GET', params, requestUrl);
+  }
+
+  async GetFillOpenWager(params: any) {
+    const requestUrl = `${this.proxy2_url}/GetFillOpenWager/${params.player_id}/${params.fill_wager_id}`;
+    return await this.helper.FetchProxy('GET', params, requestUrl);
+  }
+
   async GetVersion() {}
 
   async RBLGradeBet() {}
@@ -166,10 +229,6 @@ export class WagerService {
   async RBLInsertBet() {}
 
   async RBLUnGradeBet() {}
-
-  async FillCompile() {}
-
-  async GetFillOpenWager() {}
 
   async GetScheduleForGames() {}
 
