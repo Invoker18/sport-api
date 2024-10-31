@@ -6,11 +6,13 @@ import { FetchService } from 'src/helpers/fetch.service';
 export class PlayerService {
   private readonly name = 'ProxyPlayer.asmx';
   private readonly proxy_url: string;
+  private readonly proxy2_url: string;
   constructor(
     private readonly config: ConfigService,
     private readonly helper: FetchService,
   ) {
     this.proxy_url = config.get('dgs').proxy_url + this.name;
+    this.proxy2_url = config.get('dgs').proxy2_url + '/api/player';
   }
 
   async register(params: any) {
@@ -76,5 +78,10 @@ export class PlayerService {
   async GetPlayerHistory(params: object) {
     const requestUrl = this.proxy_url + '/GetPlayerHistory';
     return await this.helper.FetchProxy('POST', params, requestUrl);
+  }
+
+  async GetFillOpenWager(params: any) {
+    const requestUrl = `${this.proxy2_url}/GetPlayerFillOpenBets/${params.player_id}`;
+    return await this.helper.FetchProxy('GET', params, requestUrl);
   }
 }
