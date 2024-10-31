@@ -8,7 +8,6 @@ export class FetchService {
   async FetchProxy(method: any, params: any, requestUrl: any, $key = 'index') {
     try {
       const formData = new URLSearchParams(params);
-
       const requestConfig =
         method != 'GET'
           ? {
@@ -28,6 +27,7 @@ export class FetchService {
       const response = await fetch(requestUrl, requestConfig);
       const data = await response.text();
       const xmlParsed = XMLToJson(data);
+
       return xmlParsed['ErrorCode'] == 0
         ? xmlParsed[$key] ?? xmlParsed
         : {

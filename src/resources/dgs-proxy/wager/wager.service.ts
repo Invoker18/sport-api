@@ -116,8 +116,6 @@ export class WagerService {
     /**
      * CONFIRM
      */
-    //SET DATA
-    compile = await this.setDataToConfirm(compile, params);
     let confirm = await this.WagerConfirm({
       slip: jsonToXML(compile),
       prmdetails: params.extra_details,
@@ -176,12 +174,7 @@ export class WagerService {
     const requestUrl = this.proxy_url + '/WagerConfirm';
     return await this.helper.FetchProxy('POST', params, requestUrl, 'index');
   }
-  async WagerConfirm2(params: object) {
-    // const requestUrl = this.proxy_url + '/WagerConfirm';
-    // return await this.helper.FetchProxy('POST', params, requestUrl, 'index');
-    //     const requestUrl = `${this.proxy2_url}/FillCompile/${params.details}/${params.player_id}/${params.call_id}/${params.fill_wager_id}`;
-    //     return await this.helper.FetchProxy('GET', params, requestUrl);
-  }
+
   /**
     slip String XML result for the Wager Confirm.
     Password String Player password from table DGSDATA.PLAYER field password.

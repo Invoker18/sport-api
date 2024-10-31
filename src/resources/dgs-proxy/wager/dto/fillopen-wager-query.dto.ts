@@ -25,10 +25,6 @@ export class FillOpenWagerQuery {
   @IsOptional()
   extra_details: string;
 
-  @Transform(({ value }) => JSON.parse(value))
-  @IsOptional()
-  amount: string[];
-
   @IsOptional()
   teaser_points: string;
 
