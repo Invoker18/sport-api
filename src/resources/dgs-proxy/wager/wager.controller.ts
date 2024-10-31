@@ -7,6 +7,8 @@ import { GetActiveLeaguesQuery } from './dto/get-leagues.dto';
 import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
 import { WagerQuery } from './dto/wager-query.dto';
 import { GetTeasersQuery } from './dto/get-teasers.dto';
+import { FillOpenWagerQuery } from './dto/fillopen-wager-query.dto';
+import { FillOpenQuery } from './dto/fillopen-query.dto';
 
 @Controller('proxy/wager')
 @ApiKeyAuth()
@@ -63,6 +65,24 @@ export class WagerController {
   async wagerProcess(@Query() params: WagerQuery): Promise<string> {
     let response: any;
     response = await this.wagerService.WagerProcess(params);
+    return response;
+  }
+
+  @Get('fillopenbet/process')
+  @Header('Content-Type', 'application/json')
+  async fillOpenBetProcess(
+    @Query() params: FillOpenWagerQuery,
+  ): Promise<string> {
+    let response: any;
+    response = await this.wagerService.FillOpenWagerProcess(params);
+    return response;
+  }
+
+  @Get('fillopenbet')
+  @Header('Content-Type', 'application/json')
+  async fillOpenBet(@Query() params: FillOpenQuery): Promise<string> {
+    let response: any;
+    response = await this.wagerService.GetFillOpenWager(params);
     return response;
   }
 

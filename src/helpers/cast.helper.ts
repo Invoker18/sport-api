@@ -55,5 +55,7 @@ export function XMLToJson(value: string): string {
     attributesGroupName: '',
   });
   const xmlParsed = parser.parse(value);
-  return parser.parse(xmlParsed.string['#text'])['xml'] ?? '';
+  return xmlParsed.string
+    ? parser.parse(xmlParsed.string['#text'])['xml'] ?? ''
+    : xmlParsed;
 }
