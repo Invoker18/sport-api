@@ -187,7 +187,7 @@ export class PlayerService {
     // **CHECK CACHE
 
     const data = await this.playerRepository.query(
-      `EXEC WebGetPlayerHistoryWagers ${player_id}, "${from_date}", "${to_date}"`,
+      `EXEC VZ_GetPlayerHistoryWagers ${player_id}, "${from_date}", "${to_date}"`,
     );
 
     // **SET CACHE
