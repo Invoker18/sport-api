@@ -159,12 +159,12 @@ CREATE TABLE #tmpHistory
 		#tmpHistory.*,
 		GAME.Description as GameDescription, 
 		GameLang.Description as GameLangDescription,
-		GradedGame.HomeScore,
-		GradedGame.VisitorScore,
-		GradedGame.Period
+		ISNULL(GAME.HomeScore,GRADEDGAME.HomeScore) AS HomeScore,
+		ISNULL(GAME.VisitorScore,GRADEDGAME.HomeScore) AS VisitorScore,
+		ISNULL(GAME.Period,GRADEDGAME.HomeScore) AS Period
 	FROM #tmpHistory 
 		 LEFT OUTER JOIN GAME WITH(NOLOCK) ON #tmpHistory.IdGame = GAME.IdGame
-		 LEFT OUTER JOIN GradedGame WITH(NOLOCK) ON #tmpHistory.IdGame = GradedGame.IdGame
+		 LEFT OUTER JOIN GRADEDGAME WITH(NOLOCK) ON #tmpHistory.IdGame = GRADEDGAME.IdGame
 		 LEFT OUTER JOIN GameLang WITH(NOLOCK) ON GameLang.IdGame = #tmpHistory.IdGame AND
 												  GameLang.IdLanguage = (SELECT IdLanguage FROM PLAYER WITH(NOLOCK) WHERE IdPlayer = @prmIdPlayer)
 	ORDER BY #tmpHistory.SettledDate, #tmpHistory.IdPlayerAccounting, #tmpHistory.IdWager, #tmpHistory.IdWagerDetail

@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DATABASE_ENUM } from 'src/config/database/enum';
 import { jsonToXML } from 'src/helpers/cast.helper';
+import { Player } from 'src/resources/api/player/entities/player.entity';
+import { Repository } from 'typeorm';
 import { FetchService } from '../../../helpers/fetch.service';
+import { PlayerService } from '../../api/player/player.service';
 
 @Injectable()
 export class WagerService {
@@ -11,6 +16,7 @@ export class WagerService {
   constructor(
     private readonly config: ConfigService,
     private readonly helper: FetchService,
+    private player: PlayerService,
   ) {
     this.proxy_url = config.get('dgs').proxy_url + this.name;
     this.proxy2_url = config.get('dgs').proxy2_url + '/api/wager';
@@ -32,11 +38,20 @@ export class WagerService {
       FixTeaserLine: 'true',
     });
 
+    const lines = await this.getGameLinesByDetails(
+      params.player_id,
+      params.details,
+    );
+    console.log(lines);
+
     if (
       params.process_type == 'compile' ||
       (compile.hasOwnProperty('status') && compile.status === 'error')
-    )
+    ) {
+      compile.current_lines = lines;
+
       return compile;
+    }
 
     /**
      * CONFIRM
@@ -242,4 +257,28 @@ export class WagerService {
   async WagerUpdateLines() {}
 
   async WagerValidate() {}
+
+  async getGameLinesByDetails(player_id: any, details: any) {
+    const games = details.split('@-@');
+    const lines = [];
+
+    for (let i = 0; i < games.length; i++) {
+      if (!games[i]) continue;
+      const game = games[i].split(',');
+      const game_id = Number(game[0]);
+      const play = Number(game[1]);
+
+      lines.push({
+        game_id: game_id,
+        play: play,
+        odds: await this.player.getGameLineByPlayerId({
+          player_id,
+          game_id,
+          play,
+        }),
+      });
+    }
+
+    return lines;
+  }
 }
