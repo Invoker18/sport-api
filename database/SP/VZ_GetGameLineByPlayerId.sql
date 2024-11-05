@@ -28,8 +28,8 @@ AS
 	ELSE		
     	SELECT  
 		
-		CASE WHEN @prmPlay = 0 THEN L.VisitorSpreadOdds
-		     WHEN @prmPlay = 1 THEN L.HomeSpreadOdds
+		CASE WHEN @prmPlay = 0 THEN ISNULL(L.VisitorSpreadOdds,L.VisitorSpecialOdds)
+		     WHEN @prmPlay = 1 THEN ISNULL(L.HomeSpreadOdds,L.HomeSpecialOdds)
 		     WHEN @prmPlay = 2 THEN L.OverOdds
 		     WHEN @prmPlay = 3 THEN L.UnderOdds
 		     WHEN @prmPlay = 4 THEN L.VisitorOdds
@@ -39,8 +39,8 @@ AS
 		     WHEN @prmPlay = 8 THEN L.HomeSpecialOdds
 		END
 		AS Odds,
-		CASE WHEN @prmPlay = 0 THEN L.VisitorSpread
-		     WHEN @prmPlay = 1 THEN L.HomeSpread
+		CASE WHEN @prmPlay = 0 THEN ISNULL(L.VisitorSpread,L.VisitorSpecial)
+		     WHEN @prmPlay = 1 THEN ISNULL(L.HomeSpread,L.HomeSpecial)
 		     WHEN @prmPlay = 2 THEN (L.TotalOver)*-1
 		     WHEN @prmPlay = 3 THEN L.TotalUnder
 		     WHEN @prmPlay = 4 THEN 0
