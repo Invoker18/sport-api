@@ -1,0 +1,44 @@
+ WAGER TYPE SP
+    M = MONEY LINE
+    S = SPREAD
+    L = TOTAL
+    E = TT1
+    F = TT2
+    P = PUCK LINE
+ 
+ 
+ GAME STATUS
+    C = CANCEL
+    O = OPEN
+    D = OFF THE BOARD
+    F = FINAL
+    L = CLOSE
+    P = POSPONED
+    B = BANNERS
+    U = ?????
+    G = ?????
+    N = ?????
+
+PLAY
+    0 = VISITOR SPREAD -- VisitorSpread , VisitorSpreadOdds
+    1 = HOME SPREAD -- HomeSpread , HomeSpreadOdds
+    2 = TOTAL OVER -- TotalOver , OverOdds
+    3 = TOTAL UNDER -- TotalUnder , UnderOdds
+    4 = VISITOR MONEYLINE -- VisitorOdds
+    5 = HOME MONEYLINE -- HomeOdds
+    6 = DRAW -- VisitorSpecialOdds OR HomeSpecialOdds
+    7 = VISITOR SPECIAL -- VisitorSpecial, VisitorSpecialOdds (HOCKEY) PUCK LINE 
+    8 = HOME SPECIAL -- HomeSpecial, HomeSpecialOdds (HOCKEY) PUCK LINE
+    TEAMNUMBER = ODDS TNT
+
+TRANSACTON TYPE
+    'W' = WAGER
+    'I' = IFCHILD
+    'A' = Adjust
+    'K' = Casino
+    'H' = Horses Adjust
+    'O' = Horse Wager
+    'R' = Deposit
+    'D' = DISBURSMENT
+
+

@@ -224,4 +224,27 @@ export class PlayerService {
 
     return data;
   }
+
+  async getGameLineByPlayerId(params: any) {
+    const cacheTimeSec = 2;
+    const player_id = params.player_id;
+    const game_id = params.game_id;
+    const play = params.play;
+
+    // **CHECK CACHE
+    const key = `get_gameLineByPlayerId_${player_id}_${game_id}_${play}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = this.playerRepository.query(
+      `EXEC VZ_GetGameLineByPlayerId ${player_id}, ${game_id}, ${play}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
 }
