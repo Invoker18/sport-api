@@ -47,7 +47,7 @@ export class WagerService {
       params.process_type == 'compile' ||
       (compile.hasOwnProperty('status') && compile.status === 'error')
     ) {
-      compile.current_lines = lines;
+      compile.last_lines = lines;
       return compile;
     }
 
@@ -64,7 +64,7 @@ export class WagerService {
       params.process_type == 'confirm' ||
       (confirm.hasOwnProperty('status') && confirm.status === 'error')
     ) {
-      confirm.current_lines = lines;
+      confirm.last_lines = lines;
       return confirm;
     }
     /**
@@ -79,7 +79,7 @@ export class WagerService {
       params.process_type == 'post' ||
       (post.hasOwnProperty('status') && post.status === 'error')
     ) {
-      post.current_lines = lines;
+      post.last_lines = lines;
       return post;
     }
 
@@ -132,7 +132,7 @@ export class WagerService {
       params.process_type == 'compile' ||
       (compile.hasOwnProperty('status') && compile.status === 'error')
     ) {
-      compile.current_lines = lines;
+      compile.last_lines = lines;
       return compile;
     }
     /**
@@ -146,7 +146,7 @@ export class WagerService {
       params.process_type == 'confirm' ||
       (confirm.hasOwnProperty('status') && confirm.status === 'error')
     ) {
-      confirm.current_lines = lines;
+      confirm.last_lines = lines;
       return confirm;
     }
 
@@ -162,7 +162,7 @@ export class WagerService {
       params.process_type == 'post' ||
       (post.hasOwnProperty('status') && post.status === 'error')
     ) {
-      post.current_lines = lines;
+      post.last_lines = lines;
       return post;
     }
 
