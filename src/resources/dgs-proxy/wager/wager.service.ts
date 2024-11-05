@@ -42,14 +42,12 @@ export class WagerService {
       params.player_id,
       params.details,
     );
-    console.log(lines);
 
     if (
       params.process_type == 'compile' ||
       (compile.hasOwnProperty('status') && compile.status === 'error')
     ) {
       compile.current_lines = lines;
-
       return compile;
     }
 
@@ -65,9 +63,10 @@ export class WagerService {
     if (
       params.process_type == 'confirm' ||
       (confirm.hasOwnProperty('status') && confirm.status === 'error')
-    )
+    ) {
+      confirm.current_lines = lines;
       return confirm;
-
+    }
     /**
      * POST
      */
@@ -79,8 +78,10 @@ export class WagerService {
     if (
       params.process_type == 'post' ||
       (post.hasOwnProperty('status') && post.status === 'error')
-    )
+    ) {
+      post.current_lines = lines;
       return post;
+    }
 
     return '';
   }
@@ -122,12 +123,18 @@ export class WagerService {
      */
     let compile = await this.FillCompile(params);
 
+    const lines = await this.getGameLinesByDetails(
+      params.player_id,
+      params.details,
+    );
+
     if (
       params.process_type == 'compile' ||
       (compile.hasOwnProperty('status') && compile.status === 'error')
-    )
+    ) {
+      compile.current_lines = lines;
       return compile;
-
+    }
     /**
      * CONFIRM
      */
@@ -138,8 +145,10 @@ export class WagerService {
     if (
       params.process_type == 'confirm' ||
       (confirm.hasOwnProperty('status') && confirm.status === 'error')
-    )
+    ) {
+      confirm.current_lines = lines;
       return confirm;
+    }
 
     /**
      * POST
@@ -152,8 +161,10 @@ export class WagerService {
     if (
       params.process_type == 'post' ||
       (post.hasOwnProperty('status') && post.status === 'error')
-    )
+    ) {
+      post.current_lines = lines;
       return post;
+    }
 
     return '';
   }
