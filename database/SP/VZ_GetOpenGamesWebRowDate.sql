@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 6/5/2024 12:57:11 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 11/7/2024 14:08:31 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -24,7 +24,7 @@ CREATE PROCEDURE [dbo].[VZ_GetOpenGamesWebRowDate]
 AS
 DECLARE @bitZero bit,
 	    @Main_IdGame int, 
-	    @Main_IdSport char(5),
+	    @Main_IdSport varchar(5),
 	    @Main_ParentOrder smallint,
 	    @Order	smallint
 
@@ -40,7 +40,7 @@ CREATE TABLE #tblMainGames
 	IdGame				  int, 
 	VisitorTeam			  varchar(50), 
 	HomeTeam			  varchar(50), 
-	IdSport				  char(5), 
+	IdSport				  varchar(5), 
 	IdLeague			  smallint, 
 	IdGameType			  int,
 	GameDate			  datetime,

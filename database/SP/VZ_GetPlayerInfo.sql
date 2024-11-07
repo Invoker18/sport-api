@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetPlayerInfo]    Script Date: 9/19/2024 14:27:09 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetPlayerInfo]    Script Date: 11/7/2024 09:37:50 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -53,7 +53,12 @@ BEGIN
 			(select EnforcePassRules from SYSTEMPREFERENCESMANAGER with(nolock)) as EnforcePassRules,
 			P.OnlineAccess,
 			P.Password,
-			P.Status
+			P.Status,
+			(SELECT	COUNT(DISTINCT WagerHeader.TicketNumber)
+				FROM dbo.WagerHeader WITH(NOLOCK)
+				WHERE WagerHeader.Graded = 0 AND WagerHeader.Stat = 0 AND WagerHeader.IdPlayer = @prmIdPlayer
+			) AS OpenBets
+
 	FROM dbo.Player P WITH (NOLOCK)
 	JOIN dbo.Language L WITH (NOLOCK) ON P.IdLanguage = L.IdLanguage
 	JOIN dbo.PlayerProfile PP WITH (NOLOCK) ON P.IdProfile = PP.IdProfile

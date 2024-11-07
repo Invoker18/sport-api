@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetActiveWebRow]    Script Date: 4/12/2024 10:13:56 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetActiveWebRow]    Script Date: 11/7/2024 10:08:33 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -69,7 +69,7 @@ BEGIN
 		        L.RowDescription,
 				WL.Description AS RowDescriptionLang,
 				L.RowOrder, 
-				COUNT(distinct G.IdGame) Games,
+				COUNT(distinct G.FamilyGame) Games,
 				COUNT(distinct G.IdLeague) Leagues
 		FROM Game G With(NoLock)
 		JOIN GameValues GV With(NoLock) ON G.IdGame = GV.IdGame AND GV.IdLineType = @prmIdLineType
@@ -92,7 +92,7 @@ BEGIN
 				L.RowDescription,
 				WL.Description AS RowDescriptionLang,
 				L.RowOrder, 
-				COUNT(distinct G.IdGame) Games,
+				COUNT(distinct G.FamilyGame) Games,
 				COUNT(distinct G.IdLeague) Leagues
 		FROM Game G With(NoLock)
 		JOIN GameTNTPropAction P With(NoLock) ON G.IdGame = P.IdGame AND P.IdLineType = @prmIdLineType 
@@ -117,5 +117,3 @@ BEGIN
 	ORDER BY 3
 
 END
-GO
-            
