@@ -282,12 +282,14 @@ export class WagerService {
       lines.push({
         game_id: game_id,
         play: play,
-        odds:
-          (await this.player.getGameLineByPlayerId({
-            player_id,
-            game_id,
-            play,
-          })[0]) ?? {},
+        line:
+          (
+            await this.player.getGameLineByPlayerId({
+              player_id,
+              game_id,
+              play,
+            })
+          )[0] ?? {},
       });
     }
 
