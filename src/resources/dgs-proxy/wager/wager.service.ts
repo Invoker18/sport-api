@@ -282,7 +282,7 @@ export class WagerService {
       lines.push({
         game_id: game_id,
         play: play,
-        odds:
+        line:
           (
             await this.player.getGameLineByPlayerId({
               player_id,
