@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetGameTNTOdds]    Script Date: 4/12/2024 10:13:56 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetGameTNTOdds]    Script Date: 11/7/2024 10:14:44 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -34,5 +34,3 @@ BEGIN
     ORDER BY TeamNumber ASC  
 
 END
-GO
-            

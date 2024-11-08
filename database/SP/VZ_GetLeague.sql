@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetLeague]    Script Date: 6/6/2024 14:25:34 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetLeague]    Script Date: 11/7/2024 10:15:49 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

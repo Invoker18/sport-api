@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetLeagueBanners]    Script Date: 4/12/2024 10:13:56 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetLeagueBanners]    Script Date: 11/7/2024 10:16:38 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -35,5 +35,3 @@ BEGIN
 	ORDER BY CONVERT(datetime, CONVERT(char(8), G2.GameDateTime, 112)), G2.VisitorNumber
 
 END
-GO
-            

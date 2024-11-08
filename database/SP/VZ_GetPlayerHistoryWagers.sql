@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetPlayerHistoryWagers]    Script Date: 10/30/2024 15:52:36 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetPlayerHistoryWagers]    Script Date: 11/7/2024 09:58:39 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -99,7 +99,7 @@ CREATE TABLE #tmpHistory
 
 		GradedWagerDetail.IdWagerDetail, 
 		ISNULL(GradedWagerDetail.IdGame,0) AS IdGame, 
-		GradedWagerDetail.IdSport, 
+		LTRIM(RTRIM(GradedWagerDetail.IdSport)) AS IdSport, 
 		GradedWagerDetail.GameDateTime, 
 		GradedWagerDetail.IsPastPost,
 		GradedWagerDetail.CompleteDescription AS DetailDescription, 

@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetGameLineByPlayerId]   Script Date: 11/1/2024 12:52:48 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetGameLineByPlayerId]    Script Date: 11/7/2024 10:11:28 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
