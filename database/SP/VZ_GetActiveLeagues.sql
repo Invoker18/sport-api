@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetActiveLeagues]    Script Date: 4/3/2024 10:13:56 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetActiveLeagues]    Script Date: 11/7/2024 10:05:32 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -65,7 +65,7 @@ BEGIN
 			LG.RowOrder, 
 			LG.LeagueOrder, 
 			CASE WHEN LG.LeagueDescriptionLang IS NULL THEN LG.LeagueDescription ELSE LG.LeagueDescriptionLang END as LeagueDescription,
-			LG.IdSport, 
+			LTRIM(RTRIM(LG.IdSport)) as IdSport,
 			LG.IdWebRow, 
 			CASE WHEN LG.RegionDescriptionLang IS NULL THEN LG.RegionDescription ELSE LG.RegionDescriptionLang END as RegionDescription,
 			LG.IDLeagueRegion, 
@@ -84,7 +84,7 @@ BEGIN
 				L.RegionDescription,
 				LRL.Description AS RegionDescriptionLang,
 				L.IDLeagueRegion, 
-				COUNT(G.IdGame) Games
+				COUNT(distinct G.FamilyGame) Games
 		FROM Game G With(NoLock)
 		JOIN GameValues GV With(NoLock) ON G.IdGame = GV.IdGame AND GV.IdLineType = @prmIdLineType
 		JOIN #TempLeague L With(NoLock) ON G.IdLeague = L.IdLeague
@@ -124,7 +124,7 @@ BEGIN
 				L.RegionDescription,
 				LRL.Description AS RegionDescriptionLang,
 				L.IDLeagueRegion, 
-				COUNT(G.IdGame) Games
+				COUNT(distinct G.FamilyGame) Games
 		FROM Game G With(NoLock)
 		JOIN GameTNTPropAction P With(NoLock) ON G.IdGame = P.IdGame AND P.IdLineType = @prmIdLineType 
 		JOIN #TempLeague L With(NoLock) ON G.IdLeague = L.IdLeague
@@ -165,5 +165,3 @@ BEGIN
 	ORDER BY 2,4,5
 
 END
-GO
-            

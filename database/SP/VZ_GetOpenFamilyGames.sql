@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenFamilyGames]    Script Date: 6/19/2024 09:29:53 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenFamilyGames]    Script Date: 11/7/2024 10:22:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -12,7 +12,7 @@ GO
 -- Description:	[VZ_GetOpenFamilyGames]
 -- =============================================
 
-ALTER PROCEDURE [dbo].[VZ_GetOpenFamilyGames]
+CREATE PROCEDURE [dbo].[VZ_GetOpenFamilyGames]
 	@prmIdFamilyGame int,
 	@prmIdAgent int,
 	@prmIdLineType int,
@@ -21,7 +21,7 @@ ALTER PROCEDURE [dbo].[VZ_GetOpenFamilyGames]
 AS
 DECLARE @bitZero bit,
 	    @Main_IdGame int, 
-	    @Main_IdSport char(5),
+	    @Main_IdSport varchar(5),
 	    @Main_ParentOrder smallint,
 	    @Order	smallint
 
@@ -37,7 +37,7 @@ CREATE TABLE #tblMainGames
 	IdGame				  int, 
 	VisitorTeam			  varchar(50), 
 	HomeTeam			  varchar(50), 
-	IdSport				  char(5), 
+	IdSport				  varchar(5), 
 	IdLeague			  smallint, 
 	IdGameType			  int,
 	GameDate			  datetime,
@@ -352,3 +352,4 @@ WHERE a.DGS_game_id = tbl.IdGame) away_image_id
  FROM #tblMainGames AS tbl WITH(NOLOCK)
 WHERE tbl.Period = @prmPeriod or @prmPeriod = -1
 ORDER BY ParentGame, ChildOrder, IdGame, FromAgent--8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
+

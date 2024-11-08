@@ -215,7 +215,7 @@ export class PlayerService {
     // **CHECK CACHE
 
     const data = await this.playerRepository.query(
-      `EXEC GetPlayerHistoryTransac ${player_id}, "${from_date}", "${to_date}"`,
+      `EXEC VZ_GetPlayerHistoryTransac ${player_id}, "${from_date}", "${to_date}"`,
     );
 
     // **SET CACHE
