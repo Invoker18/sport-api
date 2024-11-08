@@ -32,13 +32,29 @@ PLAY
     TEAMNUMBER = ODDS TNT
 
 TRANSACTON TYPE
-    'W' = WAGER
-    'I' = IFCHILD
-    'A' = Adjust
-    'K' = Casino
-    'H' = Horses Adjust
-    'O' = Horse Wager
-    'R' = Deposit
-    'D' = DISBURSMENT
+    'R' = 'RECEIPT'
+	'D' = 'DISBURSMENT'
+	'T' = 'TRANSFER'
+	'A' = 'ADJUSTMENT'
+	'K' = 'CASINO'
+	'P' = 'FREEPLAY'
+	'C' = 'ACCRUAL ADJUSTMENT'
+	'H' = 'HORSES ADJUSTMENT'
+	'W' = 'WAGER'
+	'I' = 'IFCHILD'
+	'O' = 'HORSE WAGER'
 
 
+====================================================
+|    DESCRIPTION     |  IDWAGERTYPE  |  WAGERTYPE  |
+====================================================
+|    STRAIGHT        |       0       |      0      |
+|    PARLEY          |       0       |      1      |
+|    ROUND ROBIN     |       0       |      5      |
+|    TEASER          |  IDWT(TEASER) |      2      |
+|    IF WIN          |       0       |      3      |
+|    IF WIN OR TIE   |       0       |      7      |
+|    IF LOSE         |       0       |      10     |
+|    IF LOSE OR TIE  |       0       |      11     |
+|    REVERSE WIN     |       0       |      4      |
+|    REVERSE ACTION  |       0       |      8      |
