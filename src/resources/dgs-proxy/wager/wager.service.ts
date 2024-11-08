@@ -47,7 +47,7 @@ export class WagerService {
       params.process_type == 'compile' ||
       (compile.hasOwnProperty('status') && compile.status === 'error')
     ) {
-      compile.last_lines = lines;
+      compile.changed_lines = lines;
       return compile;
     }
 
@@ -64,7 +64,7 @@ export class WagerService {
       params.process_type == 'confirm' ||
       (confirm.hasOwnProperty('status') && confirm.status === 'error')
     ) {
-      confirm.last_lines = lines;
+      confirm.changed_lines = lines;
       return confirm;
     }
     /**
@@ -79,7 +79,7 @@ export class WagerService {
       params.process_type == 'post' ||
       (post.hasOwnProperty('status') && post.status === 'error')
     ) {
-      post.last_lines = lines;
+      post.changed_lines = lines;
       return post;
     }
 
@@ -132,7 +132,7 @@ export class WagerService {
       params.process_type == 'compile' ||
       (compile.hasOwnProperty('status') && compile.status === 'error')
     ) {
-      compile.last_lines = lines;
+      compile.changed_lines = lines;
       return compile;
     }
     /**
@@ -146,7 +146,7 @@ export class WagerService {
       params.process_type == 'confirm' ||
       (confirm.hasOwnProperty('status') && confirm.status === 'error')
     ) {
-      confirm.last_lines = lines;
+      confirm.changed_lines = lines;
       return confirm;
     }
 
@@ -162,7 +162,7 @@ export class WagerService {
       params.process_type == 'post' ||
       (post.hasOwnProperty('status') && post.status === 'error')
     ) {
-      post.last_lines = lines;
+      post.changed_lines = lines;
       return post;
     }
 
@@ -278,19 +278,23 @@ export class WagerService {
       const game = games[i].split(',');
       const game_id = Number(game[0]);
       const play = Number(game[1]);
+      const point = Number(game[2]);
+      const odds = Number(game[3]);
+      const line =
+        (
+          await this.player.getGameLineByPlayerId({
+            player_id,
+            game_id,
+            play,
+          })
+        )[0] ?? {};
 
-      lines.push({
-        game_id: game_id,
-        play: play,
-        line:
-          (
-            await this.player.getGameLineByPlayerId({
-              player_id,
-              game_id,
-              play,
-            })
-          )[0] ?? {},
-      });
+      if (line.Odds !== odds || line.Points !== point) {
+        lines.push({
+          game_id: game_id,
+          play: play,
+        });
+      }
     }
 
     return lines;
