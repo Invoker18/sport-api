@@ -237,7 +237,7 @@ export class PlayerService {
     if (cached) return cached;
     // **CHECK CACHE
 
-    const data = this.playerRepository.query(
+    const data = await this.playerRepository.query(
       `EXEC VZ_GetGameLineByPlayerId ${player_id}, ${game_id}, ${play}`,
     );
 
@@ -257,7 +257,9 @@ export class PlayerService {
     if (cached) return cached;
     // **CHECK CACHE
 
-    const data = this.playerRepository.query(`EXEC WebGetLanguageCultureInfo`);
+    const data = await this.playerRepository.query(
+      `EXEC WebGetLanguageCultureInfo`,
+    );
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
@@ -275,7 +277,7 @@ export class PlayerService {
     if (cached) return cached;
     // **CHECK CACHE
 
-    const data = this.playerRepository.query(`EXEC WebGetTimeZones`);
+    const data = await this.playerRepository.query(`EXEC WebGetTimeZones`);
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
