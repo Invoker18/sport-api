@@ -249,7 +249,7 @@ export class PlayerService {
   }
 
   async getLanguages() {
-    const cacheTimeSec = 30;
+    const cacheTimeSec = 300;
 
     // **CHECK CACHE
     const key = `get_languageCultureInfo`;
@@ -267,15 +267,15 @@ export class PlayerService {
   }
 
   async getTimeZones() {
-    const cacheTimeSec = 30;
+    const cacheTimeSec = 300;
 
     // **CHECK CACHE
-    const key = `get_languageCultureInfo`;
+    const key = `get_timeZones`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
 
-    const data = this.playerRepository.query(`EXEC WebGetLanguageCultureInfo`);
+    const data = this.playerRepository.query(`EXEC WebGetTimeZones`);
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
