@@ -5,6 +5,7 @@ import { GameService } from './game.service';
 import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
 import { GetFamilyGamesQuery } from './dto/get-game-family.dto';
 import { GetGamesByWebRowQuery } from './dto/get-game-by-webrow.dto';
+import { searchGamesQuery } from './dto/search-games.dto';
 
 @Controller('game')
 @ApiKeyAuth()
@@ -39,5 +40,13 @@ export class GameController {
   @Get('/odds/dgs-conversion')
   async getOddsConversionDGS(): Promise<string> {
     return await this.gameService.getOddsConversionDGS();
+  }
+
+  @Get('/search')
+  async searchGames(
+    @Query()
+    params: searchGamesQuery,
+  ): Promise<string> {
+    return await this.gameService.searchGames(params);
   }
 }
