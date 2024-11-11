@@ -49,4 +49,14 @@ export class PlayerController {
       daterange,
     });
   }
+
+  @Get('languages')
+  async getLanguages(): Promise<string> {
+    return await this.playerService.getLanguages();
+  }
+
+  @Get('timezones')
+  async getTimeZones(): Promise<string> {
+    return await this.playerService.getTimeZones();
+  }
 }

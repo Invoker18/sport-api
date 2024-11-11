@@ -247,4 +247,40 @@ export class PlayerService {
 
     return data;
   }
+
+  async getLanguages() {
+    const cacheTimeSec = 300;
+
+    // **CHECK CACHE
+    const key = `get_languageCultureInfo`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = this.playerRepository.query(`EXEC WebGetLanguageCultureInfo`);
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getTimeZones() {
+    const cacheTimeSec = 300;
+
+    // **CHECK CACHE
+    const key = `get_timeZones`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = this.playerRepository.query(`EXEC WebGetTimeZones`);
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
 }
