@@ -238,8 +238,8 @@ export class GameService {
           });
           break;
       }
-      if (['TNT', 'PROP'].includes(sport_id) && game.Options.length == 0)
-        continue;
+      // if (['TNT', 'PROP'].includes(sport_id) && game.Options.length == 0)
+      //   continue;
       data.events.push(game);
     }
 
