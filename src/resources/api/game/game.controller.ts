@@ -3,9 +3,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GameService } from './game.service';
 import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
-import { GetFamilyGamesQuery } from './dto/get-game-family.dto';
 import { GetGamesByWebRowQuery } from './dto/get-game-by-webrow.dto';
 import { searchGamesQuery } from './dto/search-games.dto';
+import { GetFamilyGamesQuery } from './dto/get-game-family.dto';
 
 @Controller('game')
 @ApiKeyAuth()
