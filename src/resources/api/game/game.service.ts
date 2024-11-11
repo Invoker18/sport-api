@@ -236,10 +236,9 @@ export class GameService {
             line_type_id,
             lang_id,
           });
+          if (game.Options.length == 0) continue;
           break;
       }
-      // if (['TNT', 'PROP'].includes(sport_id) && game.Options.length == 0)
-      //   continue;
       data.events.push(game);
     }
 
