@@ -99,7 +99,7 @@ export class GameService {
     const lang_id = params.lang_id;
 
     // **CHECK CACHE
-    const key = `get_league_${game_id}_${lang_id}`;
+    const key = `get_game_${game_id}_${lang_id}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
@@ -113,6 +113,31 @@ export class GameService {
     // **SET CACHE
 
     return data[0];
+  }
+
+  async searchGames(params: any) {
+    const cacheTimeSec = 10;
+    const search = params.search;
+    const player = await this.player.getInfo({ player_id: params.player_id });
+    const book_id = player.IdBook;
+    const line_type_id = player.IdLineType;
+    const lang_id = params.lang_id;
+
+    // **CHECK CACHE
+    const key = `search_games_${search}_${book_id}_${line_type_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = await this.gameRepository.query(
+      `EXEC VZ_SearchGames	${search}, ${book_id}, ${line_type_id}, ${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
   }
 
   async getLeagueBanners(params: any) {
