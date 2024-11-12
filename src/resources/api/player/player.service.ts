@@ -285,4 +285,60 @@ export class PlayerService {
 
     return data;
   }
+
+  async updatePlayerInfo(params: any) {
+    const player_id = params.player_id;
+    const password = params.password;
+    const new_password = params.new_password ?? '';
+    const name = params.name ?? '';
+    const last_name = params.last_name ?? '';
+    const last_name2 = params.last_name2 ?? '';
+    const title = params.title ?? '';
+    const address1 = params.address1 ?? '';
+    const address2 = params.address2 ?? '';
+    const city = params.city ?? '';
+    const state = params.state ?? '';
+    const country = params.country ?? '';
+    const zip = params.zip ?? '';
+    const phone = params.phone ?? '';
+    const fax = params.fax ?? '';
+    const email = params.email ?? '';
+    const culture_info = params.culture_info ?? '';
+    const line_style = params.line_style ?? '';
+    const timezone_id = params.timezone_id ?? '';
+    const language_id = params.language_id ?? '';
+
+    const data = await this.playerRepository.query(
+      `EXEC VZ_UpdatePlayerInfo 
+      ${player_id}, 
+      '${password}', 
+      '${new_password}',
+      '${name}',
+      '${last_name}',
+      '${last_name2}',
+      '${title}',
+      '${address1}',
+      '${address2}',
+      '${city}',
+      '${state}',
+      '${country}',
+      '${zip}',
+      '${phone}',
+      '${fax}',
+      '${email}',
+      '${culture_info}',
+      '${line_style}',
+      '${timezone_id}',
+      '${language_id}'`,
+    );
+    if (!data[0] || data[0].return == 0) {
+      throw new NotFoundException(
+        `IdPlayer ${player_id}. Player not found or invalid password`,
+      );
+    } else {
+      const data_info = await this.getInfo({ player_id });
+      delete data_info.Password;
+      return data_info;
+    }
+  }
 }
