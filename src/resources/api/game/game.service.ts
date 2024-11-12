@@ -130,7 +130,7 @@ export class GameService {
     // **CHECK CACHE
 
     const data = await this.gameRepository.query(
-      `EXEC VZ_SearchGames	${search}, ${book_id}, ${line_type_id}, ${lang_id}`,
+      `EXEC VZ_SearchGames	'${search}', ${book_id}, ${line_type_id}, ${lang_id}`,
     );
 
     // **SET CACHE
