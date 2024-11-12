@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { IdPlayerParam } from './dto/get_player.dto';
 import { PlayerService } from './player.service';
 import { LoginParams } from './dto/login.dto';
 import { DateRangeParam } from './dto/daterange.dto';
+import { UpdatePlayerInfo } from './dto/update_player_info.dto';
 
 @Controller('player')
 @ApiKeyAuth()
@@ -58,5 +59,10 @@ export class PlayerController {
   @Get('timezones')
   async getTimeZones(): Promise<string> {
     return await this.playerService.getTimeZones();
+  }
+
+  @Put('info')
+  async updatePlayerInfo(@Body() params: UpdatePlayerInfo): Promise<string> {
+    return await this.playerService.updatePlayerInfo(params);
   }
 }
