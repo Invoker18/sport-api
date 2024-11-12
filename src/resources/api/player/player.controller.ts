@@ -51,16 +51,6 @@ export class PlayerController {
     });
   }
 
-  @Get('languages')
-  async getLanguages(): Promise<string> {
-    return await this.playerService.getLanguages();
-  }
-
-  @Get('timezones')
-  async getTimeZones(): Promise<string> {
-    return await this.playerService.getTimeZones();
-  }
-
   @Put('info')
   async updatePlayerInfo(@Body() params: UpdatePlayerInfo): Promise<string> {
     return await this.playerService.updatePlayerInfo(params);
