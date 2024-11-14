@@ -123,7 +123,7 @@ export class GameService {
   }
 
   async searchGames(params: any) {
-    const cacheTimeSec = 10;
+    const cacheTimeSec = 60;
     const search = params.search;
     const player = await this.player.getInfo({ player_id: params.player_id });
     const book_id = player.IdBook;
@@ -148,7 +148,7 @@ export class GameService {
   }
 
   async searchLeagues(params: any) {
-    const cacheTimeSec = 10;
+    const cacheTimeSec = 60;
     const search = params.search;
     const player = await this.player.getInfo({ player_id: params.player_id });
     const book_id = player.IdBook;
