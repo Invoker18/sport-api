@@ -115,8 +115,15 @@ export class GameService {
     return data[0];
   }
 
+  async searchGamesLeagues(params: any) {
+    return {
+      games: await this.searchGames(params),
+      leagues: await this.searchLeagues(params),
+    };
+  }
+
   async searchGames(params: any) {
-    const cacheTimeSec = 10;
+    const cacheTimeSec = 60;
     const search = params.search;
     const player = await this.player.getInfo({ player_id: params.player_id });
     const book_id = player.IdBook;
@@ -131,6 +138,31 @@ export class GameService {
 
     const data = await this.gameRepository.query(
       `EXEC VZ_SearchGames	'${search}', ${book_id}, ${line_type_id}, ${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async searchLeagues(params: any) {
+    const cacheTimeSec = 60;
+    const search = params.search;
+    const player = await this.player.getInfo({ player_id: params.player_id });
+    const book_id = player.IdBook;
+    const line_type_id = player.IdLineType;
+    const lang_id = params.lang_id;
+
+    // **CHECK CACHE
+    const key = `search_leagues_${search}_${book_id}_${line_type_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = await this.gameRepository.query(
+      `EXEC VZ_SearchLeagues	'${search}', ${book_id}, ${line_type_id}, ${lang_id}`,
     );
 
     // **SET CACHE
