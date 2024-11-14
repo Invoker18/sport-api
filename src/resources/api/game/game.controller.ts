@@ -43,10 +43,10 @@ export class GameController {
   }
 
   @Get('/search')
-  async searchGames(
+  async searchGamesLeagues(
     @Query()
     params: searchGamesQuery,
-  ): Promise<string> {
-    return await this.gameService.searchGames(params);
+  ) {
+    return await this.gameService.searchGamesLeagues(params);
   }
 }
