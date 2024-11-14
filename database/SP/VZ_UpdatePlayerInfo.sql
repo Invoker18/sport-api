@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_SearchGames]   Script Date: 11/8/2024 14:26:00 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_UpdatePlayerInfo]    Script Date: 11/12/2024 08:57:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -8,70 +8,94 @@ GO
 
 -- =============================================
 -- Author:		Alexander De Sousa
--- Create date: Nov 08 2024
--- Description:	[VZ_SearchGames]
+-- Create date: Nov 12 2024
+-- Description:	[VZ_UpdatePlayerInfo]
 -- =============================================
-CREATE PROCEDURE [dbo].[VZ_SearchGames]
-    @prmSearch varchar(255),
-	@prmIdBook smallint,
-	@prmIdLineType smallint,
-	@prmIdLanguage tinyint
+CREATE PROCEDURE [dbo].[VZ_UpdatePlayerInfo]
+	@IdPlayer 	  INT,
+	@Password	  VARCHAR(20),
+	@NewPassword  VARCHAR(20),
+	@Name		  NVARCHAR(20),
+	@LastName	  NVARCHAR(20),
+	@LastName2	  NVARCHAR(20),
+	@Title		  VARCHAR(10),
+	@Address1	  NVARCHAR(50),
+	@Address2	  NVARCHAR(50),
+	@City		  NVARCHAR(20),
+	@State		  NVARCHAR(20),
+	@Country	  VARCHAR(30),
+	@Zip		  VARCHAR(15),
+	@Phone		  VARCHAR(15),
+	@Fax		  VARCHAR(15),
+	@Email		  VARCHAR(50),
+	@CultureInfo  VARCHAR(12),
+	@LineStyle    CHAR(1),
+	@IdTimeZone   INT,
+	@IdLanguage   INT
+ 
 AS
-BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON
+DECLARE @IdLanguageCI INT
 
-	DECLARE @SEARCH NVARCHAR(4000) = '%' + @prmSearch + '%'
+SET NOCOUNT ON
 
-	SELECT DISTINCT
-		G.IdGame, 
-		G.IdLeague, 
-	    G.FamilyGame,
-		CASE WHEN G.VisitorTeam IS NULL THEN TLV.Name ELSE G.VisitorTeam END AS VisitorTeam,
-		CASE WHEN G.HomeTeam IS NULL THEN TLH.Name ELSE G.HomeTeam END AS HomeTeam,
-		GL.VisitorTeam AS GameLangVisitorTeam, 
-		GL.HomeTeam AS GameLangHomeTeam,
-		CASE WHEN GL.[Description] IS NULL THEN G.[Description] ELSE GL.[Description] END AS GameLangDescription,
-		CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription,
-		WRD.IdWebRow
-		,(
-			SELECT b.home_image_id
-			FROM [MOVER].[dbo].[Games] a
-			INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
-			WHERE a.DGS_game_id = G.IdGame) home_image_id
-		,(
-			SELECT b.away_image_id
-			FROM [MOVER].[dbo].[Games] a
-			INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
-			WHERE a.DGS_game_id = G.IdGame) away_image_id
-	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = 0
-	JOIN GameValues GV With(NoLock) ON G.IdGame = GV.IdGame AND GV.IdLineType = @prmIdLineType
-	JOIN League LG WITH (NOLOCK) ON G.IdLeague = LG.IdLeague
-	JOIN WebRowDetail WRD  WITH (NOLOCK) ON G.IdLeague = WRD.IdLeague 
-	LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
-	LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage
-	LEFT OUTER JOIN TeamLang TLH WITH (NOLOCK) ON G.IdTeamHome = TLH.IdTeam AND TLH.IdLanguage = @prmIdLanguage
+ IF NOT EXISTS(SELECT IdPlayer FROM Player WITH(NOLOCK) WHERE IdPlayer = @IdPlayer AND OnlinePassword=@Password) BEGIN Select 0  AS 'return'  END
 
-	LEFT OUTER JOIN LeagueLang LGL WITH (NOLOCK) ON G.IdLeague = LGL.IdLeague AND LGL.IdLanguage = @prmIdLanguage
-	WHERE G.Online = 1 
-		AND G.GameStat = 'O'
-		AND G.GameDateTime > GETDATE()
-		AND G.IdEvent IS NULL
-		AND G.IdSport NOT IN ('TNT', 'PROPS')
-		AND G.IdGame = G.FamilyGame
-		AND (
-		G.VisitorTeam LIKE @SEARCH  
-		OR G.HomeTeam LIKE @SEARCH  
-		OR TLV.Name LIKE @SEARCH 
-		OR TLH.Name LIKE @SEARCH  
-		OR GL.VisitorTeam LIKE @SEARCH  
-		OR GL.HomeTeam LIKE @SEARCH 
-		OR GL.[Description] LIKE @SEARCH 
-		OR G.[Description] LIKE @SEARCH 
-		OR LGL.[Description] LIKE @SEARCH 
-		OR LG.[Description] LIKE @SEARCH 
-		)
+ IF @NewPassword <> '' 
+	UPDATE Player SET OnlinePassword = @NewPassword WHERE IdPlayer = @IdPlayer
 
+ IF @Name <> '' 
+	UPDATE Player SET Name = @Name WHERE IdPlayer = @IdPlayer
 
-END
+ IF @LastName <> '' 
+	UPDATE Player SET LastName = @LastName WHERE IdPlayer = @IdPlayer
+ 
+ IF @LastName2 <> '' 
+	UPDATE Player SET LastName2 = @LastName2 WHERE IdPlayer = @IdPlayer
+
+ IF @Title <> '' 
+	UPDATE Player SET Title = @Title WHERE IdPlayer = @IdPlayer
+
+ IF @Address1 <> '' 
+	UPDATE Player SET Address1 = @Address1 WHERE IdPlayer = @IdPlayer
+
+ IF @Address2 <> '' 
+	UPDATE Player SET Address2 = @Address2 WHERE IdPlayer = @IdPlayer
+
+ IF @City <> '' 
+	UPDATE Player SET City = @City WHERE IdPlayer = @IdPlayer
+
+ IF @State <> '' 
+	UPDATE Player SET State = @State WHERE IdPlayer = @IdPlayer
+
+ IF @Country <> '' 
+	UPDATE Player SET Country = @Country WHERE IdPlayer = @IdPlayer
+
+ IF @Zip <> '' 
+	UPDATE Player SET Zip = @Zip WHERE IdPlayer = @IdPlayer
+
+ IF @Phone <> '' 
+	UPDATE Player SET Phone = @Phone WHERE IdPlayer = @IdPlayer
+
+ IF @Fax <> '' 
+	UPDATE Player SET Fax = @Fax WHERE IdPlayer = @IdPlayer
+
+ IF @Email <> '' 
+	UPDATE Player SET Email = @Email WHERE IdPlayer = @IdPlayer
+
+ IF @CultureInfo <> '' BEGIN
+	SELECT @IdLanguageCI = IdLanguage From Language WHERE CultureInfo = @CultureInfo
+	IF ISNULL(@IdLanguageCI,-1) <> -1 BEGIN	
+		UPDATE Player SET IdLanguage = @IdLanguageCI WHERE IdPlayer = @IdPlayer
+	END
+ END
+
+IF @LineStyle <> '' 
+	UPDATE Player SET LineStyle = @LineStyle WHERE IdPlayer = @IdPlayer
+
+IF @IdTimeZone <> '' 
+	UPDATE Player SET IdTimeZone = @IdTimeZone WHERE IdPlayer = @IdPlayer
+
+IF @IdLanguage <> '' 
+	UPDATE Player SET IdLanguage = @IdLanguage WHERE IdPlayer = @IdPlayer
+
+ Select 1 AS 'return' 
