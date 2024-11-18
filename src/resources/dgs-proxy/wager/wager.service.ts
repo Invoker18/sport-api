@@ -117,6 +117,39 @@ export class WagerService {
     return compile;
   }
 
+  async setDataToFillOpenConfirm(compile: any, params: any) {
+    const wagerdetaillength = compile?.wager?.detail?.length;
+    const wagertype = compile?.wager?.WagerType;
+    let haswagerdetail = false;
+    if (wagertype == 2 && wagerdetaillength > 0) {
+      for (let i = 0; i < wagerdetaillength; i++) {
+        const detail = compile.wager.detail[i];
+        if (detail.IsOnOpenBets == 'False') {
+          haswagerdetail = true;
+          const games = params.details.split('@-@');
+          let _new_details = '';
+
+          for (let i = 0; i < games.length; i++) {
+            if (!games[i]) continue;
+            let game = games[i].split(',');
+            const game_id = Number(game[0]);
+            const play = Number(game[1]);
+
+            if (detail.IdGame == game_id && detail.Play == play) {
+              game[2] =
+                Number(detail.OriginalPoints) + Number(detail.PointsPurchased);
+            }
+            _new_details += game.toString() + '@-@';
+          }
+
+          params.details = _new_details;
+        }
+      }
+      if (haswagerdetail) compile = await this.FillCompile(params);
+    }
+    return compile;
+  }
+
   async FillOpenWagerProcess(params: any) {
     /**
      * COMPILE
@@ -138,6 +171,16 @@ export class WagerService {
     /**
      * CONFIRM
      */
+    //SET DATA
+    compile = await this.setDataToFillOpenConfirm(compile, params);
+    if (
+      params.process_type == 'compile' ||
+      (compile.hasOwnProperty('status') && compile.status === 'error')
+    ) {
+      compile.changed_lines = lines;
+      return compile;
+    }
+
     let confirm = await this.WagerConfirm({
       slip: jsonToXML(compile),
       prmdetails: params.extra_details,
@@ -234,6 +277,11 @@ export class WagerService {
   async FillCompile(params: any) {
     const requestUrl = `${this.proxy2_url}/FillCompile/${params.details}/${params.player_id}/${params.call_id}/${params.fill_wager_id}`;
     return await this.helper.FetchProxy('GET', params, requestUrl);
+  }
+
+  async WagerConfirm2(params: any) {
+    const requestUrl = `${this.proxy2_url}/WagerConfirm`;
+    return await this.helper.FetchProxy('POST2', params, requestUrl);
   }
 
   async GetFillOpenWager(params: any) {
