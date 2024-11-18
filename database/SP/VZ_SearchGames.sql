@@ -64,15 +64,14 @@ BEGIN
 		AND G.IdSport NOT IN ('TNT', 'PROPS')
 		AND G.IdGame = G.FamilyGame
 		AND (
-		G.VisitorTeam LIKE @SEARCH  
-		OR G.HomeTeam LIKE @SEARCH  
-		OR TLV.Name LIKE @SEARCH 
-		OR TLH.Name LIKE @SEARCH  
-		OR GL.VisitorTeam LIKE @SEARCH  
-		OR GL.HomeTeam LIKE @SEARCH 
-		OR GL.[Description] LIKE @SEARCH 
-		OR G.[Description] LIKE @SEARCH 
+		G.VisitorTeam COLLATE Latin1_General_CI_AI LIKE @SEARCH  
+		OR G.HomeTeam COLLATE Latin1_General_CI_AI LIKE @SEARCH  
+		OR TLV.Name COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+		OR TLH.Name COLLATE Latin1_General_CI_AI LIKE @SEARCH  
+		OR GL.VisitorTeam COLLATE Latin1_General_CI_AI LIKE @SEARCH  
+		OR GL.HomeTeam COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+		OR GL.[Description] COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+		OR G.[Description] COLLATE Latin1_General_CI_AI LIKE @SEARCH 
 		)
-
 
 END

@@ -99,12 +99,12 @@ BEGIN
 		AND G.GameDateTime > GETDATE()
 		AND G.IdEvent IS NULL
 		AND (
-			L.RowDescription LIKE @SEARCH 
-			OR WL.Description LIKE @SEARCH 
-			OR L.LeagueDescription LIKE @SEARCH 
-			OR LL.Description LIKE @SEARCH 
-		    OR L.RegionDescription LIKE @SEARCH 
-			OR LRL.Description LIKE @SEARCH 
+			L.RowDescription COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+			OR WL.Description COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+			OR L.LeagueDescription COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+			OR LL.Description COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+		    OR L.RegionDescription COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+			OR LRL.Description COLLATE Latin1_General_CI_AI LIKE @SEARCH 
 		)
 		GROUP BY G.IdLeague, 
 			 	L.ColumnOrder, 
@@ -147,12 +147,12 @@ BEGIN
 		AND G.GameDateTime > GETDATE()
 		AND G.IdEvent IS NULL
 		AND (
-			L.RowDescription LIKE @SEARCH 
-			OR WL.Description LIKE @SEARCH 
-			OR L.LeagueDescription LIKE @SEARCH 
-			OR LL.Description LIKE @SEARCH 
-		    OR L.RegionDescription LIKE @SEARCH 
-			OR LRL.Description LIKE @SEARCH 
+			L.RowDescription COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+			OR WL.Description COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+			OR L.LeagueDescription COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+			OR LL.Description COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+		    OR L.RegionDescription COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+			OR LRL.Description COLLATE Latin1_General_CI_AI LIKE @SEARCH 
 		)
 		GROUP BY G.IdLeague, 
 			 	L.ColumnOrder, 

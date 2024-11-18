@@ -9,7 +9,7 @@ export class FetchService {
     try {
       const formData = new URLSearchParams(params);
       const requestConfig =
-        method != 'GET'
+        method == 'POST'
           ? {
               method: method,
               body: formData,
@@ -17,13 +17,22 @@ export class FetchService {
                 'content-type': 'application/x-www-form-urlencoded',
               }),
             }
-          : {
-              method: method,
-              headers: new Headers({
-                'content-type': 'text/xml',
-                accept: 'text/xml',
-              }),
-            };
+          : method == 'POST2'
+            ? {
+                method: 'POST',
+                body: JSON.stringify(params),
+                headers: new Headers({
+                  'content-type': 'application/json',
+                  accept: 'text/xml',
+                }),
+              }
+            : {
+                method: method,
+                headers: new Headers({
+                  'content-type': 'text/xml',
+                  accept: 'text/xml',
+                }),
+              };
       const response = await fetch(requestUrl, requestConfig);
       const data = await response.text();
       const xmlParsed = XMLToJson(data);
