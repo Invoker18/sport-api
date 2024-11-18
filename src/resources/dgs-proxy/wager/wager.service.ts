@@ -137,7 +137,9 @@ export class WagerService {
 
             if (detail.IdGame == game_id && detail.Play == play) {
               game[2] =
-                Number(detail.OriginalPoints) + Number(detail.PointsPurchased);
+                Number(detail.OriginalPoints) +
+                Number(detail.PointsPurchased) +
+                Number(compile.wager.TeaserPointsPurchased);
             }
             _new_details += game.toString() + '@-@';
           }
