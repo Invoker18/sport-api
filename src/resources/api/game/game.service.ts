@@ -55,11 +55,35 @@ export class GameService {
         league_id,
         lang_id,
       });
-      if (games[0]) {
+      const gamelength = games.length;
+
+      if (gamelength > 0) {
+        let events = {};
+
+        for (let g = 0; g < gamelength; g++) {
+          let game = games[g];
+          const date = new Date(game.GameDate).toISOString().split('T')[0];
+
+          if (events[date] === undefined) {
+            events[date] = {};
+          }
+
+          if (events[date][game.FamilyGame] === undefined) {
+            events[date][game.FamilyGame] = {
+              info: await this.getGame({
+                game_id: game.FamilyGame,
+                lang_id,
+              }),
+              events: [game],
+            };
+          } else {
+            events[date][game.FamilyGame].events.push(game);
+          }
+        }
         data.push({
           league: Object.values(league)[0] ?? league,
           banner: banner,
-          games: games,
+          games: events,
         });
       }
     }
@@ -194,6 +218,28 @@ export class GameService {
     return data;
   }
 
+  async getGameBanners(params: any) {
+    const cacheTimeSec = 10;
+    const game_id = params.game_id;
+    const lang_id = params.lang_id;
+
+    // **CHECK CACHE
+    const key = `get_game_banners_${game_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = await this.gameRepository.query(
+      `EXEC VZ_GetGameBanners	${game_id}, ${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
   async getOpenGamesLeague(params: any) {
     const cacheTimeSec = 1;
     const league_id = params.league_id;
@@ -246,6 +292,10 @@ export class GameService {
 
     let data: any = {
       info: await this.getGame({ game_id: family_game_id, lang_id }),
+      banner: await this.getGameBanners({
+        game_id: family_game_id,
+        lang_id,
+      }),
       events: [],
     };
     const glength = games.length;
@@ -394,10 +444,11 @@ export class GameService {
       const league_map = new Map();
       const glength = games.length;
       for (let g = 0; g < glength; g++) {
-        const game = games[g];
+        let game = games[g];
         const league_id = game.IdLeague;
+        const date = new Date(game.GameDate).toISOString().split('T')[0];
 
-        const collection = league_map.get(league_id);
+        let collection = league_map.get(league_id);
         if (!collection) {
           let league = await this.getLeague({
             league_id,
@@ -410,10 +461,25 @@ export class GameService {
           league_map.set(league_id, {
             league: Object.values(league)[0] ?? league,
             banner: banner,
-            games: [game],
+            games: {},
           });
+        }
+
+        collection = league_map.get(league_id);
+
+        if (collection.games[date] === undefined) {
+          collection.games[date] = {};
+        }
+        if (collection.games[date][game.FamilyGame] === undefined) {
+          collection.games[date][game.FamilyGame] = {
+            info: await this.getGame({
+              game_id: game.FamilyGame,
+              lang_id,
+            }),
+            events: [game],
+          };
         } else {
-          collection.games.push(game);
+          collection.games[date][game.FamilyGame].events.push(game);
         }
       }
       if (league_map.size) {
