@@ -201,7 +201,7 @@ export class GameService {
   }
 
   async getLeagueBanners(params: any) {
-    const cacheTimeSec = 10;
+    const cacheTimeSec = 60;
     const league_id = params.league_id;
     const lang_id = params.lang_id;
 
@@ -223,7 +223,7 @@ export class GameService {
   }
 
   async getGameBanners(params: any) {
-    const cacheTimeSec = 10;
+    const cacheTimeSec = 60;
     const game_id = params.game_id;
     const lang_id = params.lang_id;
 
@@ -244,6 +244,27 @@ export class GameService {
     return data;
   }
 
+  async getGameBannersByFamilyGameId(params: any) {
+    const cacheTimeSec = 60;
+    const family_game_id = params.family_game_id;
+    const lang_id = params.lang_id;
+
+    // **CHECK CACHE
+    const key = `get_game_family_banners_${family_game_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = await this.gameRepository.query(
+      `EXEC VZ_GetGameBannersByIdFamilyGame	${family_game_id}, ${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
   async getOpenGamesLeague(params: any) {
     const cacheTimeSec = 1;
     const league_id = params.league_id;
@@ -294,6 +315,19 @@ export class GameService {
       period,
     });
 
+    // const options = await this.getGamePROPSTNTOddsByFamilyGameId({
+    //   family_game_id,
+    //   agent_id,
+    //   line_type_id,
+    //   lang_id,
+    //   period,
+    // });
+
+    const banners = await this.getGameBannersByFamilyGameId({
+      family_game_id: family_game_id,
+      lang_id,
+    });
+
     let data: any = {
       info: await this.getGame({ game_id: family_game_id, lang_id }),
       events: [],
@@ -303,10 +337,11 @@ export class GameService {
       const game = games[i];
       const sport_id = (game.IdSport = game.IdSport.trim());
       const game_id = game.IdGame;
-      game.banners = await this.getGameBanners({
-        game_id: game_id,
-        lang_id,
-      });
+      game.banners = banners.filter(
+        (banner: any) => banner.ParentGame === game_id,
+      );
+
+      // game.Options = options.filter((option: any) => option.IdGame === game_id);
 
       switch (sport_id) {
         case 'TNT':
