@@ -323,13 +323,13 @@ export class GameService {
       // period,
     });
 
-    // const optionsPROPS = await this.getGamePROPSOddsByFamilyGameId({
-    //   family_game_id,
-    //   agent_id,
-    //   line_type_id,
-    //   lang_id,
-    //   period,
-    // });
+    const optionsPROPS = await this.getGamePROPOddsByFamilyGameId({
+      family_game_id,
+      line_type_id,
+      lang_id,
+      // agent_id,
+      // period,
+    });
 
     const banners = await this.getGameBannersByFamilyGameId({
       family_game_id: family_game_id,
@@ -356,11 +356,9 @@ export class GameService {
           );
           break;
         case 'PROP':
-          game.Options = await this.getGamePROPOdds({
-            game_id,
-            line_type_id,
-            lang_id,
-          });
+          game.Options = optionsPROPS.filter(
+            (option: any) => option.ParentGame === game_id,
+          );
           if (game.Options.length == 0) continue;
           break;
       }
@@ -435,6 +433,30 @@ export class GameService {
     // **CHECK CACHE
     const data = await this.gameRepository.query(
       `EXEC VZ_GetGameTNTOddsByIdFamilyGame	${family_game_id},${line_type_id},${lang_id}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getGamePROPOddsByFamilyGameId(params: any) {
+    const cacheTimeSec = 1;
+    const family_game_id = params.family_game_id;
+    const line_type_id = params.line_type_id;
+    const lang_id = params.lang_id;
+    // const agent_id = params.agent_id;
+    // const period = params.period ?? -1;
+
+    // **CHECK CACHE
+    const key = `get_game_prop_odds_family_game_${family_game_id}_${line_type_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+    const data = await this.gameRepository.query(
+      `EXEC VZ_GetGamePROPOddsByIdFamilyGame	${family_game_id},${line_type_id},${lang_id}`,
     );
 
     // **SET CACHE
