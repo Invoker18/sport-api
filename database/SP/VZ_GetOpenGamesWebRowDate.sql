@@ -382,4 +382,4 @@ AND G.GameDateTime > GETDATE()
  FROM #tblMainGames AS tbl WITH(NOLOCK)
  WHERE (tbl.Period = @prmPeriod or @prmPeriod = -1) 
 AND (tbl.IdLeague IN (SELECT * FROM dbo.fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')
-ORDER BY ParentGame, ChildOrder, IdGame, FromAgent --8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
+ORDER BY GameDateTime, ParentGame, ChildOrder, IdGame, FromAgent --8, 10, 2, 1ParentGame, ParentOrder, ChildOrder

@@ -11,7 +11,7 @@ GO
 -- Create date: Jun 20 2024
 -- Description:	[VZ_GetGame]
 -- =============================================
-alter PROCEDURE [dbo].[VZ_GetGame]
+CREATE PROCEDURE [dbo].[VZ_GetGame]
 	@prmIdGame int,
 	@prmIdLanguage tinyint
 AS
