@@ -61,8 +61,12 @@ export class GameService {
         let events = {};
 
         for (let g = 0; g < gamelength; g++) {
-          let game = games[g];
+          const game = games[g];
           const date = new Date(game.GameDate).toISOString().split('T')[0];
+
+          game.banners = banner.filter(
+            (banner: any) => banner.ParentGame === game.IdGame,
+          );
 
           if (events[date] === undefined) {
             events[date] = {};
@@ -118,7 +122,7 @@ export class GameService {
   }
 
   async getGame(params: any) {
-    const cacheTimeSec = 10;
+    const cacheTimeSec = 30;
     const game_id = params.game_id;
     const lang_id = params.lang_id;
 
@@ -292,10 +296,6 @@ export class GameService {
 
     let data: any = {
       info: await this.getGame({ game_id: family_game_id, lang_id }),
-      banner: await this.getGameBanners({
-        game_id: family_game_id,
-        lang_id,
-      }),
       events: [],
     };
     const glength = games.length;
@@ -303,6 +303,10 @@ export class GameService {
       const game = games[i];
       const sport_id = (game.IdSport = game.IdSport.trim());
       const game_id = game.IdGame;
+      game.banners = await this.getGameBanners({
+        game_id: game_id,
+        lang_id,
+      });
 
       switch (sport_id) {
         case 'TNT':
@@ -444,7 +448,7 @@ export class GameService {
       const league_map = new Map();
       const glength = games.length;
       for (let g = 0; g < glength; g++) {
-        let game = games[g];
+        const game = games[g];
         const league_id = game.IdLeague;
         const date = new Date(game.GameDate).toISOString().split('T')[0];
 
@@ -466,6 +470,10 @@ export class GameService {
         }
 
         collection = league_map.get(league_id);
+
+        game.banners = collection.banner.filter(
+          (banner: any) => banner.ParentGame === game.IdGame,
+        );
 
         if (collection.games[date] === undefined) {
           collection.games[date] = {};
