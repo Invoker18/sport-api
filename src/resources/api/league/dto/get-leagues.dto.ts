@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { toNumber } from '../../../../helpers/cast.helper';
 
 export class GetActiveLeaguesQuery {
@@ -19,6 +19,6 @@ export class GetActiveLeaguesQuery {
   lang_id: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   league_ids?: string = '-1';
 }
