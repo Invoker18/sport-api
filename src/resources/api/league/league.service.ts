@@ -47,14 +47,14 @@ export class LeagueService {
     const book_id = params.book_id;
     const line_type_id = params.line_type_id;
     const lang_id = params.lang_id;
+    const league_ids = params.league_ids ?? '-1';
     // **CHECK CACHE
-    const key = `get_webrow_active_${book_id}_${line_type_id}_${lang_id}`;
+    const key = `get_webrow_active_${book_id}_${line_type_id}_${lang_id}_${league_ids}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
-
     const data = await this.leagueRepository.query(
-      `EXEC VZ_GetActiveWebRow	${book_id},${line_type_id},${lang_id}`,
+      `EXEC VZ_GetActiveWebRow	${book_id},${line_type_id},${lang_id},'${league_ids}'`,
     );
 
     // **SET CACHE
