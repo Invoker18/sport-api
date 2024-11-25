@@ -20,5 +20,5 @@ export class GetActiveLeaguesQuery {
 
   @IsOptional()
   @IsNumber()
-  period?: string = '-1';
+  league_ids?: string = '-1';
 }
