@@ -73,15 +73,15 @@ export class GameService {
           }
 
           if (events[date][game.FamilyGame] === undefined) {
-            let _main = games.filter(
+            let _main; /*= games.filter(
               (_game: any) => _game.IdGame === game.FamilyGame,
-            );
-            if (_main.length == 0) {
-              _main = await this.getGame({
-                game_id: game.FamilyGame,
-                lang_id,
-              });
-            }
+            );*/
+            // if (_main.length == 0) {
+            _main = await this.getGame({
+              game_id: game.FamilyGame,
+              lang_id,
+            });
+            // }
             events[date][game.FamilyGame] = {
               info: _main,
               events: [game],
@@ -572,15 +572,15 @@ export class GameService {
           collection.games[date] = {};
         }
         if (collection.games[date][game.FamilyGame] === undefined) {
-          let _main = games.filter(
-            (_game: any) => _game.IdGame === game.FamilyGame,
-          );
-          if (_main.length == 0) {
-            _main = await this.getGame({
-              game_id: game.FamilyGame,
-              lang_id,
-            });
-          }
+          let _main; /*= games.filter(
+              (_game: any) => _game.IdGame === game.FamilyGame,
+            );*/
+          // if (_main.length == 0) {
+          _main = await this.getGame({
+            game_id: game.FamilyGame,
+            lang_id,
+          });
+          // }
 
           collection.games[date][game.FamilyGame] = {
             info: _main,
