@@ -23,6 +23,7 @@ BEGIN
 
 	SELECT      
 		G.IdGame,        
+		G.ParentGame,        
 		ISNULL(CAST(G.HomeNumber AS Varchar),'') AS TeamNumber,        
 		ISNULL(CAST(G.HomeTeam As nVarchar(100)),'') AS TeamName,        
 		'' AS TeamNameLang,        
