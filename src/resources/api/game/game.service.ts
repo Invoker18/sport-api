@@ -503,6 +503,7 @@ export class GameService {
       book_id,
       line_type_id,
       lang_id,
+      league_ids,
     });
     const webrow_ids =
       params.webrow_id != -1

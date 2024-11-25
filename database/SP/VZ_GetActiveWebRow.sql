@@ -14,7 +14,8 @@ GO
 CREATE PROCEDURE [dbo].[VZ_GetActiveWebRow]
 	@prmIdBook smallint,
 	@prmIdLineType smallint,	
-	@prmIdLanguage tinyint
+	@prmIdLanguage tinyint,
+	@prmIdLeague NVARCHAR(MAX)
 AS
 BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from
@@ -56,6 +57,7 @@ BEGIN
 		JOIN WebRowDetail WRD With(NoLock) ON WRD.IdWebRow = WR.IdWebRow
 		JOIN League L With(NoLock) ON L.IdLeague = WRD.IdLeague	
 		JOIN LeagueRegion LR With(NoLock) ON L.IDLeagueRegion = LR.IDLeagueRegion
+		WHERE (L.IdLeague IN (SELECT * FROM dbo.fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')
 		GROUP BY L.IdLeague, L.LeagueOrder,  WCD.ColumnOrder, WRD.RowOrder, LR.RegionOrder, WR.[Description],  LR.[Description], L.IdSport, L.[Description], WR.IdWebRow, LR.IDLeagueRegion
 		ORDER BY WCD.ColumnOrder, WRD.RowOrder, LR.RegionOrder, L.LeagueOrder
 
