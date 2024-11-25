@@ -73,11 +73,17 @@ export class GameService {
           }
 
           if (events[date][game.FamilyGame] === undefined) {
-            events[date][game.FamilyGame] = {
-              info: await this.getGame({
+            let _main = games.filter(
+              (_game: any) => _game.IdGame === game.FamilyGame,
+            );
+            if (_main.length == 0) {
+              _main = await this.getGame({
                 game_id: game.FamilyGame,
                 lang_id,
-              }),
+              });
+            }
+            events[date][game.FamilyGame] = {
+              info: _main,
               events: [game],
             };
           } else {
@@ -566,11 +572,18 @@ export class GameService {
           collection.games[date] = {};
         }
         if (collection.games[date][game.FamilyGame] === undefined) {
-          collection.games[date][game.FamilyGame] = {
-            info: await this.getGame({
+          let _main = games.filter(
+            (_game: any) => _game.IdGame === game.FamilyGame,
+          );
+          if (_main.length == 0) {
+            _main = await this.getGame({
               game_id: game.FamilyGame,
               lang_id,
-            }),
+            });
+          }
+
+          collection.games[date][game.FamilyGame] = {
+            info: _main,
             events: [game],
           };
         } else {
