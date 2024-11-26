@@ -348,38 +348,41 @@ delete from #tblMainGames
 where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)
 	
 SELECT tbl.*
-,(
-SELECT b.home_image_id
-FROM [MOVER].[dbo].[Games] a
-INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
-WHERE a.DGS_game_id = tbl.IdGame) home_image_id
-,(
-SELECT b.away_image_id
-FROM [MOVER].[dbo].[Games] a
-INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
-WHERE a.DGS_game_id = tbl.IdGame) away_image_id,
-((SELECT count( DISTINCT G.IdGame) c_games 
-FROM Game G WITH (NOLOCK) 
-WHERE G.FamilyGame = tbl.FamilyGame
-AND G.IdSport <> 'PROP' 
-AND G.FamilyGame IS NOT NULL
-AND G.GameStat = 'O'
-AND G.Graded = 0
-AND G.Online = 1
-AND G.GameDateTime > GETDATE() 
-)+
-(SELECT count( DISTINCT G.IdGame) c_games 
-FROM Game G WITH (NOLOCK) 
-WHERE G.FamilyGame = tbl.FamilyGame 
-AND G.ParentGame = G.IdGame
-AND G.IdSport = 'PROP' 
-AND G.FamilyGame IS NOT NULL
-AND G.GameStat = 'O'
-AND G.Graded = 0
-AND G.Online = 1
-AND G.GameDateTime > GETDATE() 
-)-1) count_games 
- FROM #tblMainGames AS tbl WITH(NOLOCK)
- WHERE (tbl.Period = @prmPeriod or @prmPeriod = -1) 
+	,CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription
+	,(
+	SELECT b.home_image_id
+	FROM [MOVER].[dbo].[Games] a
+	INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
+	WHERE a.DGS_game_id = tbl.IdGame) home_image_id
+	,(
+	SELECT b.away_image_id
+	FROM [MOVER].[dbo].[Games] a
+	INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
+	WHERE a.DGS_game_id = tbl.IdGame) away_image_id,
+	((SELECT count( DISTINCT G.IdGame) c_games 
+	FROM Game G WITH (NOLOCK) 
+	WHERE G.FamilyGame = tbl.FamilyGame
+	AND G.IdSport <> 'PROP' 
+	AND G.FamilyGame IS NOT NULL
+	AND G.GameStat = 'O'
+	AND G.Graded = 0
+	AND G.Online = 1
+	AND G.GameDateTime > GETDATE() 
+	)+
+	(SELECT count( DISTINCT G.IdGame) c_games 
+	FROM Game G WITH (NOLOCK) 
+	WHERE G.FamilyGame = tbl.FamilyGame 
+	AND G.ParentGame = G.IdGame
+	AND G.IdSport = 'PROP' 
+	AND G.FamilyGame IS NOT NULL
+	AND G.GameStat = 'O'
+	AND G.Graded = 0
+	AND G.Online = 1
+	AND G.GameDateTime > GETDATE() 
+	)-1) count_games 
+FROM #tblMainGames AS tbl WITH(NOLOCK)
+LEFT OUTER JOIN League LG WITH (NOLOCK) ON tbl.IdLeague = LG.IdLeague
+LEFT OUTER JOIN LeagueLang LGL WITH (NOLOCK) ON tbl.IdLeague = LGL.IdLeague AND LGL.IdLanguage = @prmIdLanguage
+WHERE (tbl.Period = @prmPeriod or @prmPeriod = -1) 
 AND (tbl.IdLeague IN (SELECT * FROM dbo.fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')
 ORDER BY GameDateTime, ParentGame, ChildOrder, IdGame, FromAgent --8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
