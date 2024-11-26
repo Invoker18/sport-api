@@ -7,6 +7,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PlayerService } from '../player/player.service';
 import { LeagueService } from '../league/league.service';
+import { DataService } from 'src/helpers/data.service';
 
 @Injectable()
 export class GameService {
@@ -16,6 +17,7 @@ export class GameService {
     private gameRepository: Repository<Game>,
     private player: PlayerService,
     private league: LeagueService,
+    private readonly dataService: DataService,
   ) {}
 
   async getGamesByLeagues(params: any) {
@@ -86,10 +88,12 @@ export class GameService {
 
             events[date][game.FamilyGame] = {
               info: _main,
-              events: [game],
+              events: [await this.dataService.mappingGame(game)],
             };
           } else {
-            events[date][game.FamilyGame].events.push(game);
+            events[date][game.FamilyGame].events.push(
+              await this.dataService.mappingGame(game),
+            );
           }
         }
         data.push({
@@ -370,7 +374,7 @@ export class GameService {
           if (game.Options.length == 0) continue;
           break;
       }
-      data.events.push(game);
+      data.events.push(await this.dataService.mappingGame(game));
     }
 
     // **SET CACHE
@@ -529,7 +533,7 @@ export class GameService {
     const webrowlength = webrow_ids.length;
     for (let i = 0; i < webrowlength; i++) {
       const webrow_id = webrow_ids[i];
-      const games = await this.getOpenGamesWebRowDate({
+      let games = await this.getOpenGamesWebRowDate({
         webrow_id,
         agent_id,
         line_type_id,
@@ -543,7 +547,7 @@ export class GameService {
       const league_map = new Map();
       const glength = games.length;
       for (let g = 0; g < glength; g++) {
-        const game = games[g];
+        let game = games[g];
         const league_id = game.IdLeague;
         const date = new Date(game.GameDate).toISOString().split('T')[0];
 
@@ -587,10 +591,12 @@ export class GameService {
 
           collection.games[date][game.FamilyGame] = {
             info: _main,
-            events: [game],
+            events: [await this.dataService.mappingGame(game)],
           };
         } else {
-          collection.games[date][game.FamilyGame].events.push(game);
+          collection.games[date][game.FamilyGame].events.push(
+            await this.dataService.mappingGame(game),
+          );
         }
       }
       if (league_map.size) {
@@ -636,19 +642,7 @@ export class GameService {
     return data;
   }
 
-  async getOddsConversionDGS() {
-    const cacheTimeSec = 30;
-    // **CHECK CACHE
-    const key = `get_odds_conversion_dgs`;
-    const cached = await this.cacheService.get(key);
-    if (cached) return cached;
-    // **CHECK CACHE
-    const data = await this.gameRepository.query(`EXEC VZ_GetOddsConversion`);
-
-    // **SET CACHE
-    await this.cacheService.set(key, data, cacheTimeSec * 1000);
-    // **SET CACHE
-
-    return data;
-  }
+  // async getOddsConversionDGS() {
+  //   return await this.dataService.getOddsConversionDGS();
+  // }
 }

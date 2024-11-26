@@ -7,6 +7,7 @@ import { LeagueModule } from './api/league/league.module';
 import { GameModule } from './api/game/game.module';
 import { LanguageModule } from './api/language/language.module';
 import { TimezoneModule } from './api/timezone/timezone.module';
+import { OddsModule } from './api/odds/odds.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TimezoneModule } from './api/timezone/timezone.module';
     PlayerModule,
     LeagueModule,
     GameModule,
+    OddsModule,
     LanguageModule,
     TimezoneModule,
   ],
