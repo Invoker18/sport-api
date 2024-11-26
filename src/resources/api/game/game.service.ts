@@ -76,12 +76,13 @@ export class GameService {
             let _main = games.filter(
               (_game: any) => _game.IdGame === game.FamilyGame,
             );
-            if (_main.length == 0) {
-              _main = await this.getGame({
-                game_id: game.FamilyGame,
-                lang_id,
-              });
-            }
+            _main =
+              _main.length > 0
+                ? _main[0]
+                : await this.getGame({
+                    game_id: game.FamilyGame,
+                    lang_id,
+                  });
 
             events[date][game.FamilyGame] = {
               info: _main,
@@ -576,12 +577,13 @@ export class GameService {
           let _main = games.filter(
             (_game: any) => _game.IdGame === game.FamilyGame,
           );
-          if (_main.length == 0) {
-            _main = await this.getGame({
-              game_id: game.FamilyGame,
-              lang_id,
-            });
-          }
+          _main =
+            _main.length > 0
+              ? _main[0]
+              : await this.getGame({
+                  game_id: game.FamilyGame,
+                  lang_id,
+                });
 
           collection.games[date][game.FamilyGame] = {
             info: _main,
