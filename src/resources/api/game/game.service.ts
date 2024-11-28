@@ -641,8 +641,4 @@ export class GameService {
 
     return data;
   }
-
-  // async getOddsConversionDGS() {
-  //   return await this.dataService.getOddsConversionDGS();
-  // }
 }
