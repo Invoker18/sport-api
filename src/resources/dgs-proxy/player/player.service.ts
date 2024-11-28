@@ -60,8 +60,6 @@ export class PlayerService {
 
   async GetPlayerSignUpWithDateofBirth(params: object) {
     const requestUrl = this.proxy_url + '/GetPlayerSignUpWithDateofBirth';
-    console.log(params);
-
     return await this.helper.FetchProxy('POST', params, requestUrl);
   }
 
