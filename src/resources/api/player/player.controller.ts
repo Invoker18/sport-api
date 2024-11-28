@@ -20,7 +20,6 @@ export class PlayerController {
 
   @Get(':player_id/balance')
   async getBalance(@Param() params: IdPlayerParam): Promise<string> {
-    console.log(params);
     return await this.playerService.getBalance(params);
   }
 
