@@ -20,6 +20,52 @@ export class GameService {
     private readonly dataService: DataService,
   ) {}
 
+  async getGamesByGameIds(params: any) {
+    const cacheTimeSec = 1;
+    const game_ids = params.game_ids;
+    const player_id = params.player_id;
+    const lang_id = params.lang_id;
+    const player = await this.player.getInfo({ player_id: player_id });
+    const agent_id = player.IdAgent;
+    const line_type_id = player.IdLineType;
+
+    // **CHECK CACHE
+    const key = `get_game_by_game_ids_${game_ids}_${player_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    let games = await this.getOpenGamesByGamesIds({
+      game_ids,
+      agent_id,
+      line_type_id,
+      lang_id,
+    });
+    const gamelength = games.length;
+    let success_ids = [];
+
+    if (gamelength > 0) {
+      for (let g = 0; g < gamelength; g++) {
+        const game = games[g];
+        success_ids.push(game.IdGame.toString());
+        games[g] = await this.dataService.mappingGame(game);
+      }
+    }
+    let data: any = {
+      rejected_ids: game_ids
+        .filter((x: any) => !success_ids.includes(x))
+        .concat(success_ids.filter((x: any) => !game_ids.includes(x))),
+      games: games,
+    };
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
   async getGamesByLeagues(params: any) {
     const cacheTimeSec = 1;
     const league_ids = params.league_id;
@@ -31,7 +77,7 @@ export class GameService {
     const line_type_id = player.IdLineType;
 
     // **CHECK CACHE
-    const key = `get_game_by_league_${league_ids}_${player_id}_${lang_id}`;
+    const key = `get_game_by_league_${league_ids}_${player_id}_${lang_id}_${period}`;
     const cached = await this.cacheService.get(key);
 
     if (cached) return cached;
@@ -293,6 +339,30 @@ export class GameService {
 
     const data = await this.gameRepository.query(
       `EXEC VZ_GetOpenGamesLeague	${league_id},${agent_id},${line_type_id},${lang_id},${period}`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getOpenGamesByGamesIds(params: any) {
+    const cacheTimeSec = 1;
+    const game_ids = params.game_ids;
+    const agent_id = params.agent_id;
+    const line_type_id = params.line_type_id;
+    const lang_id = params.lang_id;
+
+    // **CHECK CACHE
+    const key = `get_open_games_leagues_${game_ids}_${agent_id}_${line_type_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const data = await this.gameRepository.query(
+      `EXEC VZ_GetOpenGamesByIdGames	'${game_ids}',${agent_id},${line_type_id},${lang_id}`,
     );
 
     // **SET CACHE
