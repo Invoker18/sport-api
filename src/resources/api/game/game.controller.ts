@@ -6,12 +6,21 @@ import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
 import { GetGamesByWebRowQuery } from './dto/get-game-by-webrow.dto';
 import { searchGamesQuery } from './dto/search-games.dto';
 import { GetFamilyGamesQuery } from './dto/get-game-family.dto';
+import { GetGamesByGameIdsQuery } from './dto/get-game-by-gameids.dto';
 
 @Controller('game')
 @ApiKeyAuth()
 @ApiTags('API Game')
 export class GameController {
   constructor(private readonly gameService: GameService) {}
+
+  @Get('/')
+  async getGames(
+    @Query()
+    params: GetGamesByGameIdsQuery,
+  ): Promise<string> {
+    return await this.gameService.getGamesByGameIds(params);
+  }
 
   @Get('/league')
   async getGamesByLeague(
@@ -20,7 +29,6 @@ export class GameController {
   ): Promise<string> {
     return await this.gameService.getGamesByLeagues(params);
   }
-
   @Get('/webrow')
   async getGamesByWebRow(
     @Query()
