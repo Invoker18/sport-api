@@ -57,7 +57,20 @@ BEGIN
 			(SELECT	COUNT(DISTINCT WagerHeader.TicketNumber)
 				FROM dbo.WagerHeader WITH(NOLOCK)
 				WHERE WagerHeader.Graded = 0 AND WagerHeader.Stat = 0 AND WagerHeader.IdPlayer = @prmIdPlayer
-			) AS OpenBets
+			) AS OpenBets,
+			P.Name,
+			P.LastName,
+			P.LastName2,
+			P.Address1,
+			P.Address2,
+			P.City,
+			P.State,
+			P.Country,
+			P.Zip,
+			P.Phone,
+			P.Fax,
+			P.Email,
+			P.FlagMessage
 
 	FROM dbo.Player P WITH (NOLOCK)
 	JOIN dbo.Language L WITH (NOLOCK) ON P.IdLanguage = L.IdLanguage

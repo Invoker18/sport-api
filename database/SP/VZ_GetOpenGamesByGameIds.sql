@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesByGameIds]    Script Date: 11/7/2024 10:26:33 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesByIdGames]    Script Date: 11/7/2024 10:22:07 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -9,7 +9,7 @@ GO
 -- =============================================
 -- Author:		Alexander De Sousa
 -- Create date: DEC 06 2024
--- Description:	[VZ_GetOpenGamesByGameIds]
+-- Description:	[VZ_GetOpenGamesByIdGames]
 -- =============================================
 
 CREATE PROCEDURE [dbo].[VZ_GetOpenGamesByIdGames]
@@ -20,7 +20,6 @@ CREATE PROCEDURE [dbo].[VZ_GetOpenGamesByIdGames]
 AS
 DECLARE @bitZero bit,
 	    @Main_IdGame int, 
-	    @Main_IdSport char(5),
 	    @Main_ParentOrder smallint,
 	    @Order	smallint
 
@@ -84,6 +83,7 @@ CREATE TABLE #tblMainGames
 	PeriodDescription	  varchar(50), 
 	GameDescription		  varchar(255), 
 	GameLangDescription   nvarchar(510),
+	LeagueLangDescription nvarchar(510),
 	ParentOrder			  smallint,
 	ChildOrder			  smallint
 );
@@ -103,12 +103,15 @@ INSERT INTO #tblMainGames
 	GL.VisitorTeam AS GameLangVisitorTeam, GL.HomeTeam AS GameLangHomeTeam,
 	@bitZero HideGame, @bitZero HideSpread, @bitZero HideTotal, @bitZero HideMoneyLine, P.PeriodDescription, 
 	G.Description as GameDescription, GL.Description as GameLangDescription, 
+	CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
 	row_number() OVER (ORDER BY G.VisitorNumber),0
 	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType
 	LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLH WITH (NOLOCK) ON G.IdTeamHome = TLH.IdTeam AND TLH.IdLanguage = @prmIdLanguage
+	LEFT OUTER JOIN League LG WITH (NOLOCK) ON G.IdLeague = LG.IdLeague
+	LEFT OUTER JOIN LeagueLang LGL WITH (NOLOCK) ON G.IdLeague = LGL.IdLeague AND LGL.IdLanguage = @prmIdLanguage
 	WHERE G.GameStat = 'O'
 	  AND G.Graded = 0
 	  AND G.Online = 1
@@ -132,23 +135,22 @@ INSERT INTO #tblMainGames
 		null AS GameLangVisitorTeam, null AS GameLangHomeTeam,
 		L.HideGame, L.HideSpread, L.HideTotal, L.HideMoneyLine, P.PeriodDescription, 
 		G.Description as GameDescription, GL.Description as GameLangDescription,
+		CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
 		row_number() OVER (ORDER BY G.VisitorNumber),0
-	FROM Game G WITH (NOLOCK) 
-	INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
-	LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
+	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
+							  LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
+							  LEFT OUTER JOIN LeagueLang LGL WITH (NOLOCK) ON G.IdLeague = LGL.IdLeague AND LGL.IdLanguage = @prmIdLanguage
+							  LEFT OUTER JOIN League LG WITH (NOLOCK) ON G.IdLeague = LG.IdLeague
 	JOIN GameValuesByAgent L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdAgent = @prmIdAgent
 	WHERE G.GameStat = 'O'
 	  AND G.Graded = 0
 	  AND G.Online = 1
 	  AND G.IdGame IN (SELECT * FROM dbo.fnSplitString(@prmIdGames))
 	  AND G.GameDateTime > GETDATE()  
-	  --AND L.HideGame = 0
+	  AND L.HideGame = 0
 
 	--ORDER BY CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)), G.VisitorNumber
 	ORDER BY 8, 10, 2, 1
-
-delete from #tblMainGames
-where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)
 	
 SELECT tbl.*
 ,(
@@ -160,28 +162,8 @@ WHERE a.DGS_game_id = tbl.IdGame) home_image_id
 SELECT b.away_image_id
 FROM [MOVER].[dbo].[Games] a
 INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
-WHERE a.DGS_game_id = tbl.IdGame) away_image_id,
-((SELECT count( DISTINCT G.IdGame) c_games 
-FROM Game G WITH (NOLOCK) 
-WHERE G.FamilyGame = tbl.FamilyGame 
-AND G.IdSport <> 'PROP' 
-AND G.FamilyGame IS NOT NULL
-AND G.GameStat = 'O'
-AND G.Graded = 0
-AND G.Online = 1
-AND G.GameDateTime > GETDATE() 
-)+
-(SELECT count( DISTINCT G.IdGame) c_games 
-FROM Game G WITH (NOLOCK) 
-WHERE G.FamilyGame = tbl.FamilyGame 
-AND G.ParentGame = G.IdGame
-AND G.IdSport = 'PROP' 
-AND G.FamilyGame IS NOT NULL
-AND G.GameStat = 'O'
-AND G.Graded = 0
-AND G.Online = 1
-AND G.GameDateTime > GETDATE() 
-)-1) count_games 
-
+WHERE a.DGS_game_id = tbl.IdGame) away_image_id
  FROM #tblMainGames AS tbl WITH(NOLOCK)
-ORDER BY GameDateTime, ParentGame, ChildOrder, IdGame, FromAgent --8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
+ORDER BY ParentGame, ChildOrder, IdGame, FromAgent--8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
+
+

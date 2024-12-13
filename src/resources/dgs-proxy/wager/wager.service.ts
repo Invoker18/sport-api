@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DATABASE_ENUM } from 'src/config/database/enum';
 import { jsonToXML } from 'src/helpers/cast.helper';
-import { Player } from 'src/resources/api/player/entities/player.entity';
-import { Repository } from 'typeorm';
 import { FetchService } from '../../../helpers/fetch.service';
 import { PlayerService } from '../../api/player/player.service';
 
