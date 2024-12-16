@@ -38,59 +38,59 @@ export class GetRegisterQuery {
 
   @IsOptional()
   @IsString()
-  name?: string;
+  name?: string = '';
 
   @IsOptional()
   @IsString()
-  last_name?: string;
+  last_name?: string = '';
 
   @IsOptional()
   @IsString()
-  last_name_2?: string;
+  last_name_2?: string = '';
 
   @IsOptional()
   @IsString()
-  title?: string;
+  title?: string = '';
 
   @IsOptional()
   @IsString()
-  address_1?: string;
+  address_1?: string = '';
 
   @IsOptional()
   @IsString()
-  address_2?: string;
+  address_2?: string = '';
 
   @IsOptional()
   @IsString()
-  city?: string;
+  city?: string = '';
 
   @IsOptional()
   @IsString()
-  state?: string;
+  state?: string = '';
 
   @IsOptional()
   @IsString()
-  country?: string;
+  country?: string = '';
 
   @IsOptional()
   @IsString()
-  zip_code?: string;
+  zip_code?: string = '';
 
   @IsOptional()
   @IsString()
-  phone?: string;
+  phone?: string = '';
 
   @IsOptional()
   @IsString()
-  fax?: string;
+  fax?: string = '';
 
   @IsOptional()
   @IsEmail()
-  email?: string;
+  email?: string = '';
 
   @IsNotEmpty()
   @IsString()
-  password: string;
+  password: string = '';
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsNotEmpty()
@@ -99,7 +99,7 @@ export class GetRegisterQuery {
 
   @IsOptional()
   @IsString()
-  date_of_birth?: string;
+  date_of_birth?: string = '';
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsOptional()
@@ -108,9 +108,9 @@ export class GetRegisterQuery {
 
   @IsOptional()
   @IsIP()
-  ip?: string;
+  ip?: string = '';
 
   @IsOptional()
   @IsString()
-  account_name?: string;
+  account_name?: string = '';
 }
