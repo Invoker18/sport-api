@@ -108,7 +108,7 @@ export class GetRegisterQuery {
 
   @IsOptional()
   @IsIP()
-  ip?: string = '';
+  ip?: string = '0.0.0.0';
 
   @IsOptional()
   @IsString()
