@@ -146,13 +146,13 @@ export class PlayerService {
     EXEC [VZ_GetPlayerInfo]
     @prmIdPlayer int
   */
-  async getInfo(params: any) {
+  async getInfo(params: any, with_cache: any = true) {
     const cacheTimeSec = 2;
     const player_id = params.player_id;
     // **CHECK CACHE
     const key = `get_playerInfo_${player_id}`;
     const cached = await this.cacheService.get(key);
-    if (cached) return cached;
+    if (cached && with_cache) return cached;
     // **CHECK CACHE
 
     const data = (
@@ -298,7 +298,7 @@ export class PlayerService {
         `IdPlayer ${player_id}. Player not found or invalid password`,
       );
     } else {
-      const data_info = await this.getInfo({ player_id });
+      const data_info = await this.getInfo({ player_id }, false);
       delete data_info.Password;
       return data_info;
     }

@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetPlayerInfo]    Script Date: 11/7/2024 09:37:50 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetPlayerInfo]    Script Date: 12/17/2024 16:15:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -48,6 +48,7 @@ BEGIN
 			P.HoldBets, 
 			P.HoldDelay, 
 			T.GMT, 
+			P.IdTimeZone,
 			L.CultureInfo, 
 			P.Reset_Password, 
 			(select EnforcePassRules from SYSTEMPREFERENCESMANAGER with(nolock)) as EnforcePassRules,
