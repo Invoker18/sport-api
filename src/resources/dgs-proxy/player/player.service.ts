@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FetchService } from 'src/helpers/fetch.service';
+import { PlayerService as ApiPlayerService } from '../../api/player/player.service';
 
 @Injectable()
 export class PlayerService {
@@ -10,6 +11,7 @@ export class PlayerService {
   constructor(
     private readonly config: ConfigService,
     private readonly helper: FetchService,
+    private player: ApiPlayerService,
   ) {
     this.proxy_url = config.get('dgs').proxy_url + this.name;
     this.proxy2_url = config.get('dgs').proxy2_url + '/api/player';
@@ -39,18 +41,34 @@ export class PlayerService {
       prmIdLanguage: params.lang_id,
     };
 
+    let response;
+
     switch (params.type) {
       case 1:
         data['prmDateofBirth'] = params.date_of_birth;
         data['prmIdTimeZone'] = params.time_zone_id;
         data['prmSignUpIp'] = params.ip;
-        return await this.GetPlayerSignUpWithDateofBirth(data);
+        response = await this.GetPlayerSignUpWithDateofBirth(data);
       case 2:
         data['prmAccountName'] = params.account_name;
-        return await this.GetPlayerSignUpWithAccountName(data);
+        response = await this.GetPlayerSignUpWithAccountName(data);
+      default:
+        response = await this.GetPlayerSignUp(data);
     }
 
-    return await this.GetPlayerSignUp(data);
+    if (
+      response.hasOwnProperty('data') &&
+      response.hasOwnProperty('IdPlayer') &&
+      /^\d+$/.test(response.data.IdPlayer)
+    ) {
+      await this.player.updatePlayerInfo({
+        player_id: response.data.IdPlayer,
+        password: params.password,
+        new_password: params.password,
+      });
+    }
+
+    return response;
   }
 
   async GetPlayerSignUp(params: object) {

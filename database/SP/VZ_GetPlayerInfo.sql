@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetPlayerInfo]    Script Date: 12/17/2024 16:15:27 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetPlayerInfo]    Script Date: 12/18/2024 15:46:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -53,7 +53,7 @@ BEGIN
 			P.Reset_Password, 
 			(select EnforcePassRules from SYSTEMPREFERENCESMANAGER with(nolock)) as EnforcePassRules,
 			P.OnlineAccess,
-			P.Password,
+			P.OnlinePassword as Password,
 			P.Status,
 			(SELECT	COUNT(DISTINCT WagerHeader.TicketNumber)
 				FROM dbo.WagerHeader WITH(NOLOCK)
