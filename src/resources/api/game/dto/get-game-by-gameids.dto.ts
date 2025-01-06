@@ -4,7 +4,7 @@ import { toNumber } from '../../../../helpers/cast.helper';
 
 export class GetGamesByGameIdsQuery {
   @IsArray()
-  @Transform(({ value }) => value.split(','))
+  @Transform(({ value }) => (!value ? [] : value.split(',')))
   @IsNotEmpty()
   @IsString({ each: true })
   game_ids: string[];
