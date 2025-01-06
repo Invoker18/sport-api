@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_UpdatePlayerInfo]    Script Date: 11/12/2024 08:57:12 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_UpdatePlayerInfo]    Script Date: 12/18/2024 15:57:53 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -92,10 +92,10 @@ SET NOCOUNT ON
 IF @LineStyle <> '' 
 	UPDATE Player SET LineStyle = @LineStyle WHERE IdPlayer = @IdPlayer
 
-IF @IdTimeZone <> '' 
+IF ISNULL(@IdTimeZone,-1) <> -1
 	UPDATE Player SET IdTimeZone = @IdTimeZone WHERE IdPlayer = @IdPlayer
 
-IF @IdLanguage <> '' 
+IF ISNULL(@IdLanguage,-1) <> -1 
 	UPDATE Player SET IdLanguage = @IdLanguage WHERE IdPlayer = @IdPlayer
 
  Select 1 AS 'return' 
