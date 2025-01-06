@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesByIdGames]    Script Date: 11/7/2024 10:22:07 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesByIdGames]    Script Date: 1/6/2025 10:42:28 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -163,6 +163,31 @@ SELECT b.away_image_id
 FROM [MOVER].[dbo].[Games] a
 INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
 WHERE a.DGS_game_id = tbl.IdGame) away_image_id
+,((SELECT count( DISTINCT G.IdGame) c_games 
+	FROM Game G WITH (NOLOCK) 
+	WHERE G.FamilyGame = tbl.FamilyGame
+	AND G.IdSport <> 'PROP' 
+	AND G.FamilyGame IS NOT NULL
+	AND G.GameStat = 'O'
+	AND G.Graded = 0
+	AND G.Online = 1
+	AND G.GameDateTime > GETDATE() 
+	)+
+	(SELECT count( DISTINCT G.IdGame) c_games 
+	FROM Game G WITH (NOLOCK) 
+	WHERE G.FamilyGame = tbl.FamilyGame 
+	AND G.ParentGame = G.IdGame
+	AND G.IdSport = 'PROP' 
+	AND G.FamilyGame IS NOT NULL
+	AND G.GameStat = 'O'
+	AND G.Graded = 0
+	AND G.Online = 1
+	AND G.GameDateTime > GETDATE() 
+	)-1) count_games
+,(SELECT TOP 1 WRD.IdWebRow
+	FROM WebRowDetail WRD With(NOLOCK) 
+	WHERE  tbl.IdLeague = WRD.IdLeague 
+	) IdWebRow
  FROM #tblMainGames AS tbl WITH(NOLOCK)
 ORDER BY ParentGame, ChildOrder, IdGame, FromAgent--8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
 
