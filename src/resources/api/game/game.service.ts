@@ -131,6 +131,35 @@ export class GameService {
                     game_id: game.FamilyGame,
                     lang_id,
                   });
+            const sport_id = (game.IdSport = game.IdSport.trim());
+            const game_id = game.IdGame;
+            switch (sport_id) {
+              case 'TNT':
+                const optionsTNT = await this.getGameTNTOddsByFamilyGameId({
+                  family_game_id: game_id,
+                  line_type_id,
+                  lang_id,
+                  // agent_id,
+                  // period,
+                });
+                game.Options = optionsTNT.filter(
+                  (option: any) => option.IdGame === game_id,
+                );
+                break;
+              case 'PROP':
+                const optionsPROPS = await this.getGamePROPOddsByFamilyGameId({
+                  family_game_id: game_id,
+                  line_type_id,
+                  lang_id,
+                  // agent_id,
+                  // period,
+                });
+                game.Options = optionsPROPS.filter(
+                  (option: any) => option.ParentGame === game_id,
+                );
+                if (game.Options.length == 0) continue;
+                break;
+            }
 
             events[date][game.FamilyGame] = {
               info: _main,
