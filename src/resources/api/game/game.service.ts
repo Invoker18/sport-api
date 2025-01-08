@@ -77,12 +77,12 @@ export class GameService {
 
   async processLeague(league_id, agent_id, line_type_id, lang_id, period) {
     try {
-      const league_promises = [
+      const league_promises = ;
+
+      const [league, banner] = await Promise.all([
         this.getLeague({ league_id, lang_id }),
         this.getLeagueBanners({ league_id, lang_id }),
-      ];
-
-      const [league, banner] = await Promise.all(league_promises);
+      ]);
 
       const games = await this.getOpenGamesLeague({
         league_id,
@@ -165,7 +165,7 @@ export class GameService {
       await Promise.all(gamePromises);
 
       return {
-        league: league,
+        league: Object.values(league)[0] ?? league,
         banner: banner,
         games: events,
       };
