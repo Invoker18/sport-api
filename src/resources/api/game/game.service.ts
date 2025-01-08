@@ -66,6 +66,222 @@ export class GameService {
     return data;
   }
 
+  // async getGamesByLeagues(params: any) {
+  //   const cacheTimeSec = 1;
+  //   const league_ids = params.league_id;
+  //   const player_id = params.player_id;
+  //   const lang_id = params.lang_id;
+  //   const period = params.period;
+  //   const player = await this.player.getInfo({ player_id: player_id });
+  //   const agent_id = player.IdAgent;
+  //   const line_type_id = player.IdLineType;
+
+  //   // **CHECK CACHE
+  //   const key = `get_game_by_league_${league_ids}_${player_id}_${lang_id}_${period}`;
+  //   const cached = await this.cacheService.get(key);
+
+  //   if (cached) return cached;
+  //   // **CHECK CACHE
+
+  //   let data: any = [];
+  //   const leaguelength = league_ids.length;
+  //   for (let i = 0; i < leaguelength; i++) {
+  //     const league_id = league_ids[i];
+
+  //     let games = await this.getOpenGamesLeague({
+  //       league_id,
+  //       agent_id,
+  //       line_type_id,
+  //       lang_id,
+  //       period,
+  //     });
+  //     let league = await this.getLeague({
+  //       league_id,
+  //       lang_id,
+  //     });
+  //     let banner = await this.getLeagueBanners({
+  //       league_id,
+  //       lang_id,
+  //     });
+  //     const gamelength = games.length;
+
+  //     if (gamelength > 0) {
+  //       let events = {};
+
+  //       for (let g = 0; g < gamelength; g++) {
+  //         const game = games[g];
+  //         const date = new Date(game.GameDate).toISOString().split('T')[0];
+
+  //         game.banners = banner.filter(
+  //           (banner: any) => banner.ParentGame === game.IdGame,
+  //         );
+
+  //         if (events[date] === undefined) {
+  //           events[date] = {};
+  //         }
+
+  //         if (events[date][game.FamilyGame] === undefined) {
+  //           let _main = games.filter(
+  //             (_game: any) => _game.IdGame === game.FamilyGame,
+  //           );
+  //           _main =
+  //             _main.length > 0
+  //               ? _main[0]
+  //               : await this.getGame({
+  //                   game_id: game.FamilyGame,
+  //                   lang_id,
+  //                 });
+  //           const sport_id = (game.IdSport = game.IdSport.trim());
+  //           const game_id = game.IdGame;
+  //           switch (sport_id) {
+  //             case 'TNT':
+  //               const optionsTNT = await this.getGameTNTOddsByFamilyGameId({
+  //                 family_game_id: game_id,
+  //                 line_type_id,
+  //                 lang_id,
+  //               });
+  //               game.Options = optionsTNT.filter(
+  //                 (option: any) => option.IdGame === game_id,
+  //               );
+  //               break;
+  //             case 'PROP':
+  //               const optionsPROPS = await this.getGamePROPOddsByFamilyGameId({
+  //                 family_game_id: game_id,
+  //                 line_type_id,
+  //                 lang_id,
+  //               });
+  //               game.Options = optionsPROPS.filter(
+  //                 (option: any) => option.ParentGame === game_id,
+  //               );
+  //               if (game.Options.length == 0) continue;
+  //               break;
+  //           }
+
+  //           events[date][game.FamilyGame] = {
+  //             info: _main,
+  //             events: [await this.dataService.mappingGame(game)],
+  //           };
+  //         } else {
+  //           events[date][game.FamilyGame].events.push(
+  //             await this.dataService.mappingGame(game),
+  //           );
+  //         }
+  //       }
+  //       data.push({
+  //         league: Object.values(league)[0] ?? league,
+  //         banner: banner,
+  //         games: events,
+  //       });
+  //     }
+  //   }
+
+  //   // **SET CACHE
+  //   await this.cacheService.set(key, data, cacheTimeSec * 1000);
+  //   // **SET CACHE
+
+  //   return data;
+  // }
+
+  async processLeague(league_id, agent_id, line_type_id, lang_id, period) {
+    try {
+      const league_promises = [
+        this.getLeague({ league_id, lang_id }),
+        this.getLeagueBanners({ league_id, lang_id }),
+      ];
+
+      const [league, banner] = await Promise.all(league_promises);
+
+      const games = await this.getOpenGamesLeague({
+        league_id,
+        agent_id,
+        line_type_id,
+        lang_id,
+        period,
+      });
+
+      if (games.length === 0) {
+        return null;
+      }
+
+      const events = {};
+
+      const gamePromises = games.map(async (game) => {
+        game.banners = banner.filter((b) => b.ParentGame === game.IdGame);
+
+        const date = new Date(game.GameDate).toISOString().split('T')[0];
+
+        if (!events[date]) {
+          events[date] = {};
+        }
+
+        if (!events[date][game.FamilyGame]) {
+          let _main;
+          if (games.some((_game) => _game.IdGame === game.FamilyGame)) {
+            _main = games.find((_game) => _game.IdGame === game.FamilyGame);
+          } else {
+            _main = await this.getGame({ game_id: game.FamilyGame, lang_id });
+          }
+
+          const sport_id = game.IdSport.trim();
+          const game_id = game.IdGame;
+
+          let optionsPromise;
+          switch (sport_id) {
+            case 'TNT':
+              optionsPromise = this.getGameTNTOddsByFamilyGameId({
+                family_game_id: game_id,
+                line_type_id,
+                lang_id,
+              });
+              break;
+            case 'PROP':
+              optionsPromise = this.getGamePROPOddsByFamilyGameId({
+                family_game_id: game_id,
+                line_type_id,
+                lang_id,
+              });
+              break;
+            default:
+              optionsPromise = Promise.resolve([]);
+          }
+
+          const options = await optionsPromise;
+
+          game.Options =
+            sport_id == 'TNT'
+              ? options.filter((o) => o.IdGame === game_id)
+              : sport_id == 'PROP'
+                ? options.filter((o) => o.ParentGame === game_id)
+                : options;
+
+          if (sport_id === 'PROP' && game.Options.length === 0) {
+            return;
+          }
+
+          events[date][game.FamilyGame] = {
+            info: _main,
+            events: [await this.dataService.mappingGame(game)],
+          };
+        } else {
+          events[date][game.FamilyGame].events.push(
+            await this.dataService.mappingGame(game),
+          );
+        }
+      });
+
+      await Promise.all(gamePromises);
+
+      return {
+        league: league,
+        banner: banner,
+        games: events,
+      };
+    } catch (error) {
+      console.error(`Error processing league ${league_id}:`, error);
+      return null;
+    }
+  }
+
   async getGamesByLeagues(params: any) {
     const cacheTimeSec = 1;
     const league_ids = params.league_id;
@@ -83,101 +299,12 @@ export class GameService {
     if (cached) return cached;
     // **CHECK CACHE
 
-    let data: any = [];
-    const leaguelength = league_ids.length;
-    for (let i = 0; i < leaguelength; i++) {
-      const league_id = league_ids[i];
+    const leaguePromises = league_ids.map((league_id) =>
+      this.processLeague(league_id, agent_id, line_type_id, lang_id, period),
+    );
 
-      let games = await this.getOpenGamesLeague({
-        league_id,
-        agent_id,
-        line_type_id,
-        lang_id,
-        period,
-      });
-      let league = await this.getLeague({
-        league_id,
-        lang_id,
-      });
-      let banner = await this.getLeagueBanners({
-        league_id,
-        lang_id,
-      });
-      const gamelength = games.length;
-
-      if (gamelength > 0) {
-        let events = {};
-
-        for (let g = 0; g < gamelength; g++) {
-          const game = games[g];
-          const date = new Date(game.GameDate).toISOString().split('T')[0];
-
-          game.banners = banner.filter(
-            (banner: any) => banner.ParentGame === game.IdGame,
-          );
-
-          if (events[date] === undefined) {
-            events[date] = {};
-          }
-
-          if (events[date][game.FamilyGame] === undefined) {
-            let _main = games.filter(
-              (_game: any) => _game.IdGame === game.FamilyGame,
-            );
-            _main =
-              _main.length > 0
-                ? _main[0]
-                : await this.getGame({
-                    game_id: game.FamilyGame,
-                    lang_id,
-                  });
-            const sport_id = (game.IdSport = game.IdSport.trim());
-            const game_id = game.IdGame;
-            switch (sport_id) {
-              case 'TNT':
-                const optionsTNT = await this.getGameTNTOddsByFamilyGameId({
-                  family_game_id: game_id,
-                  line_type_id,
-                  lang_id,
-                  // agent_id,
-                  // period,
-                });
-                game.Options = optionsTNT.filter(
-                  (option: any) => option.IdGame === game_id,
-                );
-                break;
-              case 'PROP':
-                const optionsPROPS = await this.getGamePROPOddsByFamilyGameId({
-                  family_game_id: game_id,
-                  line_type_id,
-                  lang_id,
-                  // agent_id,
-                  // period,
-                });
-                game.Options = optionsPROPS.filter(
-                  (option: any) => option.ParentGame === game_id,
-                );
-                if (game.Options.length == 0) continue;
-                break;
-            }
-
-            events[date][game.FamilyGame] = {
-              info: _main,
-              events: [await this.dataService.mappingGame(game)],
-            };
-          } else {
-            events[date][game.FamilyGame].events.push(
-              await this.dataService.mappingGame(game),
-            );
-          }
-        }
-        data.push({
-          league: Object.values(league)[0] ?? league,
-          banner: banner,
-          games: events,
-        });
-      }
-    }
+    const leagueResults = await Promise.all(leaguePromises);
+    const data: any = leagueResults.filter(Boolean); // Filter out null results
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
