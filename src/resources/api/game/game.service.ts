@@ -165,7 +165,7 @@ export class GameService {
       await Promise.all(gamePromises);
 
       return {
-        league: league,
+        league: Object.values(league)[0] ?? league,
         banner: banner,
         games: events,
       };
