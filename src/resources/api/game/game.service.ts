@@ -33,7 +33,7 @@ export class GameService {
   }
 
   async getGamesByGameIds(params: any) {
-    const cacheTimeSec = 1;
+    const cacheTimeSec = 3;
     const game_ids = params.game_ids;
     const player_id = params.player_id;
     const lang_id = params.lang_id;
@@ -176,7 +176,7 @@ export class GameService {
   }
 
   async getGamesByLeagues(params: any) {
-    const cacheTimeSec = 1;
+    const cacheTimeSec = 3;
     const league_ids = params.league_id;
     const player_id = params.player_id;
     const lang_id = params.lang_id;
@@ -422,7 +422,7 @@ export class GameService {
   }
 
   async getFamilyGames(params: any) {
-    const cacheTimeSec = 1;
+    const cacheTimeSec = 3;
     const family_game_id = params.family_game_id;
     const player_id = params.player_id;
     const lang_id = params.lang_id;
@@ -619,7 +619,7 @@ export class GameService {
     return data;
   }
   async getGamesByWebRow(params: any) {
-    const cacheTimeSec = 1;
+    const cacheTimeSec = 3;
     const player_id = params.player_id;
     const lang_id = params.lang_id;
     const start_date = params.start_date;
