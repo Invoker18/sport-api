@@ -106,7 +106,7 @@ INSERT INTO #tblMainGames
 	G.Description as GameDescription, GL.Description as GameLangDescription, 
 	row_number() OVER (ORDER BY G.VisitorNumber),0
 	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
-	JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType
+	LEFT OUTER JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType AND L.HideGame = 0
 	LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLH WITH (NOLOCK) ON G.IdTeamHome = TLH.IdTeam AND TLH.IdLanguage = @prmIdLanguage
@@ -115,7 +115,7 @@ INSERT INTO #tblMainGames
 	  AND G.Online = 1
 	  AND G.IdLeague = @prmIdLeague
 	  AND G.GameDateTime > GETDATE()
-	  AND L.HideGame = 0
+
 
 	UNION
 

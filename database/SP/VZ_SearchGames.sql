@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_SearchGames]    Script Date: 11/14/2024 14:21:18 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_SearchGames]    Script Date: 1/9/2025 11:06:03 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -28,7 +28,9 @@ BEGIN
 		G.IdGame, 
 		G.IdLeague, 
 	    G.FamilyGame,
-		G.GameDateTime, 
+		G.GameDateTime,
+		G.VisitorNumber, 
+		G.HomeNumber,
 		LTRIM(RTRIM(G.IdSport)) as IdSport, 
 		CASE WHEN G.VisitorTeam IS NULL THEN TLV.Name ELSE G.VisitorTeam END AS VisitorTeam,
 		CASE WHEN G.HomeTeam IS NULL THEN TLH.Name ELSE G.HomeTeam END AS HomeTeam,
@@ -70,6 +72,8 @@ BEGIN
 		OR TLH.Name COLLATE Latin1_General_CI_AI LIKE @SEARCH  
 		OR GL.VisitorTeam COLLATE Latin1_General_CI_AI LIKE @SEARCH  
 		OR GL.HomeTeam COLLATE Latin1_General_CI_AI LIKE @SEARCH 
+		OR G.VisitorNumber = @SEARCH  
+		OR G.HomeNumber = @SEARCH 
 		OR GL.[Description] COLLATE Latin1_General_CI_AI LIKE @SEARCH 
 		OR G.[Description] COLLATE Latin1_General_CI_AI LIKE @SEARCH 
 		)
