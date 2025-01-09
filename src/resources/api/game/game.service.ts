@@ -20,10 +20,34 @@ export class GameService {
     private readonly dataService: DataService,
   ) {}
 
-  async processGame(game) {
+  async processGame(game, line_type_id, lang_id) {
     try {
       if (!game) {
         return null;
+      }
+
+      const sport_id = game.IdSport.trim();
+      const game_id = game.IdGame;
+      switch (sport_id) {
+        case 'TNT':
+          game.Options = (
+            await this.getGameTNTOddsByFamilyGameId({
+              family_game_id: game_id,
+              line_type_id,
+              lang_id,
+            })
+          ).filter((o) => o.IdGame === game_id);
+          break;
+        case 'PROP':
+          game.Options = (
+            await this.getGamePROPOddsByFamilyGameId({
+              family_game_id: game_id,
+              line_type_id,
+              lang_id,
+            })
+          ).filter((o) => o.ParentGame === game_id);
+          if (game.Options.length === 0) return;
+          break;
       }
       return this.dataService.mappingGame(game);
     } catch (error) {
@@ -55,7 +79,9 @@ export class GameService {
       lang_id,
     });
 
-    const gamePromises = _games.map((game) => this.processGame(game));
+    const gamePromises = _games.map((game) =>
+      this.processGame(game, line_type_id, lang_id),
+    );
     const gameResults = await Promise.all(gamePromises);
     const games = gameResults.filter(Boolean); // Filter out null results
 
