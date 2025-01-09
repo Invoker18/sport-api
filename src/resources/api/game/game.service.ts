@@ -59,9 +59,7 @@ export class GameService {
     const games = gameResults.filter(Boolean); // Filter out null results
 
     const success_ids = games.map((game) => game.info.IdGame.toString() ?? []);
-    const rejected_ids = game_ids
-      .filter((x: any) => !success_ids.includes(x))
-      .concat(success_ids.filter((x: any) => !game_ids.includes(x)));
+    const rejected_ids = game_ids.filter((x: any) => !success_ids.includes(x));
 
     const data: any = {
       rejected_ids,
@@ -77,13 +75,6 @@ export class GameService {
 
   async processLeague(league_id, agent_id, line_type_id, lang_id, period) {
     try {
-      const league_promises = [
-        this.getLeague({ league_id, lang_id }),
-        this.getLeagueBanners({ league_id, lang_id }),
-      ];
-
-      const [league, banner] = await Promise.all(league_promises);
-
       const games = await this.getOpenGamesLeague({
         league_id,
         agent_id,
@@ -96,12 +87,17 @@ export class GameService {
         return null;
       }
 
+      const league_promises = [
+        this.getLeague({ league_id, lang_id }),
+        this.getLeagueBanners({ league_id, lang_id }),
+      ];
+
+      const [league, banner] = await Promise.all(league_promises);
+
       const events = {};
 
       const gamePromises = games.map(async (game) => {
         game.banners = banner.filter((b) => b.ParentGame === game.IdGame);
-
-        const date = new Date(game.GameDate).toISOString().split('T')[0];
 
         let _main;
         if (games.some((_game) => _game.IdGame === game.FamilyGame)) {
@@ -113,28 +109,29 @@ export class GameService {
         const sport_id = game.IdSport.trim();
         const game_id = game.IdGame;
 
-        if (['TNT', 'PROP'].includes(sport_id)) {
-          let options;
-          switch (sport_id) {
-            case 'TNT':
-              options = await this.getGameTNTOddsByFamilyGameId({
+        switch (sport_id) {
+          case 'TNT':
+            game.Options = (
+              await this.getGameTNTOddsByFamilyGameId({
                 family_game_id: game_id,
                 line_type_id,
                 lang_id,
-              });
-              game.Options = options.filter((o) => o.IdGame === game_id);
-              break;
-            case 'PROP':
-              options = await this.getGamePROPOddsByFamilyGameId({
+              })
+            ).filter((o) => o.IdGame === game_id);
+            break;
+          case 'PROP':
+            game.Options = (
+              await this.getGamePROPOddsByFamilyGameId({
                 family_game_id: game_id,
                 line_type_id,
                 lang_id,
-              });
-              game.Options = options.filter((o) => o.ParentGame === game_id);
-              if (game.Options.length === 0) return;
-              break;
-          }
+              })
+            ).filter((o) => o.ParentGame === game_id);
+            if (game.Options.length === 0) return;
+            break;
         }
+
+        const date = new Date(game.GameDate).toISOString().split('T')[0];
 
         if (!events[date]) {
           events[date] = {};
