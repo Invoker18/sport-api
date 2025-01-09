@@ -59,9 +59,7 @@ export class GameService {
     const games = gameResults.filter(Boolean); // Filter out null results
 
     const success_ids = games.map((game) => game.info.IdGame.toString() ?? []);
-    const rejected_ids = game_ids
-      .filter((x: any) => !success_ids.includes(x))
-      .concat(success_ids.filter((x: any) => !game_ids.includes(x)));
+    const rejected_ids = game_ids.filter((x: any) => !success_ids.includes(x));
 
     const data: any = {
       rejected_ids,
