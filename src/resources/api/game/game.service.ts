@@ -103,62 +103,50 @@ export class GameService {
 
         const date = new Date(game.GameDate).toISOString().split('T')[0];
 
+        let _main;
+        if (games.some((_game) => _game.IdGame === game.FamilyGame)) {
+          _main = games.find((_game) => _game.IdGame === game.FamilyGame);
+        } else {
+          _main = await this.getGame({ game_id: game.FamilyGame, lang_id });
+        }
+
+        const sport_id = game.IdSport.trim();
+        const game_id = game.IdGame;
+
+        if (['TNT', 'PROP'].includes(sport_id)) {
+          let options;
+          switch (sport_id) {
+            case 'TNT':
+              options = await this.getGameTNTOddsByFamilyGameId({
+                family_game_id: game_id,
+                line_type_id,
+                lang_id,
+              });
+              game.Options = options.filter((o) => o.IdGame === game_id);
+              break;
+            case 'PROP':
+              options = await this.getGamePROPOddsByFamilyGameId({
+                family_game_id: game_id,
+                line_type_id,
+                lang_id,
+              });
+              game.Options = options.filter((o) => o.ParentGame === game_id);
+              if (game.Options.length === 0) return;
+              break;
+          }
+        }
+
         if (!events[date]) {
           events[date] = {};
         }
-
+        const _events = await this.dataService.mappingGame(game);
         if (!events[date][game.FamilyGame]) {
-          let _main;
-          if (games.some((_game) => _game.IdGame === game.FamilyGame)) {
-            _main = games.find((_game) => _game.IdGame === game.FamilyGame);
-          } else {
-            _main = await this.getGame({ game_id: game.FamilyGame, lang_id });
-          }
-
-          const sport_id = game.IdSport.trim();
-          const game_id = game.IdGame;
-
-          let optionsPromise;
-          switch (sport_id) {
-            case 'TNT':
-              optionsPromise = this.getGameTNTOddsByFamilyGameId({
-                family_game_id: game_id,
-                line_type_id,
-                lang_id,
-              });
-              break;
-            case 'PROP':
-              optionsPromise = this.getGamePROPOddsByFamilyGameId({
-                family_game_id: game_id,
-                line_type_id,
-                lang_id,
-              });
-              break;
-            default:
-              optionsPromise = Promise.resolve([]);
-          }
-
-          const options = await optionsPromise;
-
-          game.Options =
-            sport_id == 'TNT'
-              ? options.filter((o) => o.IdGame === game_id)
-              : sport_id == 'PROP'
-                ? options.filter((o) => o.ParentGame === game_id)
-                : options;
-
-          if (sport_id === 'PROP' && game.Options.length === 0) {
-            return;
-          }
-
           events[date][game.FamilyGame] = {
             info: _main,
-            events: [await this.dataService.mappingGame(game)],
+            events: [_events],
           };
         } else {
-          events[date][game.FamilyGame].events.push(
-            await this.dataService.mappingGame(game),
-          );
+          events[date][game.FamilyGame].events.push(_events);
         }
       });
 
@@ -198,6 +186,205 @@ export class GameService {
 
     const leagueResults = await Promise.all(leaguePromises);
     const data: any = leagueResults.filter(Boolean); // Filter out null results
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getFamilyGames(params: any) {
+    const cacheTimeSec = 3;
+    const family_game_id = params.family_game_id;
+    const player_id = params.player_id;
+    const lang_id = params.lang_id;
+    const period = params.period;
+    const player = await this.player.getInfo({ player_id: player_id });
+    const agent_id = player.IdAgent;
+    const line_type_id = player.IdLineType;
+
+    // **CHECK CACHE
+    const key = `get_family_game_${family_game_id}_${player_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    const games = await this.getOpenGamesFamily({
+      family_game_id,
+      agent_id,
+      line_type_id,
+      lang_id,
+      period,
+    });
+
+    const optionsTNT = await this.getGameTNTOddsByFamilyGameId({
+      family_game_id,
+      line_type_id,
+      lang_id,
+      // agent_id,
+      // period,
+    });
+
+    const optionsPROPS = await this.getGamePROPOddsByFamilyGameId({
+      family_game_id,
+      line_type_id,
+      lang_id,
+      // agent_id,
+      // period,
+    });
+
+    const banners = await this.getGameBannersByFamilyGameId({
+      family_game_id: family_game_id,
+      lang_id,
+    });
+
+    let data: any = {
+      info: await this.getGame({ game_id: family_game_id, lang_id }),
+      events: [],
+    };
+    const glength = games.length;
+    for (let i = 0; i < glength; i++) {
+      const game = games[i];
+      const sport_id = (game.IdSport = game.IdSport.trim());
+      const game_id = game.IdGame;
+      game.banners = banners.filter(
+        (banner: any) => banner.ParentGame === game_id,
+      );
+
+      switch (sport_id) {
+        case 'TNT':
+          game.Options = optionsTNT.filter(
+            (option: any) => option.IdGame === game_id,
+          );
+          break;
+        case 'PROP':
+          game.Options = optionsPROPS.filter(
+            (option: any) => option.ParentGame === game_id,
+          );
+          if (game.Options.length == 0) continue;
+          break;
+      }
+      data.events.push(await this.dataService.mappingGame(game));
+    }
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  async getGamesByWebRow(params: any) {
+    const cacheTimeSec = 3;
+    const player_id = params.player_id;
+    const lang_id = params.lang_id;
+    const start_date = params.start_date;
+    const end_date = params.end_date;
+    const period = params.period;
+    const league_ids = params.league_ids;
+    const player = await this.player.getInfo({ player_id: player_id });
+    const agent_id = player.IdAgent;
+    const line_type_id = player.IdLineType;
+    const book_id = player.IdBook;
+    const webrows = await this.league.getActiveWebRow({
+      book_id,
+      line_type_id,
+      lang_id,
+      league_ids,
+    });
+    const webrow_ids =
+      params.webrow_id != -1
+        ? params.webrow_id
+        : webrows.map((a: any) => a.IdWebRow);
+
+    // **CHECK CACHE
+    const key = `get_game_by_webrow_${webrow_ids}_${player_id}_${lang_id}`;
+    const cached = await this.cacheService.get(key);
+
+    if (cached) return cached;
+    // **CHECK CACHE
+
+    let data: any = [];
+    const webrowlength = webrow_ids.length;
+    for (let i = 0; i < webrowlength; i++) {
+      const webrow_id = webrow_ids[i];
+      let games = await this.getOpenGamesWebRowDate({
+        webrow_id,
+        agent_id,
+        line_type_id,
+        lang_id,
+        start_date,
+        end_date,
+        period,
+        league_ids,
+      });
+
+      const league_map = new Map();
+      const glength = games.length;
+      for (let g = 0; g < glength; g++) {
+        let game = games[g];
+        const league_id = game.IdLeague;
+        const date = new Date(game.GameDate).toISOString().split('T')[0];
+
+        let collection = league_map.get(league_id);
+        if (!collection) {
+          let league = await this.getLeague({
+            league_id,
+            lang_id,
+          });
+          let banner = await this.getLeagueBanners({
+            league_id,
+            lang_id,
+          });
+          league_map.set(league_id, {
+            league: Object.values(league)[0] ?? league,
+            banner: banner,
+            games: {},
+          });
+        }
+
+        collection = league_map.get(league_id);
+
+        game.banners = collection.banner.filter(
+          (banner: any) => banner.ParentGame === game.IdGame,
+        );
+
+        if (collection.games[date] === undefined) {
+          collection.games[date] = {};
+        }
+        if (collection.games[date][game.FamilyGame] === undefined) {
+          let _main = games.filter(
+            (_game: any) => _game.IdGame === game.FamilyGame,
+          );
+          _main =
+            _main.length > 0
+              ? _main[0]
+              : await this.getGame({
+                  game_id: game.FamilyGame,
+                  lang_id,
+                });
+
+          collection.games[date][game.FamilyGame] = {
+            info: _main,
+            events: [await this.dataService.mappingGame(game)],
+          };
+        } else {
+          collection.games[date][game.FamilyGame].events.push(
+            await this.dataService.mappingGame(game),
+          );
+        }
+      }
+      if (league_map.size) {
+        const f_wr = webrows.find((wr: any) => wr.IdWebRow == webrow_id);
+        data.push({
+          webrow_id: webrow_id,
+          webrow: f_wr.RowDescription,
+          leagues: Object.values(Object.fromEntries(league_map.entries())),
+        });
+      }
+    }
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
@@ -421,88 +608,6 @@ export class GameService {
     return data;
   }
 
-  async getFamilyGames(params: any) {
-    const cacheTimeSec = 3;
-    const family_game_id = params.family_game_id;
-    const player_id = params.player_id;
-    const lang_id = params.lang_id;
-    const period = params.period;
-    const player = await this.player.getInfo({ player_id: player_id });
-    const agent_id = player.IdAgent;
-    const line_type_id = player.IdLineType;
-
-    // **CHECK CACHE
-    const key = `get_family_game_${family_game_id}_${player_id}_${lang_id}`;
-    const cached = await this.cacheService.get(key);
-
-    if (cached) return cached;
-    // **CHECK CACHE
-
-    const games = await this.getOpenGamesFamily({
-      family_game_id,
-      agent_id,
-      line_type_id,
-      lang_id,
-      period,
-    });
-
-    const optionsTNT = await this.getGameTNTOddsByFamilyGameId({
-      family_game_id,
-      line_type_id,
-      lang_id,
-      // agent_id,
-      // period,
-    });
-
-    const optionsPROPS = await this.getGamePROPOddsByFamilyGameId({
-      family_game_id,
-      line_type_id,
-      lang_id,
-      // agent_id,
-      // period,
-    });
-
-    const banners = await this.getGameBannersByFamilyGameId({
-      family_game_id: family_game_id,
-      lang_id,
-    });
-
-    let data: any = {
-      info: await this.getGame({ game_id: family_game_id, lang_id }),
-      events: [],
-    };
-    const glength = games.length;
-    for (let i = 0; i < glength; i++) {
-      const game = games[i];
-      const sport_id = (game.IdSport = game.IdSport.trim());
-      const game_id = game.IdGame;
-      game.banners = banners.filter(
-        (banner: any) => banner.ParentGame === game_id,
-      );
-
-      switch (sport_id) {
-        case 'TNT':
-          game.Options = optionsTNT.filter(
-            (option: any) => option.IdGame === game_id,
-          );
-          break;
-        case 'PROP':
-          game.Options = optionsPROPS.filter(
-            (option: any) => option.ParentGame === game_id,
-          );
-          if (game.Options.length == 0) continue;
-          break;
-      }
-      data.events.push(await this.dataService.mappingGame(game));
-    }
-
-    // **SET CACHE
-    await this.cacheService.set(key, data, cacheTimeSec * 1000);
-    // **SET CACHE
-
-    return data;
-  }
-
   async getOpenGamesFamily(params: any) {
     const cacheTimeSec = 1;
     const family_game_id = params.family_game_id;
@@ -611,122 +716,6 @@ export class GameService {
     const data = await this.gameRepository.query(
       `EXEC VZ_GetGamePROPOdds	${game_id},${line_type_id},${lang_id}`,
     );
-
-    // **SET CACHE
-    await this.cacheService.set(key, data, cacheTimeSec * 1000);
-    // **SET CACHE
-
-    return data;
-  }
-  async getGamesByWebRow(params: any) {
-    const cacheTimeSec = 3;
-    const player_id = params.player_id;
-    const lang_id = params.lang_id;
-    const start_date = params.start_date;
-    const end_date = params.end_date;
-    const period = params.period;
-    const league_ids = params.league_ids;
-    const player = await this.player.getInfo({ player_id: player_id });
-    const agent_id = player.IdAgent;
-    const line_type_id = player.IdLineType;
-    const book_id = player.IdBook;
-    const webrows = await this.league.getActiveWebRow({
-      book_id,
-      line_type_id,
-      lang_id,
-      league_ids,
-    });
-    const webrow_ids =
-      params.webrow_id != -1
-        ? params.webrow_id
-        : webrows.map((a: any) => a.IdWebRow);
-
-    // **CHECK CACHE
-    const key = `get_game_by_webrow_${webrow_ids}_${player_id}_${lang_id}`;
-    const cached = await this.cacheService.get(key);
-
-    if (cached) return cached;
-    // **CHECK CACHE
-
-    let data: any = [];
-    const webrowlength = webrow_ids.length;
-    for (let i = 0; i < webrowlength; i++) {
-      const webrow_id = webrow_ids[i];
-      let games = await this.getOpenGamesWebRowDate({
-        webrow_id,
-        agent_id,
-        line_type_id,
-        lang_id,
-        start_date,
-        end_date,
-        period,
-        league_ids,
-      });
-
-      const league_map = new Map();
-      const glength = games.length;
-      for (let g = 0; g < glength; g++) {
-        let game = games[g];
-        const league_id = game.IdLeague;
-        const date = new Date(game.GameDate).toISOString().split('T')[0];
-
-        let collection = league_map.get(league_id);
-        if (!collection) {
-          let league = await this.getLeague({
-            league_id,
-            lang_id,
-          });
-          let banner = await this.getLeagueBanners({
-            league_id,
-            lang_id,
-          });
-          league_map.set(league_id, {
-            league: Object.values(league)[0] ?? league,
-            banner: banner,
-            games: {},
-          });
-        }
-
-        collection = league_map.get(league_id);
-
-        game.banners = collection.banner.filter(
-          (banner: any) => banner.ParentGame === game.IdGame,
-        );
-
-        if (collection.games[date] === undefined) {
-          collection.games[date] = {};
-        }
-        if (collection.games[date][game.FamilyGame] === undefined) {
-          let _main = games.filter(
-            (_game: any) => _game.IdGame === game.FamilyGame,
-          );
-          _main =
-            _main.length > 0
-              ? _main[0]
-              : await this.getGame({
-                  game_id: game.FamilyGame,
-                  lang_id,
-                });
-
-          collection.games[date][game.FamilyGame] = {
-            info: _main,
-            events: [await this.dataService.mappingGame(game)],
-          };
-        } else {
-          collection.games[date][game.FamilyGame].events.push(
-            await this.dataService.mappingGame(game),
-          );
-        }
-      }
-      if (league_map.size) {
-        const f_wr = webrows.find((wr: any) => wr.IdWebRow == webrow_id);
-        data.push({
-          webrow_id: webrow_id,
-          webrow: f_wr.RowDescription,
-          leagues: Object.values(Object.fromEntries(league_map.entries())),
-        });
-      }
-    }
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
