@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesByIdGames]    Script Date: 1/6/2025 10:42:28 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesByIdGames]    Script Date: 1/9/2025 15:27:31 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -106,7 +106,7 @@ INSERT INTO #tblMainGames
 	CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
 	row_number() OVER (ORDER BY G.VisitorNumber),0
 	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
-	JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType
+	LEFT OUTER JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType AND L.HideGame = 0
 	LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLH WITH (NOLOCK) ON G.IdTeamHome = TLH.IdTeam AND TLH.IdLanguage = @prmIdLanguage
@@ -117,7 +117,6 @@ INSERT INTO #tblMainGames
 	  AND G.Online = 1
 	  AND G.IdGame IN (SELECT * FROM dbo.fnSplitString(@prmIdGames))
 	  AND G.GameDateTime > GETDATE()
-	  AND L.HideGame = 0
 
 	UNION
 
