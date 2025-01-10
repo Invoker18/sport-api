@@ -8,6 +8,7 @@ import { Cache } from 'cache-manager';
 import { PlayerService } from '../player/player.service';
 import { LeagueService } from '../league/league.service';
 import { DataService } from 'src/helpers/data.service';
+import { Console } from 'console';
 
 @Injectable()
 export class GameService {
@@ -304,10 +305,11 @@ export class GameService {
     const end_date = params.end_date;
     const period = params.period;
     const league_ids = params.league_ids;
+    const order_by = params.order_by;
     let webrow_ids = params.webrow_id;
 
     // **CHECK CACHE
-    const key = `get_game_by_webrow_${webrow_ids}_${player_id}_${lang_id}`;
+    const key = `get_game_by_webrow_${webrow_ids}_${player_id}_${lang_id}_${lang_id}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
@@ -316,14 +318,18 @@ export class GameService {
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
     const book_id = player.IdBook;
-    const webrows = await this.league.getActiveWebRow({
-      book_id,
-      line_type_id,
-      lang_id,
-      league_ids,
-    });
-    webrow_ids =
-      webrow_ids != -1 ? webrow_ids : webrows.map((a: any) => a.IdWebRow);
+
+    if (webrow_ids == -1) {
+      const webrows = await this.league.getActiveWebRowByDate({
+        book_id,
+        line_type_id,
+        lang_id,
+        league_ids,
+        start_date,
+        end_date,
+      });
+      webrow_ids = webrows.map((a: any) => a.IdWebRow);
+    }
 
     let data: any = [];
     const webrowlength = webrow_ids.length;
@@ -342,6 +348,8 @@ export class GameService {
 
       const league_map = new Map();
       const glength = games.length;
+      let games_by_date = {};
+      let row_desc = '';
       for (let g = 0; g < glength; g++) {
         let game = games[g];
         const league_id = game.IdLeague;
@@ -349,22 +357,29 @@ export class GameService {
 
         let collection = league_map.get(league_id);
         if (!collection) {
-          let league = await this.getLeague({
-            league_id,
-            lang_id,
-          });
+          let league = {
+            IDLeagueRegion: game.IDLeagueRegion,
+            IdLeague: game.IdLeague,
+            LeagueOrder: game.LeagueOrder,
+            IdSport: game.IdSport,
+            Description: game.LeagueLangDescription,
+            ShortDescription: game.ShortDescription,
+            RegionDescription: game.RegionDescription,
+            LeagueDescription: game.LeagueLangDescription,
+          };
           let banner = await this.getLeagueBanners({
             league_id,
             lang_id,
           });
           league_map.set(league_id, {
-            league: Object.values(league)[0] ?? league,
+            league: league,
             banner: banner,
             games: {},
           });
+          collection = league_map.get(league_id);
         }
 
-        collection = league_map.get(league_id);
+        let _game = await this.dataService.mappingGame(game);
 
         game.banners = collection.banner.filter(
           (banner: any) => banner.ParentGame === game.IdGame,
@@ -373,6 +388,7 @@ export class GameService {
         if (collection.games[date] === undefined) {
           collection.games[date] = {};
         }
+
         if (collection.games[date][game.FamilyGame] === undefined) {
           let _main = games.filter(
             (_game: any) => _game.IdGame === game.FamilyGame,
@@ -387,20 +403,44 @@ export class GameService {
 
           collection.games[date][game.FamilyGame] = {
             info: _main,
-            events: [await this.dataService.mappingGame(game)],
+            events: [_game],
           };
         } else {
-          collection.games[date][game.FamilyGame].events.push(
-            await this.dataService.mappingGame(game),
-          );
+          collection.games[date][game.FamilyGame].events.push(_game);
         }
+
+        if (games_by_date[date] === undefined) {
+          games_by_date[date] = {};
+        }
+
+        if (games_by_date[date][game.FamilyGame] === undefined) {
+          let _main = games.filter(
+            (_game: any) => _game.IdGame === game.FamilyGame,
+          );
+          _main =
+            _main.length > 0
+              ? _main[0]
+              : await this.getGame({
+                  game_id: game.FamilyGame,
+                  lang_id,
+                });
+
+          games_by_date[date][game.FamilyGame] = {
+            info: _main,
+            events: [_game],
+          };
+        } else {
+          games_by_date[date][game.FamilyGame].events.push(_game);
+        }
+        console.log(game);
+        row_desc = game.RowDescription;
       }
       if (league_map.size) {
-        const f_wr = webrows.find((wr: any) => wr.IdWebRow == webrow_id);
         data.push({
           webrow_id: webrow_id,
-          webrow: f_wr.RowDescription,
+          webrow: row_desc,
           leagues: Object.values(Object.fromEntries(league_map.entries())),
+          games_by_date: games_by_date,
         });
       }
     }

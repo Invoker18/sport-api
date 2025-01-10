@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 12/20/2024 14:02:06 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 1/10/2025 16:07:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -13,7 +13,7 @@ GO
 -- =============================================
 
 CREATE PROCEDURE [dbo].[VZ_GetOpenGamesWebRowDate]
-	@prmIdWebRow smallint,
+	@prmIdWebRow NVARCHAR(MAX),
 	@prmIdAgent int,
 	@prmIdLineType int,
 	@prmIdLanguage tinyint,
@@ -89,7 +89,9 @@ CREATE TABLE #tblMainGames
 	GameDescription		  varchar(255), 
 	GameLangDescription   nvarchar(510),
 	ParentOrder			  smallint,
-	ChildOrder			  smallint
+	ChildOrder			  smallint,
+	IdWebRow int, 
+	RowDescription varchar (50)
 );
 
 INSERT INTO #tblMainGames
@@ -107,10 +109,13 @@ INSERT INTO #tblMainGames
 	GL.VisitorTeam AS GameLangVisitorTeam, GL.HomeTeam AS GameLangHomeTeam,
 	@bitZero HideGame, @bitZero HideSpread, @bitZero HideTotal, @bitZero HideMoneyLine, P.PeriodDescription, 
 	G.Description as GameDescription, GL.Description as GameLangDescription, 
-	row_number() OVER (ORDER BY G.VisitorNumber),0
+	row_number() OVER (ORDER BY G.VisitorNumber),0,
+	WR.IdWebRow, 
+	WR.Description
 	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType
-	JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague AND WRD.IdWebRow = @prmIdWebRow
+	JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague
+	JOIN WebRow WR With(NoLock) ON WR.IdWebRow = WRD.IdWebRow
 	LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLH WITH (NOLOCK) ON G.IdTeamHome = TLH.IdTeam AND TLH.IdLanguage = @prmIdLanguage
@@ -121,6 +126,7 @@ INSERT INTO #tblMainGames
 	  AND CAST(G.GameDateTime AS DATE) >= @prmStartDate
 	  AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
 	  AND L.HideGame = 0
+	  AND (WRD.IdWebRow IN (SELECT * FROM dbo.fnSplitString(@prmIdWebRow)) OR @prmIdWebRow = '-1')
 
 	UNION
 
@@ -138,9 +144,12 @@ INSERT INTO #tblMainGames
 		null AS GameLangVisitorTeam, null AS GameLangHomeTeam,
 		L.HideGame, L.HideSpread, L.HideTotal, L.HideMoneyLine, P.PeriodDescription, 
 		G.Description as GameDescription, GL.Description as GameLangDescription,
-		row_number() OVER (ORDER BY G.VisitorNumber),0
+		row_number() OVER (ORDER BY G.VisitorNumber),0,
+		WR.IdWebRow, 
+		WR.Description
 	FROM Game G WITH (NOLOCK) 
-	JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague AND WRD.IdWebRow = @prmIdWebRow
+	JOIN WebRowDetail WRD With(NoLock) ON  G.IdLeague = WRD.IdLeague
+	JOIN WebRow WR With(NoLock) ON WR.IdWebRow = WRD.IdWebRow
 	INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
 	JOIN GameValuesByAgent L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdAgent = @prmIdAgent
@@ -150,6 +159,7 @@ INSERT INTO #tblMainGames
 	  AND G.GameDateTime > GETDATE()  
 	  AND CAST(G.GameDateTime AS DATE) >= @prmStartDate
 	  AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
+	  AND (WRD.IdWebRow IN (SELECT * FROM dbo.fnSplitString(@prmIdWebRow)) OR @prmIdWebRow = '-1')
 	  --AND L.HideGame = 0
 
 	--ORDER BY CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)), G.VisitorNumber
@@ -159,6 +169,10 @@ delete from #tblMainGames
 where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)
 	
 SELECT tbl.*
+	,LG.IDLeagueRegion
+	,LG.LeagueOrder 
+	,LG.ShortDescription
+	,LRL.[Description] as RegionDescription
 	,CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription
 	,(
 	SELECT b.home_image_id
@@ -194,6 +208,7 @@ SELECT tbl.*
 FROM #tblMainGames AS tbl WITH(NOLOCK)
 LEFT OUTER JOIN League LG WITH (NOLOCK) ON tbl.IdLeague = LG.IdLeague
 LEFT OUTER JOIN LeagueLang LGL WITH (NOLOCK) ON tbl.IdLeague = LGL.IdLeague AND LGL.IdLanguage = @prmIdLanguage
+LEFT OUTER JOIN LeagueRegionLang LRL with(nolock) ON LG.IDLeagueRegion=LRL.IDLeagueRegion AND LRL.IdLanguage=@prmIdLanguage
 WHERE (tbl.Period = @prmPeriod or @prmPeriod = -1) 
 AND (tbl.IdLeague IN (SELECT * FROM dbo.fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')
 ORDER BY GameDateTime, ParentGame, ChildOrder, IdGame, FromAgent --8, 10, 2, 1ParentGame, ParentOrder, ChildOrder

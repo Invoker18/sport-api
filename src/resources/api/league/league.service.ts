@@ -63,4 +63,28 @@ export class LeagueService {
 
     return data;
   }
+
+  async getActiveWebRowByDate(params: any) {
+    const cacheTimeSec = 30;
+    const book_id = params.book_id;
+    const line_type_id = params.line_type_id;
+    const lang_id = params.lang_id;
+    const league_ids = params.league_ids ?? '-1';
+    const start_date = new Date(params.start_date).toISOString();
+    const end_date = new Date(params.end_date).toISOString();
+    // **CHECK CACHE
+    const key = `get_webrow_active_${book_id}_${line_type_id}_${lang_id}_${league_ids}_${start_date}_${end_date}`;
+    const cached = await this.cacheService.get(key);
+    if (cached) return cached;
+    // **CHECK CACHE
+    const data = await this.leagueRepository.query(
+      `EXEC VZ_GetActiveWebRowByDate	${book_id},${line_type_id},${lang_id},'${league_ids}','${start_date}','${end_date}'`,
+    );
+
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
 }
