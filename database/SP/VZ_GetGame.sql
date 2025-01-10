@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetGame]    Script Date: 11/7/2024 10:10:53 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetGame]    Script Date: 1/10/2025 14:48:27 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -26,9 +26,13 @@ BEGIN
 	G.NormalGame, G.ParentGame, G.FamilyGame,
 	TLV.Name AS TeamLangVisitorTeam, TLH.Name AS TeamLangHomeTeam,
 	GL.VisitorTeam AS GameLangVisitorTeam, GL.HomeTeam AS GameLangHomeTeam,
-	P.PeriodDescription, 
-	G.Description as GameDescription, GL.Description as GameLangDescription, 
-	CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription
+	P.PeriodDescription 
+	,LG.IDLeagueRegion
+	,LG.LeagueOrder 
+	,LG.ShortDescription
+	,LRL.[Description] as RegionDescription
+	,G.Description as GameDescription, GL.Description as GameLangDescription 
+	,CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription
 	,(
 		SELECT b.home_image_id
 		FROM [MOVER].[dbo].[Games] a
@@ -66,6 +70,7 @@ BEGIN
 	LEFT OUTER JOIN TeamLang TLH WITH (NOLOCK) ON G.IdTeamHome = TLH.IdTeam AND TLH.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN League LG WITH (NOLOCK) ON G.IdLeague = LG.IdLeague
 	LEFT OUTER JOIN LeagueLang LGL WITH (NOLOCK) ON G.IdLeague = LGL.IdLeague AND LGL.IdLanguage = @prmIdLanguage
+	LEFT OUTER JOIN LeagueRegionLang LRL with(nolock) ON LG.IDLeagueRegion=LRL.IDLeagueRegion AND LRL.IdLanguage=@prmIdLanguage
 	WHERE G.IdGame = @prmIdGame 
 
 
