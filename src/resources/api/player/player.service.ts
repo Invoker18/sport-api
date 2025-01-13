@@ -38,7 +38,7 @@ export class PlayerService {
         `Player ${user} doesnt have Online Access. Contact Customer Services.`,
         {
           cause: new Error(),
-          description: 'AGNOACCESS',
+          description: 'PLAYERNOACCESS',
         },
       );
     } else if (player.UserName != user || player.OnlinePassword != password) {
