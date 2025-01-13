@@ -36,11 +36,15 @@ export class PlayerService {
     } else if (player.OnlineAccess != 1 || player.IdBook != book_id) {
       throw new UnauthorizedException(
         `Player ${user} doesnt have Online Access. Contact Customer Services.`,
+        {
+          cause: new Error(),
+          description: 'AGNOACCESS',
+        },
       );
     } else if (player.UserName != user || player.OnlinePassword != password) {
       throw new UnauthorizedException(`Invalid user name or password.`, {
         cause: new Error(),
-        description: 'Credentials',
+        description: 'USRPASSINVALID',
       });
     }
     const balance = await this.getBalance({ player_id: player.IdPlayer });
@@ -104,7 +108,10 @@ export class PlayerService {
     )[0];
 
     if (!data) {
-      throw new NotFoundException(`Player ${user}. Not found`);
+      throw new NotFoundException(`Player ${user}. Not found`, {
+        cause: new Error(),
+        description: 'IDPLYNOFOUND',
+      });
     }
 
     // **SET CACHE
@@ -132,7 +139,10 @@ export class PlayerService {
     )[0];
 
     if (!data) {
-      throw new NotFoundException(`IdPlayer ${player_id}. Not found`);
+      throw new NotFoundException(`IdPlayer ${player_id}. Not found`, {
+        cause: new Error(),
+        description: 'IDPLYNOFOUND',
+      });
     }
 
     // **SET CACHE
@@ -160,7 +170,10 @@ export class PlayerService {
     )[0];
 
     if (!data) {
-      throw new NotFoundException(`IdPlayer ${player_id}. Not found`);
+      throw new NotFoundException(`IdPlayer ${player_id}. Not found`, {
+        cause: new Error(),
+        description: 'IDPLYNOFOUND',
+      });
     }
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
@@ -296,6 +309,10 @@ export class PlayerService {
     if (!data[0] || data[0].return == 0) {
       throw new NotFoundException(
         `IdPlayer ${player_id}. Player not found or invalid password`,
+        {
+          cause: new Error(),
+          description: 'IDPLYNOFOUND',
+        },
       );
     } else {
       const data_info = await this.getInfo({ player_id }, false);
