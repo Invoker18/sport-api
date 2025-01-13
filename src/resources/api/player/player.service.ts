@@ -32,7 +32,10 @@ export class PlayerService {
     const player = await this.getPlayerByUserName({ user });
 
     if (!player) {
-      throw new NotFoundException(`Invalid user ${user}. Not found`);
+      throw new NotFoundException(`Invalid user ${user}. Not found`, {
+        cause: new Error(),
+        description: 'IDPLYNOFOUND',
+      });
     } else if (player.OnlineAccess != 1 || player.IdBook != book_id) {
       throw new UnauthorizedException(
         `Player ${user} doesnt have Online Access. Contact Customer Services.`,
