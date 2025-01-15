@@ -84,9 +84,9 @@ export class UpdatePlayerInfo {
 
   @IsOptional()
   @IsNumber()
-  timezone_id: number;
+  timezone_id: number = -1;
 
   @IsOptional()
   @IsNumber()
-  language_id: number;
+  language_id: number = -1;
 }

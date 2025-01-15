@@ -283,8 +283,8 @@ export class PlayerService {
     const email = params.email ?? '';
     const culture_info = params.culture_info ?? '';
     const line_style = params.line_style ?? '';
-    const timezone_id = params.timezone_id ?? '';
-    const language_id = params.language_id ?? '';
+    const timezone_id = params.timezone_id;
+    const language_id = params.language_id;
 
     const data = await this.playerRepository.query(
       `EXEC VZ_UpdatePlayerInfo 
@@ -306,8 +306,8 @@ export class PlayerService {
       '${email}',
       '${culture_info}',
       '${line_style}',
-      '${timezone_id}',
-      '${language_id}'`,
+      ${timezone_id},
+      ${language_id}`,
     );
     if (!data[0] || data[0].return == 0) {
       throw new NotFoundException(
