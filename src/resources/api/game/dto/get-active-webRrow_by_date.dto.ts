@@ -2,7 +2,6 @@ import { Transform } from 'class-transformer';
 import {
   IsArray,
   IsDate,
-  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -10,22 +9,21 @@ import {
 } from 'class-validator';
 import { toNumber } from '../../../../helpers/cast.helper';
 
-export class GetGamesByWebRowQuery {
-  @IsArray()
-  @Transform(({ value }) => value.split(','))
-  @IsNotEmpty()
-  @IsString({ each: true })
-  webrow_id: string[];
-
+export class GetActiveWebRowByDateQuery {
   @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsNotEmpty()
   @IsNumber()
   lang_id: number;
 
+  @Transform(({ value }) => toNumber(value, { min: 1 }))
+  @IsNotEmpty()
+  @IsNumber()
+  book_id: number;
+
   @Transform(({ value }) => toNumber(value, { min: 0 }))
   @IsNotEmpty()
   @IsNumber()
-  player_id: number;
+  line_type_id: number;
 
   @IsDate()
   start_date: Date;
@@ -33,31 +31,9 @@ export class GetGamesByWebRowQuery {
   @IsDate()
   end_date: Date;
 
-  @Transform(({ value }) => toNumber(value, { min: -1 }))
-  @IsOptional()
-  @IsNumber()
-  period?: number = -1;
-
   @IsArray()
   @Transform(({ value }) => value.split(','))
   @IsOptional()
   @IsString({ each: true })
-  league_ids?: string[];
-
-  @IsOptional()
-  @IsString()
-  group_by?: string = 'league';
-
-  @IsOptional()
-  @IsNumber()
-  limit?: number = 99999;
-
-  @IsNotEmpty()
-  @IsString()
-  @IsIn(['E', 'D', 'F'])
-  line_style: string;
-
-  @IsNotEmpty()
-  @IsString()
-  timezone: string;
+  league_ids?: string[] = ['-1'];
 }

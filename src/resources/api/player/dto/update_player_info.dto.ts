@@ -1,6 +1,7 @@
 import { Transform } from 'class-transformer';
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -80,6 +81,7 @@ export class UpdatePlayerInfo {
 
   @IsOptional()
   @IsString()
+  @IsIn(['E', 'D', 'F'])
   line_style: string;
 
   @IsOptional()

@@ -1,9 +1,5 @@
 import { Transform } from 'class-transformer';
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-} from 'class-validator';
+import { IsIn, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { toNumber } from '../../../../helpers/cast.helper';
 
 export class GetGamesByLeaguesQuery {
@@ -34,6 +30,7 @@ export class GetGamesByLeaguesQuery {
   mlb_line: string;
 
   @IsNotEmpty()
+  @IsIn(['E', 'D', 'F'])
   line_style: string;
 
   @Transform(({ value }) => toNumber(value, { min: 0 }))

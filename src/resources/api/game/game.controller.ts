@@ -2,17 +2,22 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GameService } from './game.service';
+import { LeagueService } from '../league/league.service';
 import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
 import { GetGamesByWebRowQuery } from './dto/get-game-by-webrow.dto';
 import { searchGamesQuery } from './dto/search-games.dto';
 import { GetFamilyGamesQuery } from './dto/get-game-family.dto';
 import { GetGamesByGameIdsQuery } from './dto/get-game-by-gameids.dto';
+import { GetActiveWebRowByDateQuery } from './dto/get-active-webRrow_by_date.dto';
 
 @Controller('game')
 @ApiKeyAuth()
 @ApiTags('API Game')
 export class GameController {
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    private readonly gameService: GameService,
+    private readonly leagueService: LeagueService,
+  ) {}
 
   @Get('/')
   async getGames(
@@ -35,6 +40,14 @@ export class GameController {
     params: GetGamesByWebRowQuery,
   ): Promise<string> {
     return await this.gameService.getGamesByWebRow(params);
+  }
+
+  @Get('/only_webrow')
+  async getActiveWebRowByDate(
+    @Query()
+    params: GetActiveWebRowByDateQuery,
+  ): Promise<string> {
+    return await this.leagueService.getActiveWebRowByDate(params);
   }
 
   @Get('/family')

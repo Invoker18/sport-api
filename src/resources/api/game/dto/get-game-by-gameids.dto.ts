@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsIn, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { toNumber } from '../../../../helpers/cast.helper';
 
 export class GetGamesByGameIdsQuery {
@@ -18,4 +18,13 @@ export class GetGamesByGameIdsQuery {
   @IsNotEmpty()
   @IsNumber()
   player_id: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsIn(['E', 'D', 'F'])
+  line_style: string;
+
+  // @IsNotEmpty()
+  // @IsString()
+  // timezone: string;
 }
