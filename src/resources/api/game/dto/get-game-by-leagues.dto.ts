@@ -1,6 +1,7 @@
 import { Transform } from 'class-transformer';
 import {
   IsArray,
+  IsIn,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -29,4 +30,13 @@ export class GetGamesByLeaguesQuery {
   @IsOptional()
   @IsNumber()
   period?: number = -1;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsIn(['E', 'D', 'F'])
+  line_style: string;
+
+  @IsNotEmpty()
+  @IsString()
+  timezone: string;
 }

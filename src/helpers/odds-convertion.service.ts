@@ -84,20 +84,15 @@ export class OddsConvertionService {
     return line_str ? this.OddsAmerican.toMixedFractional(line_str) : line_str;
   }
 
-  public setAllLinesConvert(lines: any, odds_dgs: any) {
+  public setAllLinesConvert(lines: any, odds_dgs: any, line_style = 'E') {
     const newLine = {
       original: lines,
-      american: {},
-      decimal: {},
-      fractional: {},
+      odds: {},
     };
     for (const [k, line] of Object.entries(lines)) {
       const line_str = line?.toString();
       if (this.points.includes(k)) {
-        newLine.american[k] =
-          newLine.decimal[k] =
-          newLine.fractional[k] =
-            this.setPoints(line_str, k);
+        newLine.odds[k] = this.setPoints(line_str, k);
         newLine.original[k] =
           k == 'TotalOver' &&
           line_str &&
@@ -107,43 +102,54 @@ export class OddsConvertionService {
             : line_str;
       } else {
         const odd_dgs = odds_dgs.find((odd: any) => odd.American == line_str);
-        newLine.american[k] = this.oddsFormatAmerican(line_str, k);
-        newLine.decimal[k] = this.oddsAmericanToDecimal(line_str, odd_dgs);
-        newLine.fractional[k] = this.oddsAmericanToFractional(
-          line_str,
-          odd_dgs,
-        );
+        switch (line_style) {
+          case 'E':
+            newLine.odds[k] = this.oddsFormatAmerican(line_str, k);
+            break;
+          case 'D':
+            newLine.odds[k] = this.oddsAmericanToDecimal(line_str, odd_dgs);
+            break;
+          case 'F':
+            newLine.odds[k] = this.oddsAmericanToFractional(line_str, odd_dgs);
+            break;
+        }
       }
     }
     return newLine;
   }
 
-  public setAllLinesConvertTNTPROP(options: any, odds_dgs: any) {
+  public setAllLinesConvertTNTPROP(
+    options: any,
+    odds_dgs: any,
+    line_style = 'E',
+  ) {
     const newLine = {
       original: options,
-      american: [],
-      decimal: [],
-      fractional: [],
+      odds: [],
     };
 
     const optlength = options.length;
     for (let i = 0; i < optlength; i++) {
       const option = options[i];
-      const dataAmerican = { ...option };
-      const dataDecimal = { ...option };
-      const dataFractional = { ...option };
       const line_str = option.Odds?.toString();
       const odd_dgs = odds_dgs.find((odd: any) => odd.American == line_str);
+      const data = { ...option };
 
-      dataAmerican.Odds = this.oddsFormatAmerican(line_str);
-      newLine.american.push(dataAmerican);
+      switch (line_style) {
+        case 'E':
+          data.Odds = this.oddsFormatAmerican(line_str);
+          break;
+        case 'D':
+          data.Odds = this.oddsAmericanToDecimal(line_str, odd_dgs);
+          break;
+        case 'F':
+          data.Odds = this.oddsAmericanToFractional(line_str, odd_dgs);
+      }
+      newLine.odds.push(data);
 
-      dataDecimal.Odds = this.oddsAmericanToDecimal(line_str, odd_dgs);
-      newLine.decimal.push(dataDecimal);
-
-      dataFractional.Odds = this.oddsAmericanToFractional(line_str, odd_dgs);
-      newLine.fractional.push(dataFractional);
+      break;
     }
+
     return newLine;
   }
 

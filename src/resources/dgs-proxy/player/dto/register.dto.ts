@@ -1,6 +1,7 @@
 import { Transform } from 'class-transformer';
 import {
   IsEmail,
+  IsIn,
   IsIP,
   IsNotEmpty,
   IsNumber,
@@ -29,6 +30,7 @@ export class GetRegisterQuery {
 
   @IsNotEmpty()
   @IsString()
+  @IsIn(['E', 'D', 'F'])
   line_style_id: string;
 
   @Transform(({ value }) => toNumber(value, { min: 1 }))
