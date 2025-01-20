@@ -69,7 +69,7 @@ export class LeagueService {
     const book_id = params.book_id;
     const line_type_id = params.line_type_id;
     const lang_id = params.lang_id;
-    const league_ids = params.league_ids ?? '-1';
+    const league_ids = params.league_ids;
     const start_date = new Date(params.start_date).toISOString();
     const end_date = new Date(params.end_date).toISOString();
     // **CHECK CACHE
