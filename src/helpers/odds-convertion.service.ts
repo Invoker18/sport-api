@@ -146,8 +146,6 @@ export class OddsConvertionService {
           data.Odds = this.oddsAmericanToFractional(line_str, odd_dgs);
       }
       newLine.odds.push(data);
-
-      break;
     }
 
     return newLine;
