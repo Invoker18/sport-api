@@ -12,7 +12,7 @@ GO
 -- Description:	[VZ_GetOpenFamilyGames]
 -- =============================================
 
-ALTER PROCEDURE [dbo].[VZ_GetOpenFamilyGames]
+CREATE PROCEDURE [dbo].[VZ_GetOpenFamilyGames]
 	@prmIdFamilyGame int,
 	@prmIdAgent int,
 	@prmIdLineType int,
