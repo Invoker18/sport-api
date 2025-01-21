@@ -293,10 +293,7 @@ export class GameService {
       events: [],
     };
 
-    const glength = games.length;
-
-    for (let i = 0; i < glength; i++) {
-      const game = games[i];
+    const promises = games.map(async (game) => {
       const sport_id = (game.IdSport = game.IdSport.trim());
       const game_id = game.IdGame;
       game.banners = banners.filter(
@@ -313,11 +310,13 @@ export class GameService {
           game.Options = optionsPROPS.filter(
             (option: any) => option.ParentGame === game_id,
           );
-          if (game.Options.length == 0) continue;
+          if (game.Options.length == 0) return;
           break;
       }
       data.events.push(await this.dataService.mappingGame(game, line_style));
-    }
+    });
+
+    await Promise.all(promises);
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
