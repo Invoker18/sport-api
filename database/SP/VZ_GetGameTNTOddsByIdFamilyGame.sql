@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetGameTNTOddsByIdFamilyGame]    Script Date: 11/7/2024 10:14:44 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetGameTNTOddsByIdFamilyGame]    Script Date: 1/21/2025 10:10:36 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -11,7 +11,7 @@ GO
 -- Create date: May 08 2024
 -- Description:	[VZ_GetGameTNTOddsByIdFamilyGame]
 -- =============================================
-CREATE PROCEDURE [dbo].[VZ_GetGameTNTOddsByIdFamilyGame]
+ALTER PROCEDURE [dbo].[VZ_GetGameTNTOddsByIdFamilyGame]
 	@prmIdFamilyGame int,
 	@prmIdLineType int,
 	@prmIdLanguage tinyint
@@ -32,14 +32,15 @@ BEGIN
 	INNER JOIN Game G WITH (NOLOCK) ON G.IdGame = GT.IdGame
 	LEFT JOIN GameTNTPropAction GTPA WITH (NOLOCK) ON (GT.IdGame = GTPA.IdGame AND GT.TeamNumber = GTPA.TeamNumber AND GTPA.IdLineType = @prmIdLinetype)   
 	LEFT JOIN GameTNTLang GTL WITH (NOLOCK) ON GTPA.IdGame = GTL.IdGame AND GTPA.TeamNumber = GTL.TeamNumber AND GTL.IdLanguage = @prmIdLanguage 
-	WHERE G.GameStat = 'O'
+	WHERE 
+	G.FamilyGame = @prmIdFamilyGame
+	AND G.IdSport = 'TNT'
+	AND G.GameStat = 'O'
 	AND G.Graded = 0
 	AND G.Online = 1
-	AND G.IdSport = 'TNT'
 	AND G.GameDateTime > GETDATE()
 	AND GTPA.HideGame = 0
-	AND GT.Result = 255	
-	AND G.FamilyGame = @prmIdFamilyGame
+	AND GT.Result = 255
     ORDER BY TeamNumber ASC  
 
 END

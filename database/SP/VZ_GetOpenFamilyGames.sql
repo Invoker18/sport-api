@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenFamilyGames]    Script Date: 11/7/2024 10:22:07 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenFamilyGames]    Script Date: 1/21/2025 10:22:15 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -12,7 +12,7 @@ GO
 -- Description:	[VZ_GetOpenFamilyGames]
 -- =============================================
 
-CREATE PROCEDURE [dbo].[VZ_GetOpenFamilyGames]
+ALTER PROCEDURE [dbo].[VZ_GetOpenFamilyGames]
 	@prmIdFamilyGame int,
 	@prmIdAgent int,
 	@prmIdLineType int,
@@ -107,17 +107,19 @@ INSERT INTO #tblMainGames
 	G.Description as GameDescription, GL.Description as GameLangDescription, 
 	CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
 	row_number() OVER (ORDER BY G.VisitorNumber),0
-	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
-	JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType
+	FROM Game G WITH (NOLOCK) 
+	INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
+	INNER JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType
 	LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLH WITH (NOLOCK) ON G.IdTeamHome = TLH.IdTeam AND TLH.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN League LG WITH (NOLOCK) ON G.IdLeague = LG.IdLeague
 	LEFT OUTER JOIN LeagueLang LGL WITH (NOLOCK) ON G.IdLeague = LGL.IdLeague AND LGL.IdLanguage = @prmIdLanguage
-	WHERE G.GameStat = 'O'
+	WHERE 
+	  G.FamilyGame = @prmIdFamilyGame
+	  AND G.GameStat = 'O'
 	  AND G.Graded = 0
 	  AND G.Online = 1
-	  AND G.FamilyGame = @prmIdFamilyGame
 	  AND G.GameDateTime > GETDATE()
 	  AND L.HideGame = 0
 
@@ -139,15 +141,17 @@ INSERT INTO #tblMainGames
 		G.Description as GameDescription, GL.Description as GameLangDescription,
 		CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
 		row_number() OVER (ORDER BY G.VisitorNumber),0
-	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
-							  LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
-							  LEFT OUTER JOIN LeagueLang LGL WITH (NOLOCK) ON G.IdLeague = LGL.IdLeague AND LGL.IdLanguage = @prmIdLanguage
-							  LEFT OUTER JOIN League LG WITH (NOLOCK) ON G.IdLeague = LG.IdLeague
-	JOIN GameValuesByAgent L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdAgent = @prmIdAgent
-	WHERE G.GameStat = 'O'
+	FROM Game G WITH (NOLOCK) 
+	INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
+	LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
+	LEFT OUTER JOIN LeagueLang LGL WITH (NOLOCK) ON G.IdLeague = LGL.IdLeague AND LGL.IdLanguage = @prmIdLanguage
+	LEFT OUTER JOIN League LG WITH (NOLOCK) ON G.IdLeague = LG.IdLeague
+	INNER JOIN GameValuesByAgent L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdAgent = @prmIdAgent
+	WHERE 
+	  G.FamilyGame = @prmIdFamilyGame
+	  AND G.GameStat = 'O'
 	  AND G.Graded = 0
 	  AND G.Online = 1
-	  AND G.FamilyGame = @prmIdFamilyGame
 	  AND G.GameDateTime > GETDATE()  
 	  AND L.HideGame = 0
 
@@ -156,17 +160,7 @@ INSERT INTO #tblMainGames
 	
 	
 SELECT tbl.*
-,(
-SELECT b.home_image_id
-FROM [MOVER].[dbo].[Games] a
-INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
-WHERE a.DGS_game_id = tbl.IdGame) home_image_id
-,(
-SELECT b.away_image_id
-FROM [MOVER].[dbo].[Games] a
-INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
-WHERE a.DGS_game_id = tbl.IdGame) away_image_id
- FROM #tblMainGames AS tbl WITH(NOLOCK)
+FROM #tblMainGames AS tbl WITH(NOLOCK)
 WHERE tbl.Period = @prmPeriod or @prmPeriod = -1
 ORDER BY ParentGame, ChildOrder, IdGame, FromAgent--8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
 
