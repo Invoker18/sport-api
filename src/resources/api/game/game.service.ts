@@ -131,7 +131,9 @@ export class GameService {
 
       const events = {};
 
-      const gamePromises = games.map(async (game) => {
+      const glength = games.length;
+      for (let g = 0; g < glength; g++) {
+        let game = games[g];
         game.banners = banner.filter((b) => b.ParentGame === game.IdGame);
 
         let _main;
@@ -185,9 +187,7 @@ export class GameService {
         } else {
           events[date][_key_familygame].events.push(_events);
         }
-      });
-
-      await Promise.all(gamePromises);
+      }
 
       return {
         league: Object.values(league)[0] ?? league,
@@ -289,7 +289,9 @@ export class GameService {
       events: [],
     };
 
-    const promises = games.map(async (game) => {
+    const glength = games.length;
+    for (let g = 0; g < glength; g++) {
+      let game = games[g];
       const sport_id = (game.IdSport = game.IdSport.trim());
       const game_id = game.IdGame;
       game.banners = banners.filter(
@@ -310,9 +312,7 @@ export class GameService {
           break;
       }
       data.events.push(await this.dataService.mappingGame(game, line_style));
-    });
-
-    await Promise.all(promises);
+    }
 
     // **SET CACHE
     await this.cacheService.set(key, data, cacheTimeSec * 1000);
