@@ -106,7 +106,7 @@ INSERT INTO #tblMainGames
 	@bitZero HideGame, @bitZero HideSpread, @bitZero HideTotal, @bitZero HideMoneyLine, P.PeriodDescription, 
 	G.Description as GameDescription, GL.Description as GameLangDescription, 
 	CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
-	row_number() OVER (ORDER BY G.VisitorNumber),0
+	row_number() OVER (ORDER BY G.VisitorNumber),IF(G.IdSport NOT IN ('TNT', 'PROP'),1,0)
 	FROM Game G WITH (NOLOCK) 
 	LEFT OUTER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	LEFT OUTER JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType AND L.HideGame = 0
@@ -139,7 +139,7 @@ INSERT INTO #tblMainGames
 		L.HideGame, L.HideSpread, L.HideTotal, L.HideMoneyLine, P.PeriodDescription, 
 		G.Description as GameDescription, GL.Description as GameLangDescription,
 		CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
-		row_number() OVER (ORDER BY G.VisitorNumber),0
+		row_number() OVER (ORDER BY G.VisitorNumber),IF(G.IdSport NOT IN ('TNT', 'PROP'),1,0)
 	FROM Game G WITH (NOLOCK) 
 	INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
