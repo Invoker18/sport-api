@@ -162,7 +162,7 @@ export class GameService {
               line_type_id,
               lang_id,
             });
-            if (game.Options.length === 0) return;
+            if (game.Options.length === 0) continue;
             break;
         }
 
