@@ -40,13 +40,11 @@ export class GameService {
           ).filter((o) => o.IdGame === game_id);
           break;
         case 'PROP':
-          game.Options = (
-            await this.getGamePROPOddsByFamilyGameId({
-              family_game_id: game_id,
-              line_type_id,
-              lang_id,
-            })
-          ).filter((o) => o.ParentGame === game_id);
+          game.Options = await this.getGamePROPOdds({
+            game_id,
+            line_type_id,
+            lang_id,
+          });
           if (game.Options.length === 0) return;
           break;
       }
@@ -157,13 +155,11 @@ export class GameService {
             ).filter((o) => o.IdGame === game_id);
             break;
           case 'PROP':
-            game.Options = (
-              await this.getGamePROPOddsByFamilyGameId({
-                family_game_id: game_id,
-                line_type_id,
-                lang_id,
-              })
-            ).filter((o) => o.ParentGame === game_id);
+            game.Options = await this.getGamePROPOdds({
+              game_id,
+              line_type_id,
+              lang_id,
+            });
             if (game.Options.length === 0) return;
             break;
         }
