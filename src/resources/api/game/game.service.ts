@@ -308,7 +308,7 @@ export class GameService {
           game.Options = optionsPROPS.filter(
             (option: any) => option.ParentGame === game_id,
           );
-          if (game.Options.length == 0) continue;
+          if (game.Options.length === 0) continue;
           break;
       }
       data.events.push(await this.dataService.mappingGame(game, line_style));
