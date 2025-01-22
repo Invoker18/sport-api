@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenFamilyGames]    Script Date: 1/21/2025 10:22:15 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenFamilyGames]    Script Date: 1/21/2025 16:13:25 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -12,7 +12,7 @@ GO
 -- Description:	[VZ_GetOpenFamilyGames]
 -- =============================================
 
-ALTER PROCEDURE [dbo].[VZ_GetOpenFamilyGames]
+CREATE PROCEDURE [dbo].[VZ_GetOpenFamilyGames]
 	@prmIdFamilyGame int,
 	@prmIdAgent int,
 	@prmIdLineType int,
@@ -31,7 +31,7 @@ SET @bitZero = 0
 SET @Order = 1
 
 
-CREATE TABLE #tblMainGames
+ALTER TABLE #tblMainGames
 (
 	FromAgent			  bit, 
 	IdGame				  int, 
@@ -106,10 +106,10 @@ INSERT INTO #tblMainGames
 	@bitZero HideGame, @bitZero HideSpread, @bitZero HideTotal, @bitZero HideMoneyLine, P.PeriodDescription, 
 	G.Description as GameDescription, GL.Description as GameLangDescription, 
 	CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
-	row_number() OVER (ORDER BY G.VisitorNumber),0
+	row_number() OVER (ORDER BY G.VisitorNumber),IF(G.IdSport NOT IN ('TNT', 'PROP'),1,0)
 	FROM Game G WITH (NOLOCK) 
-	INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
-	INNER JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType
+	LEFT OUTER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
+	LEFT OUTER JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType AND L.HideGame = 0
 	LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLH WITH (NOLOCK) ON G.IdTeamHome = TLH.IdTeam AND TLH.IdLanguage = @prmIdLanguage
@@ -121,7 +121,6 @@ INSERT INTO #tblMainGames
 	  AND G.Graded = 0
 	  AND G.Online = 1
 	  AND G.GameDateTime > GETDATE()
-	  AND L.HideGame = 0
 
 	UNION
 
@@ -140,7 +139,7 @@ INSERT INTO #tblMainGames
 		L.HideGame, L.HideSpread, L.HideTotal, L.HideMoneyLine, P.PeriodDescription, 
 		G.Description as GameDescription, GL.Description as GameLangDescription,
 		CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
-		row_number() OVER (ORDER BY G.VisitorNumber),0
+		row_number() OVER (ORDER BY G.VisitorNumber),IF(G.IdSport NOT IN ('TNT', 'PROP'),1,0)
 	FROM Game G WITH (NOLOCK) 
 	INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
@@ -157,7 +156,9 @@ INSERT INTO #tblMainGames
 
 	--ORDER BY CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)), G.VisitorNumber
 	ORDER BY 8, 10, 2, 1
-	
+
+delete from #tblMainGames
+where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)	
 	
 SELECT tbl.*
 FROM #tblMainGames AS tbl WITH(NOLOCK)

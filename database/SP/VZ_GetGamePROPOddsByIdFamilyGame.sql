@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetGamePROPOddsByIdFamilyGame]    Script Date: 11/7/2024 10:14:14 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetGamePROPOddsByIdFamilyGame]    Script Date: 1/22/2025 10:21:58 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -21,7 +21,7 @@ BEGIN
 	-- interfering with SELECT statements.
 	SET NOCOUNT ON
 
-	SELECT      
+	SELECT DISTINCT     
 		G.IdGame,        
 		G.ParentGame,        
 		ISNULL(CAST(G.HomeNumber AS Varchar),'') AS TeamNumber,        
@@ -29,14 +29,13 @@ BEGIN
 		'' AS TeamNameLang,        
 		ISNULL(CAST(GTPA.Odds AS Varchar),'') AS Odds        
 	FROM Game G WITH (NOLOCK)   
-	LEFT JOIN GameTNTPropAction GTPA WITH (NOLOCK) ON (G.IdGame = GTPA.IdGame AND GTPA.IdLineType = @prmIdLinetype)   
+	LEFT JOIN GameTNTPropAction GTPA WITH (NOLOCK) ON (G.IdGame = GTPA.IdGame AND GTPA.IdLineType = @prmIdLinetype AND GTPA.HideGame = 0)   
 	WHERE 
 	G.GameStat = 'O'
 	AND G.Graded = 0
 	AND G.Online = 1
 	AND G.IdSport = 'PROP'
 	AND G.GameDateTime > GETDATE()
-	AND GTPA.HideGame = 0
 	AND G.FamilyGame = @prmIdFamilyGame
 	ORDER BY TeamNumber  
 
