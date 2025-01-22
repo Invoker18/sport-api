@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesLeague]    Script Date: 12/20/2024 14:10:01 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesLeague]    Script Date: 1/22/2025 16:00:38 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -144,7 +144,8 @@ INSERT INTO #tblMainGames
 	  AND G.Online = 1
 	  AND G.IdLeague = @prmIdLeague
 	  AND G.GameDateTime > GETDATE()  
-	  --AND L.HideGame = 0
+	  --AND L.HideGame = 0		  
+
 
 	--ORDER BY CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)), G.VisitorNumber
 	ORDER BY 8, 10, 2, 1
@@ -153,6 +154,10 @@ delete from #tblMainGames
 where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)
 	
 SELECT tbl.*
+,(SELECT G.GameDateTime 
+FROM Game G WITH (NOLOCK) 
+WHERE G.IdGame = tbl.FamilyGame
+) AS GameDateTimeMain
 ,(
 SELECT b.home_image_id
 FROM [MOVER].[dbo].[Games] a
