@@ -166,7 +166,8 @@ export class GameService {
             break;
         }
 
-        const _GameDateTime = new Date(game.GameDateTime);
+        game.GameDateTimeMain = game.GameDateTimeMain ?? game.GameDateTime;
+        const _GameDateTime = new Date(game.GameDateTimeMain);
         game.GameDateTimeZone = _GameDateTime.toLocaleString('sv-SE', {
           timeZone: timezone,
         });
@@ -333,7 +334,8 @@ export class GameService {
     const glength = games.length;
     for (let g = 0; g < glength; g++) {
       let game = games[g];
-      const _GameDateTime = new Date(game.GameDateTime);
+      game.GameDateTimeMain = game.GameDateTimeMain ?? game.GameDateTime;
+      const _GameDateTime = new Date(game.GameDateTimeMain);
       game.GameDateTimeZone = _GameDateTime.toLocaleString('sv-SE', {
         timeZone: timezone,
       });
