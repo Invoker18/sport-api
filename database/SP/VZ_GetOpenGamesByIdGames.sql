@@ -171,6 +171,7 @@ WHERE a.DGS_game_id = tbl.IdGame) away_image_id
 	WHERE G.FamilyGame = tbl.FamilyGame
 	AND G.IdSport <> 'PROP' 
 	AND G.FamilyGame IS NOT NULL
+	AND G.FamilyGame <> G.IdGame
 	AND G.GameStat = 'O'
 	AND G.Graded = 0
 	AND G.Online = 1
@@ -186,7 +187,7 @@ WHERE a.DGS_game_id = tbl.IdGame) away_image_id
 	AND G.Graded = 0
 	AND G.Online = 1
 	AND G.GameDateTime > GETDATE() 
-	)-1) count_games
+	)) count_games
 ,(SELECT TOP 1 WRD.IdWebRow
 	FROM WebRowDetail WRD With(NOLOCK) 
 	WHERE  tbl.IdLeague = WRD.IdLeague 

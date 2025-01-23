@@ -6,6 +6,9 @@ import { apiKeyConstants } from '../../config/const/auth';
 
 @Injectable()
 export class ApiKeyAuthStrategy extends PassportStrategy(HeaderAPIKeyStrategy) {
+  validate(...args: any[]): unknown {
+    throw new Error('Method not implemented.');
+  }
   constructor(private authService: AuthService) {
     super(
       { header: apiKeyConstants.header, prefix: '' },

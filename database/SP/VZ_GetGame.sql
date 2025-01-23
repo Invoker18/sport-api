@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetGame]    Script Date: 1/10/2025 14:48:27 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetGame]    Script Date: 1/22/2025 16:36:45 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -48,6 +48,7 @@ BEGIN
 		WHERE G2.FamilyGame = G.FamilyGame
 		AND G2.IdSport <> 'PROP' 
 		AND G2.FamilyGame IS NOT NULL
+		AND G2.FamilyGame <> G2.IdGame
 		AND G2.GameStat = 'O'
 		AND G2.Graded = 0
 		AND G2.Online = 1
@@ -63,7 +64,7 @@ BEGIN
 		AND G2.Graded = 0
 		AND G2.Online = 1
 		AND G2.GameDateTime > GETDATE() 
-		)-1) count_games 
+		)) count_games 
 	FROM Game G WITH (NOLOCK) INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	LEFT OUTER JOIN GameLang GL WITH (NOLOCK) ON G.IdGame = GL.IdGame AND GL.IdLanguage = @prmIdLanguage
 	LEFT OUTER JOIN TeamLang TLV WITH (NOLOCK) ON G.IdTeamVisitor = TLV.IdTeam AND TLV.IdLanguage = @prmIdLanguage
