@@ -8,7 +8,6 @@ import { Cache } from 'cache-manager';
 import { PlayerService } from '../player/player.service';
 import { LeagueService } from '../league/league.service';
 import { DataService } from 'src/helpers/data.service';
-import { Console } from 'console';
 
 @Injectable()
 export class GameService {
@@ -21,7 +20,7 @@ export class GameService {
     private readonly dataService: DataService,
   ) {}
 
-  async processGame(game, line_type_id, lang_id, line_style) {
+  async processGame(game, line_type_id, lang_id) {
     try {
       if (!game) {
         return null;
@@ -48,7 +47,7 @@ export class GameService {
           if (game.Options.length === 0) return;
           break;
       }
-      return this.dataService.mappingGame(game, line_style);
+      return this.dataService.mappingGame(game);
     } catch (error) {
       console.error(`Error processing game ${game.IdGame}:`, error);
       return null;
@@ -60,10 +59,9 @@ export class GameService {
     const game_ids = params.game_ids;
     const player_id = params.player_id;
     const lang_id = params.lang_id;
-    const line_style = params.line_style;
 
     // **CHECK CACHE
-    const key = `get_game_by_game_ids_${game_ids}_${player_id}_${lang_id}_${line_style}`;
+    const key = `get_game_by_game_ids_${game_ids}_${player_id}_${lang_id}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
@@ -80,7 +78,7 @@ export class GameService {
     });
 
     const gamePromises = _games.map((game) =>
-      this.processGame(game, line_type_id, lang_id, line_style),
+      this.processGame(game, line_type_id, lang_id),
     );
     const gameResults = await Promise.all(gamePromises);
     const games = gameResults.filter(Boolean); // Filter out null results
@@ -106,28 +104,26 @@ export class GameService {
     line_type_id,
     lang_id,
     period,
-    line_style,
     timezone,
   ) {
     try {
-      const games = await this.getOpenGamesLeague({
-        league_id,
-        agent_id,
-        line_type_id,
-        lang_id,
-        period,
-      });
-
-      if (games.length === 0) {
-        return null;
-      }
-
       const league_promises = [
+        this.getOpenGamesLeague({
+          league_id,
+          agent_id,
+          line_type_id,
+          lang_id,
+          period,
+        }),
         this.getLeague({ league_id, lang_id }),
         this.getLeagueBanners({ league_id, lang_id }),
       ];
 
-      const [league, banner] = await Promise.all(league_promises);
+      const [games, league, banner] = await Promise.all(league_promises);
+
+      if (games.length === 0) {
+        return null;
+      }
 
       const events = {};
 
@@ -178,7 +174,7 @@ export class GameService {
         if (!events[date]) {
           events[date] = {};
         }
-        const _events = await this.dataService.mappingGame(game, line_style);
+        const _events = await this.dataService.mappingGame(game);
         const _key_familygame = '_' + game.FamilyGame;
         if (!events[date][_key_familygame]) {
           events[date][_key_familygame] = {
@@ -207,11 +203,10 @@ export class GameService {
     const player_id = params.player_id;
     const lang_id = params.lang_id;
     const period = params.period;
-    const line_style = params.line_style;
     const timezone = params.timezone;
 
     // **CHECK CACHE
-    const key = `get_game_by_league_${league_ids}_${player_id}_${lang_id}_${period}_${line_style}_${timezone}`;
+    const key = `get_game_by_league_${league_ids}_${player_id}_${lang_id}_${period}_${timezone}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
@@ -227,7 +222,6 @@ export class GameService {
         line_type_id,
         lang_id,
         period,
-        line_style,
         timezone,
       ),
     );
@@ -248,10 +242,9 @@ export class GameService {
     const player_id = params.player_id;
     const lang_id = params.lang_id;
     const period = params.period;
-    const line_style = params.line_style;
 
     // **CHECK CACHE
-    const key = `get_family_game_${family_game_id}_${player_id}_${lang_id}_${period}_${line_style}`;
+    const key = `get_family_game_${family_game_id}_${player_id}_${lang_id}_${period}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
@@ -260,35 +253,34 @@ export class GameService {
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
 
-    const games = await this.getOpenGamesFamily({
-      family_game_id,
-      agent_id,
-      line_type_id,
-      lang_id,
-      period,
-    });
+    const _data_promises = [
+      this.getOpenGamesFamily({
+        family_game_id,
+        agent_id,
+        line_type_id,
+        lang_id,
+        period,
+      }),
+      this.getGameTNTOddsByFamilyGameId({
+        family_game_id,
+        line_type_id,
+        lang_id,
+      }),
+      this.getGamePROPOddsByFamilyGameId({
+        family_game_id,
+        line_type_id,
+        lang_id,
+      }),
+      this.getGameBannersByFamilyGameId({
+        family_game_id,
+        lang_id,
+      }),
+      this.getGame({ game_id: family_game_id, lang_id }),
+    ];
+    const [games, optionsTNT, optionsPROPS, banners, _game_info] =
+      await Promise.all(_data_promises);
 
-    const optionsTNT = await this.getGameTNTOddsByFamilyGameId({
-      family_game_id,
-      line_type_id,
-      lang_id,
-    });
-
-    const optionsPROPS = await this.getGamePROPOddsByFamilyGameId({
-      family_game_id,
-      line_type_id,
-      lang_id,
-    });
-
-    const banners = await this.getGameBannersByFamilyGameId({
-      family_game_id: family_game_id,
-      lang_id,
-    });
-
-    let data: any = {
-      info: await this.getGame({ game_id: family_game_id, lang_id }),
-      events: [],
-    };
+    let data: any = { info: _game_info, events: [] };
 
     const glength = games.length;
     for (let g = 0; g < glength; g++) {
@@ -312,7 +304,7 @@ export class GameService {
           if (game.Options.length === 0) continue;
           break;
       }
-      data.events.push(await this.dataService.mappingGame(game, line_style));
+      data.events.push(await this.dataService.mappingGame(game));
     }
 
     // **SET CACHE
@@ -325,7 +317,6 @@ export class GameService {
   async processGroupGames(
     games: any[],
     lang_id: string,
-    line_style: string,
     timezone: string,
     groupby = '',
   ): Promise<any> {
@@ -344,12 +335,16 @@ export class GameService {
       });
       const _key_familygame = '_' + game.FamilyGame;
       const league_id = game.IdLeague;
-      const league_promises = [this.getLeagueBanners({ league_id, lang_id })];
-      const [banner] = await Promise.all(league_promises);
+
+      const _data_promises = [
+        this.getLeagueBanners({ league_id, lang_id }),
+        this.dataService.mappingGame(game),
+      ];
+      const [banner, _game] = await Promise.all(_data_promises);
+
       game.banners = banner.filter(
         (banner) => banner.ParentGame === game.IdGame,
       );
-      const _game = await this.dataService.mappingGame(game, line_style);
 
       if (groupby === 'leagues') {
         let collection = league_map.get(league_id);
@@ -424,13 +419,12 @@ export class GameService {
     const league_ids = params.league_ids;
     const group_by = params.group_by;
     const limit = params.limit;
-    const line_style = params.line_style;
     const timezone = params.timezone;
 
     let webrow_ids = params.webrow_id;
 
     // **CHECK CACHE
-    const key = `get_game_by_webrow_${webrow_ids}_${player_id}_${lang_id}_${start_date}_${end_date}_${period}_${league_ids}_${group_by}_${limit}_${line_style}_${timezone}`;
+    const key = `get_game_by_webrow_${webrow_ids}_${player_id}_${lang_id}_${start_date}_${end_date}_${period}_${league_ids}_${group_by}_${limit}_${timezone}`;
     const cached = await this.cacheService.get(key);
     if (cached) return cached;
     // **CHECK CACHE
@@ -477,7 +471,6 @@ export class GameService {
           _list: await this.processGroupGames(
             games,
             lang_id,
-            line_style,
             timezone,
             group_by,
           ),
@@ -485,12 +478,7 @@ export class GameService {
       });
       data = await Promise.all(promisesWebRow);
     } else {
-      data = await this.processGroupGames(
-        gamesData,
-        lang_id,
-        line_style,
-        timezone,
-      );
+      data = await this.processGroupGames(gamesData, lang_id, timezone);
     }
 
     // **SET CACHE

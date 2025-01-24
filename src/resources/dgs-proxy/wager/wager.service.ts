@@ -23,21 +23,20 @@ export class WagerService {
     /**
      * COMPILE
      */
-    let compile = await this.WagerCompile({
-      prmdetails: params.details,
-      IdPlayer: params.player_id,
-      IdCall: params.call_id,
-      WagerType: params.wager_type,
-      OpenSpots: params.open_spots,
-      IdWagerType: params.wager_type_id,
-      // FixTeaserLine: params.fix_teaser_line,
-      FixTeaserLine: 'true',
-    });
-
-    const lines = await this.getGameLinesByDetails(
-      params.player_id,
-      params.details,
-    );
+    const _compile_promises = [
+      this.WagerCompile({
+        prmdetails: params.details,
+        IdPlayer: params.player_id,
+        IdCall: params.call_id,
+        WagerType: params.wager_type,
+        OpenSpots: params.open_spots,
+        IdWagerType: params.wager_type_id,
+        // FixTeaserLine: params.fix_teaser_line,
+        FixTeaserLine: 'true',
+      }),
+      this.getGameLinesByDetails(params.player_id, params.details),
+    ];
+    let [compile, lines] = await Promise.all(_compile_promises);
 
     if (
       params.process_type == 'compile' ||
@@ -152,12 +151,12 @@ export class WagerService {
     /**
      * COMPILE
      */
-    let compile = await this.FillCompile(params);
 
-    const lines = await this.getGameLinesByDetails(
-      params.player_id,
-      params.details,
-    );
+    const _compile_promises = [
+      this.FillCompile(params),
+      this.getGameLinesByDetails(params.player_id, params.details),
+    ];
+    let [compile, lines] = await Promise.all(_compile_promises);
 
     if (
       params.process_type == 'compile' ||
