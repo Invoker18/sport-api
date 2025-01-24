@@ -9,7 +9,7 @@ import { OddsService } from './odds.service';
 export class OddsController {
   constructor(private readonly oddsService: OddsService) {}
 
-  @Get('/dgs-conversion')
+  @Get('/conversions')
   async getOddsConversionDGS(): Promise<string> {
     return await this.oddsService.getOddsConversionDGS();
   }

@@ -219,6 +219,7 @@ SELECT TOP(@prmLimit) tbl.*
 	WHERE G.FamilyGame = tbl.FamilyGame
 	AND G.IdSport <> 'PROP' 
 	AND G.FamilyGame IS NOT NULL
+	AND G.FamilyGame <> G.IdGame
 	AND G.GameStat = 'O'
 	AND G.Graded = 0
 	AND G.Online = 1
@@ -234,7 +235,7 @@ SELECT TOP(@prmLimit) tbl.*
 	AND G.Graded = 0
 	AND G.Online = 1
 	AND G.GameDateTime > GETDATE() 
-	)-1) count_games
+	)) count_games
 FROM #tblMainGames AS tbl WITH(NOLOCK)
 WHERE (tbl.Period = @prmPeriod or @prmPeriod = -1) 
 AND (tbl.IdLeague IN (SELECT * FROM dbo.fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')

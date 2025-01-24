@@ -22,7 +22,7 @@ export const configLoader = () => {
       proxy2_url: process.env.DGS_PROXY2_URL,
     },
     redis: {
-      url: process.env.REDIS_URL,
+      host: process.env.REDIS_URL,
       port: process.env.REDIS_PORT,
     },
   };
