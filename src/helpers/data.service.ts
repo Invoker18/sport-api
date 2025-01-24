@@ -16,17 +16,17 @@ export class DataService {
     this.odds_dgs = await this.oddsService.getOddsConversionDGS();
   }
 
-  async mappingGames(games: any, line_style = 'E') {
+  async mappingGames(games: any /*, line_style = 'E'*/) {
     const dataGames = [];
     const glength = games.length;
     for (let i = 0; i < glength; i++) {
-      dataGames.push(await this.mappingGame(games[i], line_style));
+      dataGames.push(await this.mappingGame(games[i] /*, line_style*/));
     }
 
     return dataGames;
   }
 
-  async mappingGame(game: any, line_style = 'E') {
+  async mappingGame(game: any /*, line_style = 'E'*/) {
     const {
       VisitorOdds,
       HomeOdds,
@@ -42,7 +42,7 @@ export class DataService {
       VisitorSpecialOdds,
       HomeSpecial,
       HomeSpecialOdds,
-      // Options,
+      Options,
       ...info
     } = game;
     let lines: any;
@@ -68,12 +68,9 @@ export class DataService {
         line_str && line_str != 0 && !['-'].includes(line_str.charAt(0))
           ? Number('-' + line_str)
           : line_str;
-    } else lines = game.Options;
+    } else lines = Options;
 
-    return {
-      info: info,
-      lines: lines,
-    };
+    return { info, lines };
 
     // line: !['TNT', 'PROP'].includes(game.IdSport)
     //   ? this.odds.setAllLinesConvert(lines, this.odds_dgs, line_style)

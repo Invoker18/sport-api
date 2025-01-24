@@ -93,13 +93,6 @@ export class OddsConvertionService {
       const line_str = line?.toString();
       if (this.points.includes(k)) {
         newLine.odds[k] = this.setPoints(line_str, k);
-        newLine.original[k] =
-          k == 'TotalOver' &&
-          line_str &&
-          line != 0 &&
-          !['-'].includes(line_str.charAt(0))
-            ? '-' + line_str
-            : line_str;
       } else {
         const odd_dgs = odds_dgs.find((odd: any) => odd.American == line_str);
         switch (line_style) {

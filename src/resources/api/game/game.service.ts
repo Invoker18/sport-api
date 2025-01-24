@@ -48,7 +48,7 @@ export class GameService {
           if (game.Options.length === 0) return;
           break;
       }
-      return this.dataService.mappingGame(game, line_style);
+      return this.dataService.mappingGame(game /*, line_style*/);
     } catch (error) {
       console.error(`Error processing game ${game.IdGame}:`, error);
       return null;
@@ -178,7 +178,9 @@ export class GameService {
         if (!events[date]) {
           events[date] = {};
         }
-        const _events = await this.dataService.mappingGame(game, line_style);
+        const _events = await this.dataService.mappingGame(
+          game /*, line_style*/,
+        );
         const _key_familygame = '_' + game.FamilyGame;
         if (!events[date][_key_familygame]) {
           events[date][_key_familygame] = {
@@ -312,7 +314,9 @@ export class GameService {
           if (game.Options.length === 0) continue;
           break;
       }
-      data.events.push(await this.dataService.mappingGame(game, line_style));
+      data.events.push(
+        await this.dataService.mappingGame(game /*, line_style*/),
+      );
     }
 
     // **SET CACHE
@@ -349,7 +353,7 @@ export class GameService {
       game.banners = banner.filter(
         (banner) => banner.ParentGame === game.IdGame,
       );
-      const _game = await this.dataService.mappingGame(game, line_style);
+      const _game = await this.dataService.mappingGame(game /*, line_style*/);
 
       if (groupby === 'leagues') {
         let collection = league_map.get(league_id);
