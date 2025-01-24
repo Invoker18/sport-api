@@ -320,7 +320,7 @@ export class GameService {
     timezone: string,
     groupby = '',
   ): Promise<any> {
-    const _games_data = {};
+    let _games_data = {};
     const league_map = new Map();
     const glength = games.length;
     for (let g = 0; g < glength; g++) {
@@ -347,9 +347,9 @@ export class GameService {
       );
 
       if (groupby === 'leagues') {
-        let collection = league_map.get(league_id);
+        _games_data = league_map.get(league_id);
 
-        if (!collection) {
+        if (!_games_data) {
           const league = {
             IDLeagueRegion: game.IDLeagueRegion,
             IdLeague: game.IdLeague,
@@ -360,45 +360,29 @@ export class GameService {
             RegionDescription: game.RegionDescription,
             LeagueDescription: game.LeagueLangDescription,
           };
-          collection = {
+          _games_data = {
             league,
             banner,
             games: {},
           };
-          league_map.set(league_id, collection);
+          league_map.set(league_id, _games_data);
         }
+      }
 
-        if (!collection.games[date]) {
-          collection.games[date] = {};
-        }
+      if (!_games_data[date]) {
+        _games_data[date] = {};
+      }
 
-        if (!collection.games[date][_key_familygame]) {
-          const _main = games.find((_game) => _game.IdGame === game.FamilyGame);
-          collection.games[date][_key_familygame] = {
-            info:
-              _main ||
-              (await this.getGame({ game_id: game.FamilyGame, lang_id })),
-            events: [_game],
-          };
-        } else {
-          collection.games[date][_key_familygame].events.push(_game);
-        }
+      if (!_games_data[date][_key_familygame]) {
+        const _main = games.find((_game) => _game.IdGame === game.FamilyGame);
+        _games_data[date][_key_familygame] = {
+          info:
+            _main ||
+            (await this.getGame({ game_id: game.FamilyGame, lang_id })),
+          events: [_game],
+        };
       } else {
-        if (!_games_data[date]) {
-          _games_data[date] = {};
-        }
-
-        if (!_games_data[date][_key_familygame]) {
-          const _main = games.find((_game) => _game.IdGame === game.FamilyGame);
-          _games_data[date][_key_familygame] = {
-            info:
-              _main ||
-              (await this.getGame({ game_id: game.FamilyGame, lang_id })),
-            events: [_game],
-          };
-        } else {
-          _games_data[date][_key_familygame].events.push(_game);
-        }
+        _games_data[date][_key_familygame].events.push(_game);
       }
     }
 
