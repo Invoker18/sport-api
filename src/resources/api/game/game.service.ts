@@ -147,6 +147,7 @@ export class GameService {
           });
         }
         game.IdWebRow = game.IdWebRow ?? _main.IdWebRow;
+        game.IdLeagueFamily = _main.IdLeague;
 
         const sport_id = game.IdSport.trim();
         const game_id = game.IdGame;
@@ -305,6 +306,7 @@ export class GameService {
       );
 
       game.IdWebRow = game.IdWebRow ?? _game_info.IdWebRow;
+      game.IdLeagueFamily = _game_info.IdLeague;
 
       switch (sport_id) {
         case 'TNT':
@@ -356,7 +358,7 @@ export class GameService {
         this.getLeagueBanners({ league_id, lang_id }),
         this.dataService.mappingGame(game),
       ];
-      const [banner, _game] = await Promise.all(_data_promises);
+      let [banner, _game] = await Promise.all(_data_promises);
 
       game.banners = banner.filter(
         (banner) => banner.ParentGame === game.IdGame,
@@ -398,6 +400,7 @@ export class GameService {
             lang_id,
           }));
         _game.IdWebRow = _game.IdWebRow ?? _main.IdWebRow;
+        _game.IdLeagueFamily = _main.IdLeague;
 
         _games_data[date][_key_familygame] = {
           info: _main,
