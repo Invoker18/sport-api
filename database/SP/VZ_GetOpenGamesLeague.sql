@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesLeague]    Script Date: 1/22/2025 16:00:38 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesLeague]    Script Date: 1/28/2025 12:36:22 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -13,6 +13,7 @@ GO
 -- =============================================
 
 CREATE PROCEDURE [dbo].[VZ_GetOpenGamesLeague]
+	@prmIdBook int,
 	@prmIdLeague smallint,
 	@prmIdAgent int,
 	@prmIdLineType int,
@@ -74,10 +75,6 @@ CREATE TABLE #tblMainGames
 	BoldML				  bit, 
 	HasChildren			  bit, 
 	IdEvent				  smallint NULL,
-	TeamLangVisitorTeam   nvarchar(120) NULL, 
-	TeamLangHomeTeam	  nvarchar(120) NULL,
-	GameLangVisitorTeam   nvarchar(200) NULL, 
-	GameLangHomeTeam	  nvarchar(200) NULL,
 	HideGame			  bit, 
 	HideSpread			  bit, 
 	HideTotal			  bit, 
@@ -90,7 +87,18 @@ CREATE TABLE #tblMainGames
 );
 
 INSERT INTO #tblMainGames
-	SELECT 0, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
+	SELECT 0, G.IdGame, 
+	CASE 
+		WHEN TLV.Name IS NOT NULL THEN TLV.Name 
+		WHEN GL.VisitorTeam IS NOT NULL THEN GL.VisitorTeam 
+		ELSE G.VisitorTeam 
+	END AS VisitorTeam,
+	CASE 
+		WHEN TLH.Name IS NOT NULL THEN TLH.Name
+		WHEN GL.HomeTeam IS NOT NULL THEN GL.HomeTeam 
+		ELSE G.HomeTeam 
+	END AS HomeTeam,
+	LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
 	CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
 	G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,
 	G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,
@@ -100,8 +108,6 @@ INSERT INTO #tblMainGames
 	L.HomeSpread, L.HomeSpreadOdds, L.VisitorSpecial, L.VisitorSpecialOdds,
 	L.HomeSpecial, L.HomeSpecialOdds, 	
 	L.BoldSpread, L.BoldTotal, L.BoldML, G.HasChildren, G.IdEvent,
-	TLV.Name AS TeamLangVisitorTeam, TLH.Name AS TeamLangHomeTeam,
-	GL.VisitorTeam AS GameLangVisitorTeam, GL.HomeTeam AS GameLangHomeTeam,
 	@bitZero HideGame, @bitZero HideSpread, @bitZero HideTotal, @bitZero HideMoneyLine, P.PeriodDescription, 
 	G.Description as GameDescription, GL.Description as GameLangDescription, 
 	row_number() OVER (ORDER BY G.VisitorNumber),0
@@ -120,7 +126,9 @@ INSERT INTO #tblMainGames
 
 	UNION
 
-	SELECT 1, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
+	SELECT 1, G.IdGame, 
+		G.VisitorTeam, G.HomeTeam, 
+		LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
 		CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
 		G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,
 		G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,
@@ -130,8 +138,6 @@ INSERT INTO #tblMainGames
 		L.HomeSpread, L.HomeSpreadOdds, L.VisitorSpecial, L.VisitorSpecialOdds,
 		L.HomeSpecial, L.HomeSpecialOdds, 	
 		@bitZero BoldSpread, @bitZero BoldTotal, @bitZero BoldML, G.HasChildren, G.IdEvent,
-		null AS TeamLangVisitorTeam, null AS TeamLangHomeTeam,
-		null AS GameLangVisitorTeam, null AS GameLangHomeTeam,
 		L.HideGame, L.HideSpread, L.HideTotal, L.HideMoneyLine, P.PeriodDescription, 
 		G.Description as GameDescription, GL.Description as GameLangDescription,
 		row_number() OVER (ORDER BY G.VisitorNumber),0
@@ -154,42 +160,47 @@ delete from #tblMainGames
 where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)
 	
 SELECT tbl.*
-,(SELECT G.GameDateTime 
-FROM Game G WITH (NOLOCK) 
-WHERE G.IdGame = tbl.FamilyGame
-) AS GameDateTimeMain
-,(
-SELECT b.home_image_id
-FROM [MOVER].[dbo].[Games] a
-INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
-WHERE a.DGS_game_id = tbl.IdGame) home_image_id
-,(
-SELECT b.away_image_id
-FROM [MOVER].[dbo].[Games] a
-INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
-WHERE a.DGS_game_id = tbl.IdGame) away_image_id,
-((SELECT count( DISTINCT G.IdGame) c_games 
-FROM Game G WITH (NOLOCK) 
-WHERE G.FamilyGame = tbl.FamilyGame 
-AND G.IdSport <> 'PROP' 
-AND G.FamilyGame IS NOT NULL
-AND G.FamilyGame <> G.IdGame
-AND G.GameStat = 'O'
-AND G.Graded = 0
-AND G.Online = 1
-AND G.GameDateTime > GETDATE() 
-)+
-(SELECT count( DISTINCT G.IdGame) c_games 
-FROM Game G WITH (NOLOCK) 
-WHERE G.FamilyGame = tbl.FamilyGame 
-AND G.ParentGame = G.IdGame
-AND G.IdSport = 'PROP' 
-AND G.FamilyGame IS NOT NULL
-AND G.GameStat = 'O'
-AND G.Graded = 0
-AND G.Online = 1
-AND G.GameDateTime > GETDATE() 
-)) count_games 
+	,(SELECT TOP 1 WRD.IdWebRow 
+		FROM WebRowDetail WRD With(NoLock)
+		JOIN WebColumnDetail WCD With(NoLock) ON WRD.IdWebRow = WCD.IdWebRow
+		JOIN Book B With(NoLock) ON WCD.IdWebColumn = B.IdWebColumn AND B.IdBook = @prmIdBook
+		WHERE tbl.IdLeague = WRD.IdLeague) AS IdWebRow
+	,(SELECT G.GameDateTime 
+	FROM Game G WITH (NOLOCK) 
+	WHERE G.IdGame = tbl.FamilyGame
+	) AS GameDateTimeMain
+	,(
+	SELECT b.home_image_id
+	FROM [MOVER].[dbo].[Games] a
+	INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
+	WHERE a.DGS_game_id = tbl.IdGame) home_image_id
+	,(
+	SELECT b.away_image_id
+	FROM [MOVER].[dbo].[Games] a
+	INNER JOIN [MOVER].[dbo].[Bet365Results] b on a.external_event_id = b.bet365_id
+	WHERE a.DGS_game_id = tbl.IdGame) away_image_id,
+	((SELECT count( DISTINCT G.IdGame) c_games 
+	FROM Game G WITH (NOLOCK) 
+	WHERE G.FamilyGame = tbl.FamilyGame 
+	AND G.IdSport <> 'PROP' 
+	AND G.FamilyGame IS NOT NULL
+	AND G.FamilyGame <> G.IdGame
+	AND G.GameStat = 'O'
+	AND G.Graded = 0
+	AND G.Online = 1
+	AND G.GameDateTime > GETDATE() 
+	)+
+	(SELECT count( DISTINCT G.IdGame) c_games 
+	FROM Game G WITH (NOLOCK) 
+	WHERE G.FamilyGame = tbl.FamilyGame 
+	AND G.ParentGame = G.IdGame
+	AND G.IdSport = 'PROP' 
+	AND G.FamilyGame IS NOT NULL
+	AND G.GameStat = 'O'
+	AND G.Graded = 0
+	AND G.Online = 1
+	AND G.GameDateTime > GETDATE() 
+	)) count_games 
 
  FROM #tblMainGames AS tbl WITH(NOLOCK)
  WHERE tbl.Period = @prmPeriod or @prmPeriod = -1
