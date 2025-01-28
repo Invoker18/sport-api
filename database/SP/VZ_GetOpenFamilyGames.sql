@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenFamilyGames]    Script Date: 1/21/2025 16:13:25 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenFamilyGames]    Script Date: 1/28/2025 12:36:18 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -13,6 +13,7 @@ GO
 -- =============================================
 
 CREATE PROCEDURE [dbo].[VZ_GetOpenFamilyGames]
+	@prmIdBook int,
 	@prmIdFamilyGame int,
 	@prmIdAgent int,
 	@prmIdLineType int,
@@ -31,7 +32,7 @@ SET @bitZero = 0
 SET @Order = 1
 
 
-ALTER TABLE #tblMainGames
+CREATE TABLE #tblMainGames
 (
 	FromAgent			  bit, 
 	IdGame				  int, 
@@ -74,10 +75,6 @@ ALTER TABLE #tblMainGames
 	BoldML				  bit, 
 	HasChildren			  bit, 
 	IdEvent				  smallint NULL,
-	TeamLangVisitorTeam   nvarchar(120) NULL, 
-	TeamLangHomeTeam	  nvarchar(120) NULL,
-	GameLangVisitorTeam   nvarchar(200) NULL, 
-	GameLangHomeTeam	  nvarchar(200) NULL,
 	HideGame			  bit, 
 	HideSpread			  bit, 
 	HideTotal			  bit, 
@@ -91,7 +88,18 @@ ALTER TABLE #tblMainGames
 );
 
 INSERT INTO #tblMainGames
-	SELECT 0, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
+	SELECT 0, G.IdGame, 
+	CASE 
+		WHEN TLV.Name IS NOT NULL THEN TLV.Name 
+		WHEN GL.VisitorTeam IS NOT NULL THEN GL.VisitorTeam 
+		ELSE G.VisitorTeam 
+	END AS VisitorTeam,
+	CASE 
+		WHEN TLH.Name IS NOT NULL THEN TLH.Name
+		WHEN GL.HomeTeam IS NOT NULL THEN GL.HomeTeam 
+		ELSE G.HomeTeam 
+	END AS HomeTeam,
+	LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
 	CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
 	G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,
 	G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,
@@ -101,12 +109,16 @@ INSERT INTO #tblMainGames
 	L.HomeSpread, L.HomeSpreadOdds, L.VisitorSpecial, L.VisitorSpecialOdds,
 	L.HomeSpecial, L.HomeSpecialOdds, 	
 	L.BoldSpread, L.BoldTotal, L.BoldML, G.HasChildren, G.IdEvent,
-	TLV.Name AS TeamLangVisitorTeam, TLH.Name AS TeamLangHomeTeam,
-	GL.VisitorTeam AS GameLangVisitorTeam, GL.HomeTeam AS GameLangHomeTeam,
 	@bitZero HideGame, @bitZero HideSpread, @bitZero HideTotal, @bitZero HideMoneyLine, P.PeriodDescription, 
 	G.Description as GameDescription, GL.Description as GameLangDescription, 
 	CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
-	row_number() OVER (ORDER BY G.VisitorNumber),IF(G.IdSport NOT IN ('TNT', 'PROP'),1,0)
+	row_number() OVER (ORDER BY G.VisitorNumber), 
+	CASE G.IdSport 
+		WHEN 'PROP' THEN 3
+		WHEN 'TNT'  THEN 2
+		WHEN 'MU'   THEN 1
+		ELSE 0
+    END  AS ChildOrder
 	FROM Game G WITH (NOLOCK) 
 	LEFT OUTER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	LEFT OUTER JOIN GameValues L  WITH (NOLOCK)ON G.IdGame = L.IdGame AND L.IdLineType = @prmIdLineType AND L.HideGame = 0
@@ -124,7 +136,9 @@ INSERT INTO #tblMainGames
 
 	UNION
 
-	SELECT 1, G.IdGame, G.VisitorTeam, G.HomeTeam, LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
+	SELECT 1, G.IdGame, 
+		G.VisitorTeam, G.HomeTeam, 
+		LTRIM(RTRIM(G.IdSport)) as IdSport, G.IdLeague, G.IdGameType,
 		CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)),
 		G.GameDateTime, G.VisitorNumber, G.HomeNumber, G.GameStat, G.Graded,
 		G.Hookups, G.Period, G.VisitorPitcher, G.HomePitcher, G.PitcherChanged,
@@ -134,12 +148,16 @@ INSERT INTO #tblMainGames
 		L.HomeSpread, L.HomeSpreadOdds, L.VisitorSpecial, L.VisitorSpecialOdds,
 		L.HomeSpecial, L.HomeSpecialOdds, 	
 		@bitZero BoldSpread, @bitZero BoldTotal, @bitZero BoldML, G.HasChildren, G.IdEvent,
-		null AS TeamLangVisitorTeam, null AS TeamLangHomeTeam,
-		null AS GameLangVisitorTeam, null AS GameLangHomeTeam,
 		L.HideGame, L.HideSpread, L.HideTotal, L.HideMoneyLine, P.PeriodDescription, 
 		G.Description as GameDescription, GL.Description as GameLangDescription,
 		CASE WHEN LGL.[Description] IS NULL THEN LG.[Description] ELSE LGL.[Description] END AS LeagueLangDescription, 
-		row_number() OVER (ORDER BY G.VisitorNumber),IF(G.IdSport NOT IN ('TNT', 'PROP'),1,0)
+		row_number() OVER (ORDER BY G.VisitorNumber),
+		CASE G.IdSport 
+			WHEN 'PROP' THEN 3
+			WHEN 'TNT'  THEN 2
+			WHEN 'MU'   THEN 1
+			ELSE 0
+		END  AS ChildOrder
 	FROM Game G WITH (NOLOCK) 
 	INNER JOIN Period P WITH (NOLOCK) ON G.IdSport = P.IdSport AND G.Period = P.NumberOfPeriod
 	LEFT OUTER JOIN GameLang GL WITH(NOLOCK) on G.IdGame = GL.IdGame and GL.IdLanguage = @prmIdLanguage
@@ -155,13 +173,18 @@ INSERT INTO #tblMainGames
 	  AND L.HideGame = 0
 
 	--ORDER BY CONVERT(datetime, CONVERT(varchar(11), G.GameDateTime, 106)), G.VisitorNumber
-	ORDER BY 8, 10, 2, 1
+	-- ORDER BY 8, 10, 2, 1
 
 delete from #tblMainGames
 where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)	
 	
 SELECT tbl.*
+	,(SELECT TOP 1 WRD.IdWebRow 
+		FROM WebRowDetail WRD With(NoLock)
+		JOIN WebColumnDetail WCD With(NoLock) ON WRD.IdWebRow = WCD.IdWebRow
+		JOIN Book B With(NoLock) ON WCD.IdWebColumn = B.IdWebColumn AND B.IdBook = @prmIdBook
+		WHERE tbl.IdLeague = WRD.IdLeague) AS IdWebRow
 FROM #tblMainGames AS tbl WITH(NOLOCK)
 WHERE tbl.Period = @prmPeriod or @prmPeriod = -1
-ORDER BY ParentGame, ChildOrder, IdGame, FromAgent--8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
+ORDER BY ChildOrder, ParentGame, IdGame, FromAgent--8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
 
