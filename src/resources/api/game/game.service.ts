@@ -69,8 +69,10 @@ export class GameService {
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
+    const book_id = player.IdBook;
 
     let _games = await this.getOpenGamesByGamesIds({
+      book_id,
       game_ids,
       agent_id,
       line_type_id,
@@ -99,6 +101,7 @@ export class GameService {
   }
 
   async processLeague(
+    book_id,
     league_id,
     agent_id,
     line_type_id,
@@ -109,6 +112,7 @@ export class GameService {
     try {
       const league_promises = [
         this.getOpenGamesLeague({
+          book_id,
           league_id,
           agent_id,
           line_type_id,
@@ -136,7 +140,11 @@ export class GameService {
         if (games.some((_game) => _game.IdGame === game.FamilyGame)) {
           _main = games.find((_game) => _game.IdGame === game.FamilyGame);
         } else {
-          _main = await this.getGame({ game_id: game.FamilyGame, lang_id });
+          _main = await this.getGame({
+            book_id,
+            game_id: game.FamilyGame,
+            lang_id,
+          });
         }
 
         const sport_id = game.IdSport.trim();
@@ -214,9 +222,11 @@ export class GameService {
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
+    const book_id = player.IdBook;
 
     const leaguePromises = league_ids.map((league_id) =>
       this.processLeague(
+        book_id,
         league_id,
         agent_id,
         line_type_id,
@@ -252,9 +262,11 @@ export class GameService {
     const player = await this.player.getInfo({ player_id: player_id });
     const agent_id = player.IdAgent;
     const line_type_id = player.IdLineType;
+    const book_id = player.IdBook;
 
     const _data_promises = [
       this.getOpenGamesFamily({
+        book_id,
         family_game_id,
         agent_id,
         line_type_id,
@@ -275,7 +287,7 @@ export class GameService {
         family_game_id,
         lang_id,
       }),
-      this.getGame({ game_id: family_game_id, lang_id }),
+      this.getGame({ book_id, game_id: family_game_id, lang_id }),
     ];
     const [games, optionsTNT, optionsPROPS, banners, _game_info] =
       await Promise.all(_data_promises);
@@ -315,6 +327,7 @@ export class GameService {
   }
 
   async processGroupGames(
+    book_id: number,
     games: any[],
     lang_id: string,
     timezone: string,
@@ -378,7 +391,11 @@ export class GameService {
         _games_data[date][_key_familygame] = {
           info:
             _main ||
-            (await this.getGame({ game_id: game.FamilyGame, lang_id })),
+            (await this.getGame({
+              book_id,
+              game_id: game.FamilyGame,
+              lang_id,
+            })),
           events: [_game],
         };
       } else {
@@ -431,6 +448,7 @@ export class GameService {
     }
 
     let gamesData = await this.getOpenGamesWebRowDate({
+      book_id,
       webrow_ids,
       agent_id,
       line_type_id,
@@ -453,6 +471,7 @@ export class GameService {
           webrow_id: webrow_id,
           webrow: games[0]?.RowLangDescription,
           _list: await this.processGroupGames(
+            book_id,
             games,
             lang_id,
             timezone,
@@ -462,7 +481,12 @@ export class GameService {
       });
       data = await Promise.all(promisesWebRow);
     } else {
-      data = await this.processGroupGames(gamesData, lang_id, timezone);
+      data = await this.processGroupGames(
+        book_id,
+        gamesData,
+        lang_id,
+        timezone,
+      );
     }
 
     // **SET CACHE
@@ -558,6 +582,7 @@ export class GameService {
 
   async getGame(params: any) {
     const cacheTimeSec = 30;
+    const book_id = params.book_id;
     const game_id = params.game_id;
     const lang_id = params.lang_id;
 
@@ -569,7 +594,9 @@ export class GameService {
 
     const data =
       (
-        await this.gameRepository.query(`EXEC VZ_GetGame	${game_id}, ${lang_id}`)
+        await this.gameRepository.query(
+          `EXEC VZ_GetGame ${book_id}, ${game_id}, ${lang_id}`,
+        )
       )[0] ?? '';
 
     // **SET CACHE
@@ -646,6 +673,7 @@ export class GameService {
   }
   async getOpenGamesLeague(params: any) {
     const cacheTimeSec = 3;
+    const book_id = params.book_id;
     const league_id = params.league_id;
     const agent_id = params.agent_id;
     const line_type_id = params.line_type_id;
@@ -659,7 +687,7 @@ export class GameService {
     // **CHECK CACHE
 
     const data = await this.gameRepository.query(
-      `EXEC VZ_GetOpenGamesLeague	${league_id},${agent_id},${line_type_id},${lang_id},${period}`,
+      `EXEC VZ_GetOpenGamesLeague	${book_id}, ${league_id},${agent_id},${line_type_id},${lang_id},${period}`,
     );
 
     // **SET CACHE
@@ -671,6 +699,7 @@ export class GameService {
 
   async getOpenGamesByGamesIds(params: any) {
     const cacheTimeSec = 3;
+    const book_id = params.book_id;
     const game_ids = params.game_ids;
     const agent_id = params.agent_id;
     const line_type_id = params.line_type_id;
@@ -683,7 +712,7 @@ export class GameService {
     // **CHECK CACHE
 
     const data = await this.gameRepository.query(
-      `EXEC VZ_GetOpenGamesByIdGames	'${game_ids}',${agent_id},${line_type_id},${lang_id}`,
+      `EXEC VZ_GetOpenGamesByIdGames	${book_id},'${game_ids}',${agent_id},${line_type_id},${lang_id}`,
     );
 
     // **SET CACHE
@@ -695,6 +724,7 @@ export class GameService {
 
   async getOpenGamesFamily(params: any) {
     const cacheTimeSec = 3;
+    const book_id = params.book_id;
     const family_game_id = params.family_game_id;
     const agent_id = params.agent_id;
     const line_type_id = params.line_type_id;
@@ -707,7 +737,7 @@ export class GameService {
     if (cached) return cached;
     // **CHECK CACHE
     const data = await this.gameRepository.query(
-      `EXEC VZ_GetOpenFamilyGames	${family_game_id},${agent_id},${line_type_id},${lang_id},${period}`,
+      `EXEC VZ_GetOpenFamilyGames	${book_id},${family_game_id},${agent_id},${line_type_id},${lang_id},${period}`,
     );
 
     // **SET CACHE
@@ -807,6 +837,7 @@ export class GameService {
 
   async getOpenGamesWebRowDate(params: any) {
     const cacheTimeSec = 3;
+    const book_id = params.book_id;
     const webrow_ids = params.webrow_ids;
     const agent_id = params.agent_id;
     const line_type_id = params.line_type_id;
@@ -822,7 +853,7 @@ export class GameService {
     if (cached) return cached;
     // **CHECK CACHE
     const data = await this.gameRepository.query(
-      `EXEC VZ_GetOpenGamesWebRowDate	'${webrow_ids}',${agent_id},${line_type_id},${lang_id},'${start_date}','${end_date}',${period},'${league_ids}',${limit}`,
+      `EXEC VZ_GetOpenGamesWebRowDate	${book_id},'${webrow_ids}',${agent_id},${line_type_id},${lang_id},'${start_date}','${end_date}',${period},'${league_ids}',${limit}`,
     );
 
     // **SET CACHE
