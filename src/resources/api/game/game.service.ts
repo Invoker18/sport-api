@@ -146,6 +146,7 @@ export class GameService {
             lang_id,
           });
         }
+        game.IdWebRow = game.IdWebRow ?? _main.IdWebRow;
 
         const sport_id = game.IdSport.trim();
         const game_id = game.IdGame;
@@ -303,6 +304,8 @@ export class GameService {
         (banner: any) => banner.ParentGame === game_id,
       );
 
+      game.IdWebRow = game.IdWebRow ?? _game_info.IdWebRow;
+
       switch (sport_id) {
         case 'TNT':
           game.Options = optionsTNT.filter(
@@ -387,15 +390,17 @@ export class GameService {
       }
 
       if (!_games_data[date][_key_familygame]) {
-        const _main = games.find((_game) => _game.IdGame === game.FamilyGame);
+        const _main =
+          games.find((_game) => _game.IdGame === game.FamilyGame) ||
+          (await this.getGame({
+            book_id,
+            game_id: game.FamilyGame,
+            lang_id,
+          }));
+        _game.IdWebRow = _game.IdWebRow ?? _main.IdWebRow;
+
         _games_data[date][_key_familygame] = {
-          info:
-            _main ||
-            (await this.getGame({
-              book_id,
-              game_id: game.FamilyGame,
-              lang_id,
-            })),
+          info: _main,
           events: [_game],
         };
       } else {
