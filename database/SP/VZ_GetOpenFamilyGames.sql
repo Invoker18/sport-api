@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenFamilyGames]    Script Date: 1/28/2025 12:36:18 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenFamilyGames]    Script Date: 1/29/2025 10:24:29 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -179,11 +179,11 @@ delete from #tblMainGames
 where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)	
 	
 SELECT tbl.*
-	,(SELECT TOP 1 WRD.IdWebRow 
+	/*,(SELECT TOP 1 WRD.IdWebRow 
 		FROM WebRowDetail WRD With(NoLock)
 		JOIN WebColumnDetail WCD With(NoLock) ON WRD.IdWebRow = WCD.IdWebRow
 		JOIN Book B With(NoLock) ON WCD.IdWebColumn = B.IdWebColumn AND B.IdBook = @prmIdBook
-		WHERE tbl.IdLeague = WRD.IdLeague) AS IdWebRow
+		WHERE tbl.IdLeague = WRD.IdLeague) AS IdWebRow*/
 FROM #tblMainGames AS tbl WITH(NOLOCK)
 WHERE tbl.Period = @prmPeriod or @prmPeriod = -1
 ORDER BY ChildOrder, ParentGame, IdGame, FromAgent--8, 10, 2, 1ParentGame, ParentOrder, ChildOrder
