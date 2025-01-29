@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 1/28/2025 12:36:25 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesWebRowDate]    Script Date: 1/29/2025 10:53:42 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -208,10 +208,10 @@ where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1);
 	
 
 SELECT TOP(@prmLimit) tbl.*
-	,(SELECT G.GameDateTime 
+	/*,(SELECT G.GameDateTime 
 	FROM Game G WITH (NOLOCK) 
 	WHERE G.IdGame = tbl.FamilyGame
-	) AS GameDateTimeMain
+	) AS GameDateTimeMain*/
 	,(
 	SELECT b.home_image_id
 	FROM [MOVER].[dbo].[Games] a

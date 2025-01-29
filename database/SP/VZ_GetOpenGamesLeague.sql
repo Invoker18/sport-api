@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesLeague]    Script Date: 1/28/2025 12:36:22 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesLeague]    Script Date: 1/29/2025 10:38:09 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -160,15 +160,15 @@ delete from #tblMainGames
 where IdGame in(select distinct IdGame from #tblMainGames where HideGame = 1)
 	
 SELECT tbl.*
-	,(SELECT TOP 1 WRD.IdWebRow 
+	/*,(SELECT TOP 1 WRD.IdWebRow 
 		FROM WebRowDetail WRD With(NoLock)
 		JOIN WebColumnDetail WCD With(NoLock) ON WRD.IdWebRow = WCD.IdWebRow
 		JOIN Book B With(NoLock) ON WCD.IdWebColumn = B.IdWebColumn AND B.IdBook = @prmIdBook
-		WHERE tbl.IdLeague = WRD.IdLeague) AS IdWebRow
-	,(SELECT G.GameDateTime 
+		WHERE tbl.IdLeague = WRD.IdLeague) AS IdWebRow*/
+	/*,(SELECT G.GameDateTime 
 	FROM Game G WITH (NOLOCK) 
 	WHERE G.IdGame = tbl.FamilyGame
-	) AS GameDateTimeMain
+	) AS GameDateTimeMain*/
 	,(
 	SELECT b.home_image_id
 	FROM [MOVER].[dbo].[Games] a

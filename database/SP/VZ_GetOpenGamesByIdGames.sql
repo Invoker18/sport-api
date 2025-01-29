@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesByIdGames]    Script Date: 1/28/2025 12:36:20 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetOpenGamesByIdGames]    Script Date: 1/29/2025 11:07:44 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON

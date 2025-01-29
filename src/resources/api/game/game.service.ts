@@ -142,12 +142,10 @@ export class GameService {
         } else {
           _main = await this.getGame({
             book_id,
-            game_id: game.FamilyGame,
+            game_id: game.FamilyGame ?? game.IdGame,
             lang_id,
           });
         }
-        game.IdWebRow = game.IdWebRow ?? _main.IdWebRow;
-        game.IdLeagueFamily = _main.IdLeague;
 
         const sport_id = game.IdSport.trim();
         const game_id = game.IdGame;
@@ -172,7 +170,10 @@ export class GameService {
             break;
         }
 
-        game.GameDateTimeMain = game.GameDateTimeMain ?? game.GameDateTime;
+        game.IdWebRow = _main.IdWebRow;
+        game.IdLeagueFamily = _main.IdLeague;
+        game.GameDateTimeMain = _main.GameDateTime;
+
         const _GameDateTime = new Date(game.GameDateTimeMain);
         game.GameDateTimeZone = _GameDateTime.toLocaleString('sv-SE', {
           timeZone: timezone,
@@ -305,7 +306,7 @@ export class GameService {
         (banner: any) => banner.ParentGame === game_id,
       );
 
-      game.IdWebRow = game.IdWebRow ?? _game_info.IdWebRow;
+      game.IdWebRow = _game_info.IdWebRow;
       game.IdLeagueFamily = _game_info.IdLeague;
 
       switch (sport_id) {
@@ -343,14 +344,7 @@ export class GameService {
     const glength = games.length;
     for (let g = 0; g < glength; g++) {
       let game = games[g];
-      game.GameDateTimeMain = game.GameDateTimeMain ?? game.GameDateTime;
-      const _GameDateTime = new Date(game.GameDateTimeMain);
-      game.GameDateTimeZone = _GameDateTime.toLocaleString('sv-SE', {
-        timeZone: timezone,
-      });
-      const date = _GameDateTime.toLocaleDateString('sv-SE', {
-        timeZone: timezone,
-      });
+
       const _key_familygame = '_' + game.FamilyGame;
       const league_id = game.IdLeague;
 
@@ -359,10 +353,6 @@ export class GameService {
         this.dataService.mappingGame(game),
       ];
       let [banner, _game] = await Promise.all(_data_promises);
-
-      game.banners = banner.filter(
-        (banner) => banner.ParentGame === game.IdGame,
-      );
 
       if (groupby === 'leagues') {
         _games_data = league_map.get(league_id);
@@ -387,21 +377,32 @@ export class GameService {
         }
       }
 
+      const _main =
+        games.find((_Fgame) => _Fgame.IdGame === _Fgame.FamilyGame) ||
+        (await this.getGame({
+          book_id,
+          game_id: game.FamilyGame ?? game.IdGame,
+          lang_id,
+        }));
+      _game.banners = banner.filter(
+        (banner: any) => banner.ParentGame === game.IdGame,
+      );
+      _game.IdWebRow = _main.IdWebRow;
+      _game.IdLeagueFamily = _main.IdLeague;
+      _game.GameDateTimeMain = _main.GameDateTime;
+      const _GameDateTime = new Date(game.GameDateTimeMain);
+      _game.GameDateTimeZone = _GameDateTime.toLocaleString('sv-SE', {
+        timeZone: timezone,
+      });
+      const date = _GameDateTime.toLocaleDateString('sv-SE', {
+        timeZone: timezone,
+      });
+
       if (!_games_data[date]) {
         _games_data[date] = {};
       }
 
       if (!_games_data[date][_key_familygame]) {
-        const _main =
-          games.find((_game) => _game.IdGame === game.FamilyGame) ||
-          (await this.getGame({
-            book_id,
-            game_id: game.FamilyGame,
-            lang_id,
-          }));
-        _game.IdWebRow = _game.IdWebRow ?? _main.IdWebRow;
-        _game.IdLeagueFamily = _main.IdLeague;
-
         _games_data[date][_key_familygame] = {
           info: _main,
           events: [_game],
