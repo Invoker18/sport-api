@@ -393,12 +393,12 @@ export class GameService {
 
       const _info_main = _main[_key_familygame];
 
-      _game.banners = banner.filter((b) => b.ParentGame === game.IdGame);
-      _game.IdWebRow = _info_main.IdWebRow;
-      _game.IdLeagueFamily = _info_main.IdLeague;
-      _game.GameDateTimeMain = _info_main.GameDateTime;
-      const _GameDateTime = new Date(_game.GameDateTimeMain);
-      _game.GameDateTimeZone = _GameDateTime.toLocaleString('sv-SE', {
+      _game.info.banners = banner.filter((b) => b.ParentGame === game.IdGame);
+      _game.info.IdWebRow = _info_main.IdWebRow;
+      _game.info.IdLeagueFamily = _info_main.IdLeague;
+      _game.info.GameDateTimeMain = _info_main.GameDateTime;
+      const _GameDateTime = new Date(_game.info.GameDateTimeMain);
+      _game.info.GameDateTimeZone = _GameDateTime.toLocaleString('sv-SE', {
         timeZone: timezone,
       });
       const date = _GameDateTime.toLocaleDateString('sv-SE', {
