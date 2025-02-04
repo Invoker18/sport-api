@@ -393,6 +393,7 @@ export class GameService {
 
       const _info_main = _main[_key_familygame];
 
+      _game.banners = banner.filter((b) => b.ParentGame === _game.IdGame);
       _game.IdWebRow = _info_main.IdWebRow;
       _game.IdLeagueFamily = _info_main.IdLeague;
       _game.GameDateTimeMain = _info_main.GameDateTime;
