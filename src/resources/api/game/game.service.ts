@@ -483,16 +483,25 @@ export class GameService {
           (_game: any) => _game.IdWebRow === Number(webrow_id),
         );
 
+        let _list_dat = await this.processGroupGames(
+          book_id,
+          games,
+          lang_id,
+          timezone,
+          group_by,
+        );
+
+        if (group_by === 'leagues' && league_ids != -1) {
+          const sw_idx = Object.fromEntries(league_ids.map((x, i) => [x, i]));
+          _list_dat.sort(
+            (a, b) => sw_idx[a.league.IdLeague] - sw_idx[b.league.IdLeague],
+          );
+        }
+
         return {
           webrow_id: webrow_id,
           webrow: games[0]?.RowLangDescription,
-          _list: await this.processGroupGames(
-            book_id,
-            games,
-            lang_id,
-            timezone,
-            group_by,
-          ),
+          _list: _list_dat,
         };
       });
       data = await Promise.all(promisesWebRow);
