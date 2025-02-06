@@ -338,9 +338,10 @@ export class GameService {
     games: any[],
     lang_id: string,
     timezone: string,
-    groupby = '',
+    group_by: string,
   ): Promise<any> {
     let _games_data = {};
+    let _games_arry = [];
     const league_map = new Map();
     const glength = games.length;
     const _main = {};
@@ -355,7 +356,7 @@ export class GameService {
       ];
       let [banner, _game] = await Promise.all(_data_promises);
 
-      if (groupby === 'leagues') {
+      if (group_by === 'leagues') {
         _games_data = league_map.get(league_id);
 
         if (!_games_data) {
@@ -405,25 +406,34 @@ export class GameService {
         timeZone: timezone,
       });
 
-      if (!_games_data[date]) {
-        _games_data[date] = {};
-      }
+      if (group_by !== 'none') {
+        if (!_games_data[date]) {
+          _games_data[date] = {};
+        }
 
-      if (!_games_data[date][_key_familygame]) {
-        _games_data[date][_key_familygame] = {
-          info: _info_main,
-          events: [_game],
-        };
+        if (!_games_data[date][_key_familygame]) {
+          _games_data[date][_key_familygame] = {
+            info: _info_main,
+            events: [_game],
+          };
+        } else {
+          _games_data[date][_key_familygame].events.push(_game);
+        }
       } else {
-        _games_data[date][_key_familygame].events.push(_game);
+        _games_arry.push(_game);
       }
     }
 
-    return groupby === 'leagues'
-      ? league_map.size
-        ? Object.values(Object.fromEntries(league_map.entries()))
-        : []
-      : _games_data;
+    switch (group_by) {
+      case 'leagues':
+        return league_map.size
+          ? Object.values(Object.fromEntries(league_map.entries()))
+          : [];
+      case 'none':
+        return _games_arry;
+      default:
+        return _games_data;
+    }
   }
 
   async getGamesByWebRow(params: any) {
@@ -477,7 +487,7 @@ export class GameService {
     });
 
     let data: any;
-    if (group_by != 'none') {
+    if (group_by !== 'none') {
       const promisesWebRow = webrow_ids.map(async (webrow_id: number) => {
         let games = gamesData.filter(
           (_game: any) => _game.IdWebRow === Number(webrow_id),
@@ -511,6 +521,7 @@ export class GameService {
         gamesData,
         lang_id,
         timezone,
+        group_by,
       );
     }
 
