@@ -24,7 +24,9 @@ export class ApiKeyGuard implements CanActivate {
       throw new UnauthorizedException('API Key no proporcionada');
     }
 
-    const validApiKey = this.apiKeys.find((key) => key.key === apiKey) as ApiKey;
+    const validApiKey = this.apiKeys.find(
+      (key) => key.key === apiKey,
+    ) as ApiKey;
 
     if (!validApiKey) {
       throw new UnauthorizedException('API Key inválida');
