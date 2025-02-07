@@ -1,6 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GameService } from './game.service';
 import { LeagueService } from '../league/league.service';
 import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
@@ -11,7 +10,6 @@ import { GetGamesByGameIdsQuery } from './dto/get-game-by-gameids.dto';
 import { GetActiveWebRowByDateQuery } from './dto/get-active-webRrow_by_date.dto';
 
 @Controller('game')
-@ApiKeyAuth()
 @ApiTags('API Game')
 export class GameController {
   constructor(

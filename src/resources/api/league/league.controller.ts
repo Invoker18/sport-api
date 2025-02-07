@@ -1,10 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GetActiveLeaguesQuery } from './dto/get-leagues.dto';
 import { LeagueService } from './league.service';
 @Controller('league')
-@ApiKeyAuth()
 @ApiTags('API League')
 export class LeagueController {
   constructor(private readonly leagueService: LeagueService) {}
