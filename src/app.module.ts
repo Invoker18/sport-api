@@ -8,8 +8,6 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { Redis } from './config/config-redis';
 import { WebSocketModule } from './websockets/websocket.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { KafkaModule } from './microservices/kafka/kafka.module';
 import { OddsConsumer } from './odds.consumer';
 import { TransformInterceptor } from './interceptor/transform.interceptor';
@@ -29,10 +27,8 @@ import { TransformInterceptor } from './interceptor/transform.interceptor';
       },
     ]),
   ],
-  // controllers: [AppController],
   providers: [
     ConfigModule,
-    // AppService,
     // OddsConsumer,
     {
       provide: APP_GUARD,

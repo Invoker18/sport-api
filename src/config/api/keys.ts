@@ -1,4 +1,6 @@
-  export const apiKeys = () => {
+import { ApiKey } from "src/auth/interfaces/api-key.interface";
+
+export const apiKeys = (): ApiKey[]  => {
   return [
     {
       name: 'api 01',
