@@ -2,7 +2,6 @@ import { Controller, Get, Header, Query } from '@nestjs/common';
 import { WagerService } from './wager.service';
 // import { BookIdValidatorPipe } from './pipes/book-id-validator.pipe'
 import { ApiTags } from '@nestjs/swagger';
-import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { GetActiveLeaguesQuery } from './dto/get-leagues.dto';
 import { GetGamesByLeaguesQuery } from './dto/get-game-by-leagues.dto';
 import { WagerQuery } from './dto/wager-query.dto';
@@ -11,7 +10,6 @@ import { FillOpenWagerQuery } from './dto/fillopen-wager-query.dto';
 import { FillOpenQuery } from './dto/fillopen-query.dto';
 
 @Controller('proxy/wager')
-@ApiKeyAuth()
 @ApiTags('proxyWager')
 export class WagerController {
   constructor(private readonly wagerService: WagerService) {}

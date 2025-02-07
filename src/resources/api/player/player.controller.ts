@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiKeyAuth } from '../../../decorator/auth.decorator';
 import { IdPlayerParam } from './dto/get_player.dto';
 import { PlayerService } from './player.service';
 import { LoginParams } from './dto/login.dto';
@@ -8,7 +7,6 @@ import { DateRangeParam } from './dto/daterange.dto';
 import { UpdatePlayerInfo } from './dto/update_player_info.dto';
 
 @Controller('player')
-@ApiKeyAuth()
 @ApiTags('API Player')
 export class PlayerController {
   constructor(private readonly playerService: PlayerService) {}
