@@ -336,8 +336,10 @@ export class WagerService {
 
       if (line.Odds !== odds || line.Points !== point) {
         lines.push({
-          game_id: game_id,
-          play: play,
+          game_id,
+          play,
+          odds: line.Odds,
+          point: line.Points,
         });
       }
     }
