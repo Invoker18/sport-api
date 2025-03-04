@@ -50,14 +50,14 @@ export class TransformInterceptor<T>
         };
 
         // Agregamos la info de la API Key si existe
-        if (apiKey) {
-          response.apiKeyInfo = {
-            name: apiKey.name,
-            key: apiKey.key,
-            expiresAt: new Date(apiKey.expires_at * 1000), // Convertir a milisegundos
-            allowedIps: apiKey.ips,
-          };
-        }
+        // if (apiKey) {
+        //   response.apiKeyInfo = {
+        //     name: apiKey.name,
+        //     key: apiKey.key,
+        //     expiresAt: new Date(apiKey.expires_at * 1000), // Convertir a milisegundos
+        //     allowedIps: apiKey.ips,
+        //   };
+        // }
 
         return response;
       }),
