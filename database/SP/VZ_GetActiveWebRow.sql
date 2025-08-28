@@ -43,7 +43,7 @@ BEGIN
 		JOIN WebColumnDetail WCD With(NoLock) ON WC.IdWebColumn = WCD.IdWebColumn
 		JOIN WebRow WR With(NoLock) ON WR.IdWebRow = WCD.IdWebRow
 		JOIN WebRowDetail WRD With(NoLock) ON WRD.IdWebRow = WR.IdWebRow
-		WHERE (WRD.IdLeague IN (SELECT * FROM dbo.fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')
+		WHERE (WRD.IdLeague IN (SELECT * FROM dbo.VZ_fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')
 		GROUP BY WRD.IdLeague, WCD.ColumnOrder, WRD.RowOrder, WR.[Description],  WR.IdWebRow
 		ORDER BY WCD.ColumnOrder, WRD.RowOrder
 

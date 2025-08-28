@@ -1,11 +1,11 @@
 USE [DGSDATA]
 GO
-/****** Object:  UserDefinedFunction [dbo].[fnStringifyLines]    Script Date: 6/5/2024 14:31:23 ******/
+/****** Object:  UserDefinedFunction [dbo].[VZ_fnSplitString]    Script Date: 8/28/2025 2:45:08 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE FUNCTION dbo.fnSplitString ( @stringToSplit VARCHAR(MAX) )
+CREATE FUNCTION [dbo].[VZ_fnSplitString] ( @stringToSplit NVARCHAR(MAX))
 RETURNS
 @returnList TABLE ([Name] [nvarchar] (500))
 AS
