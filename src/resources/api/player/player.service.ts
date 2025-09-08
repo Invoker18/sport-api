@@ -186,6 +186,38 @@ export class PlayerService {
   }
 
   /**
+    EXEC [VZ_GetPlayersWithAgentHierarchy]
+    @prmIdPlayer int
+  */
+  async getAgentHierarchy(params: any, with_cache: any = true) {
+    const cacheTimeSec = 2;
+    const player_id = params.player_id;
+    // **CHECK CACHE
+    const key = `get_players_with_agent_hierarchy_${player_id}`;
+    const cached = await this.cacheService.get(key);
+    if (cached && with_cache) return cached;
+    // **CHECK CACHE
+
+    const data = (
+      await this.playerRepository.query(
+        `EXEC VZ_GetPlayersWithAgentHierarchy ${player_id}`,
+      )
+    )[0];
+
+    if (!data) {
+      throw new NotFoundException(`IdPlayer ${player_id}. Not found`, {
+        cause: new Error(),
+        description: 'IDPLYNOFOUND',
+      });
+    }
+    // **SET CACHE
+    await this.cacheService.set(key, data, cacheTimeSec * 1000);
+    // **SET CACHE
+
+    return data;
+  }
+
+  /**
     EXEC [WebGetPlayerHistoryWagers]
     @prmIdPlayer int
     @prmStartDate datetime
