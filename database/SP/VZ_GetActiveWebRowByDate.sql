@@ -1,6 +1,6 @@
 USE [DGSDATA]
 GO
-/****** Object:  StoredProcedure [dbo].[VZ_GetActiveWebRowByDate]    Script Date: 11/7/2024 10:08:33 ******/
+/****** Object:  StoredProcedure [dbo].[VZ_GetActiveWebRowByDate]    Script Date: 8/18/2025 1:00:07 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -26,45 +26,32 @@ BEGIN
 
 	CREATE TABLE #TempLeague 
 		(
-			IDLeagueRegion smallint, 
 			IdLeague smallint, 
 			IdWebRow int, 
 			ColumnOrder int, 
 			RowOrder int, 
-			LeagueOrder smallint, 
-			RegionOrder smallint,
-			RowDescription varchar (50), 
-			IdSport varchar(5), 
-			LeagueDescription varchar(50), 
-			RegionDescription varchar(50)
+			RowDescription varchar (50)
 		)
 
 	INSERT INTO #TempLeague
-	(IDLeagueRegion, IdLeague, IdWebRow, ColumnOrder, RowOrder, LeagueOrder, RegionOrder, RowDescription, IdSport, LeagueDescription, RegionDescription)
-		SELECT 	LR.IDLeagueRegion, 
-				L.IdLeague, 
+	(IdLeague, IdWebRow, ColumnOrder, RowOrder, RowDescription)
+		SELECT 	WRD.IdLeague,
 				WR.IdWebRow, 
 				WCD.ColumnOrder, 
 				WRD.RowOrder, 
-				L.LeagueOrder, 
-				LR.RegionOrder, 
-				WR.Description, 
-				LTRIM(RTRIM(L.IdSport)) as IdSport,
-				L.[Description], 
-				LR.[Description] as RegionDescription
+				WR.Description
 		FROM Book B With(NoLock)
 		JOIN WebColumn WC With(NoLock) ON B.IdWebColumn = WC.IdWebColumn AND B.IdBook = @prmIdBook
 		JOIN WebColumnDetail WCD With(NoLock) ON WC.IdWebColumn = WCD.IdWebColumn
 		JOIN WebRow WR With(NoLock) ON WR.IdWebRow = WCD.IdWebRow
 		JOIN WebRowDetail WRD With(NoLock) ON WRD.IdWebRow = WR.IdWebRow
-		JOIN League L With(NoLock) ON L.IdLeague = WRD.IdLeague	
-		JOIN LeagueRegion LR With(NoLock) ON L.IDLeagueRegion = LR.IDLeagueRegion
-		WHERE (L.IdLeague IN (SELECT * FROM dbo.fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')
-		GROUP BY L.IdLeague, L.LeagueOrder,  WCD.ColumnOrder, WRD.RowOrder, LR.RegionOrder, WR.[Description],  LR.[Description], L.IdSport, L.[Description], WR.IdWebRow, LR.IDLeagueRegion
-		ORDER BY WCD.ColumnOrder, WRD.RowOrder, LR.RegionOrder, L.LeagueOrder
+		WHERE ((WRD.IdLeague IN (SELECT * FROM dbo.VZ_fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1'))
+		GROUP BY WRD.IdLeague, WCD.ColumnOrder, WRD.RowOrder, WR.[Description],  WR.IdWebRow
+		ORDER BY WCD.ColumnOrder, WRD.RowOrder
 
 	SELECT  LG.IdWebRow, 
 			CASE WHEN LG.RowDescriptionLang IS NULL THEN LG.RowDescription ELSE LG.RowDescriptionLang END AS RowDescription,
+			MIN(LG.ColumnOrder) AS RowOrder,
 			MIN(LG.RowOrder) AS RowOrder,
 			SUM(LG.Games) AS GameCount,
 			SUM(LG.Leagues) AS LeagueCount 
@@ -72,6 +59,7 @@ BEGIN
 		SELECT  L.IdWebRow,
 		        L.RowDescription,
 				WL.Description AS RowDescriptionLang,
+				L.ColumnOrder,
 				L.RowOrder, 
 				COUNT(distinct G.FamilyGame) Games,
 				COUNT(distinct G.IdLeague) Leagues
@@ -79,8 +67,6 @@ BEGIN
 		JOIN GameValues GV With(NoLock) ON G.IdGame = GV.IdGame AND GV.IdLineType = @prmIdLineType
 		JOIN #TempLeague L With(NoLock) ON G.IdLeague = L.IdLeague
 		LEFT JOIN WebRowLang WL with(nolock) ON L.IdWebRow=WL.IdWebRow AND WL.IdLanguage=@prmIdLanguage
-		LEFT JOIN LeagueLang LL with(nolock) ON L.IdLeague=LL.IdLeague AND LL.IdLanguage=@prmIdLanguage
-		LEFT JOIN LeagueRegionLang LRL with(nolock) ON L.IDLeagueRegion=LRL.IDLeagueRegion AND LRL.IdLanguage=@prmIdLanguage
 		WHERE G.Online = 1 
 		AND G.GameStat = 'O'
 		AND G.GameDateTime > GETDATE()
@@ -89,6 +75,7 @@ BEGIN
 		AND G.IdEvent IS NULL
 		GROUP BY L.RowDescription,
 				WL.Description,
+				L.ColumnOrder, 
 				L.RowOrder, 
 				L.IdWebRow
 			
@@ -97,6 +84,7 @@ BEGIN
 		SELECT  L.IdWebRow, 
 				L.RowDescription,
 				WL.Description AS RowDescriptionLang,
+				L.ColumnOrder,
 				L.RowOrder, 
 				COUNT(distinct G.FamilyGame) Games,
 				COUNT(distinct G.IdLeague) Leagues
@@ -104,8 +92,6 @@ BEGIN
 		JOIN GameTNTPropAction P With(NoLock) ON G.IdGame = P.IdGame AND P.IdLineType = @prmIdLineType 
 		JOIN #TempLeague L With(NoLock) ON G.IdLeague = L.IdLeague
 		LEFT JOIN WebRowLang WL with(nolock) ON L.IdWebRow=WL.IdWebRow AND WL.IdLanguage=@prmIdLanguage
-		LEFT JOIN LeagueLang LL with(nolock) ON L.IdLeague=LL.IdLeague AND LL.IdLanguage=@prmIdLanguage
-		LEFT JOIN LeagueRegionLang LRL with(nolock) ON L.IDLeagueRegion=LRL.IDLeagueRegion AND LRL.IdLanguage=@prmIdLanguage
 		WHERE G.Online = 1 
 		AND G.GameStat = 'O'
 		AND G.GameDateTime > GETDATE()
@@ -113,7 +99,8 @@ BEGIN
 	    AND CAST(G.GameDateTime AS DATE) <= @prmEndDate
 		AND G.IdEvent IS NULL
 		GROUP BY L.RowDescription,
-				WL.Description ,
+				WL.Description,
+				L.ColumnOrder, 
 				L.RowOrder, 
 				L.IdWebRow
 
@@ -122,6 +109,6 @@ BEGIN
 			LG.IdWebRow, 
 			LG.RowDescription,
 			LG.RowDescriptionLang
-	ORDER BY 3
+	 ORDER BY 3
 
 END

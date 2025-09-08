@@ -26,6 +26,11 @@ export class PlayerController {
     return await this.playerService.getInfo(params);
   }
 
+  @Get(':player_id/agent_hierarchy')
+  async getAgentHierarchy(@Param() params: IdPlayerParam): Promise<string> {
+    return await this.playerService.getAgentHierarchy(params);
+  }
+
   @Get(':player_id/history/wagers')
   async getHistoryWagers(
     @Param() params: IdPlayerParam,

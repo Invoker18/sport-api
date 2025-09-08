@@ -121,7 +121,7 @@ INSERT INTO #tblMainGames
 	WHERE G.GameStat = 'O'
 	  AND G.Graded = 0
 	  AND G.Online = 1
-	  AND G.IdGame IN (SELECT * FROM dbo.fnSplitString(@prmIdGames))
+	  AND G.IdGame IN (SELECT * FROM dbo.VZ_fnSplitString(@prmIdGames))
 	  AND G.GameDateTime > GETDATE()
 
 	UNION
@@ -150,7 +150,7 @@ INSERT INTO #tblMainGames
 	WHERE G.GameStat = 'O'
 	  AND G.Graded = 0
 	  AND G.Online = 1
-	  AND G.IdGame IN (SELECT * FROM dbo.fnSplitString(@prmIdGames))
+	  AND G.IdGame IN (SELECT * FROM dbo.VZ_fnSplitString(@prmIdGames))
 	  AND G.GameDateTime > GETDATE()  
 	  AND L.HideGame = 0
 

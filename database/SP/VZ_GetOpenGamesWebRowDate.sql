@@ -246,6 +246,6 @@ SELECT TOP(@prmLimit) tbl.*
 	)) count_games
 FROM #tblMainGames AS tbl WITH(NOLOCK)
 WHERE (tbl.Period = @prmPeriod or @prmPeriod = -1) 
-AND (tbl.IdLeague IN (SELECT * FROM dbo.fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')
-AND (tbl.IdWebRow IN (SELECT * FROM dbo.fnSplitString(@prmIdWebRow)) OR @prmIdWebRow = '-1')
+AND (tbl.IdLeague IN (SELECT * FROM dbo.VZ_fnSplitString(@prmIdLeague)) OR @prmIdLeague = '-1')
+AND (tbl.IdWebRow IN (SELECT * FROM dbo.VZ_fnSplitString(@prmIdWebRow)) OR @prmIdWebRow = '-1')
 ORDER BY GameDateTime, ParentGame, ChildOrder, IdGame, FromAgent --8, 10, 2, 1ParentGame, ParentOrder, ChildOrder

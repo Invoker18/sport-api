@@ -53,9 +53,12 @@ export function XMLToJson(value: string): string {
     ignoreAttributes: false,
     attributeNamePrefix: '',
     attributesGroupName: '',
+    // isArray: (name, jpath, isLeafNode, isAttribute) => {
+    //   if (name === 'wager') return true;
+    // },
   });
   const xmlParsed = parser.parse(value);
   return xmlParsed.string
-    ? parser.parse(xmlParsed.string['#text'])['xml'] ?? ''
+    ? (parser.parse(xmlParsed.string['#text'])['xml'] ?? '')
     : xmlParsed;
 }
